@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comedor Escolar · CEIP Plurilingüe de Monforte de Lemos</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/*
+  PALETA XUNTA DE GALICIA — Manual de Identidade Corporativa (Xullo 2021)
+  ─────────────────────────────────────────────────────────────────────────
+  Azul principal:  #007bc4  (CMYK 100 35 0 0 · Pantone 7461C · RGB 0,123,196)
+  Azul escuro:     #002b4a  (CMYK 100 80 45 45 · Pantone 7463C · RGB 0,43,74)
+  Azul 50%:        #80bde2
+  Azul 25%:        #bfdef0
+  Azul 10%:        #e5f2f9
+  Branco:          #ffffff
+  Negro texto:     #1a1a1a
+  ─────────────────────────────────────────────────────────────────────────
+  Logo CEIP Monforte: vermello #C0392B · verde salvia #8BAF8E ·
+                      azul gris #4A5E7A · gris azulado #6B7FA8
+*/
+:root {
+  --xunta-azul:      #007bc4;
+  --xunta-azul-esc:  #002b4a;
+  --xunta-azul-50:   #80bde2;
+  --xunta-azul-25:   #bfdef0;
+  --xunta-azul-10:   #e5f2f9;
+  --xunta-azul-5:    #f2f8fd;
+  --branco:          #ffffff;
+  --negro:           #1a1a1a;
+  --gris-texto:      #3d3d3d;
+  --gris-medio:      #6b7280;
+  --gris-borde:      #d1e8f5;
+  --fondo:           #f5f8fb;
+  /* Logo CEIP */
+  --ceip-vermello:   #c0392b;
+  --ceip-verde:      #7a9e7e;
+  --ceip-azul-gris:  #4a5e7a;
+  --sombra:          rgba(0,43,74,0.10);
+  --sombra-med:      rgba(0,43,74,0.18);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Fira Sans', 'Arial', sans-serif;
+  background: var(--fondo);
+  color: var(--negro);
+  min-height: 100vh;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════
+   HEADER — estructura inspirada en web Xunta
+   Banda institucional + bloque identidade
+   ═══════════════════════════════════════════ */
+.banda-inst {
+  background: var(--xunta-azul-esc);
+  color: rgba(255,255,255,0.75);
+  font-size: 0.72rem;
+  padding: 6px 0;
+  letter-spacing: 0.3px;
+}
+.banda-inst .inner {
+  max-width: 1200px; margin: 0 auto; padding: 0 20px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.banda-xunta {
+  display: flex; align-items: center; gap: 9px; color: white; font-weight: 600; font-size: 0.75rem;
+}
+.escudo-xunta {
+  width: 28px; height: 28px; background: var(--xunta-azul); border-radius: 4px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+/* SVG escudo simplificado Xunta */
+.banda-xunta-txt { line-height: 1.15; }
+.banda-xunta-txt span { display: block; }
+.banda-xunta-txt .t1 { font-weight: 800; font-size: 0.82rem; letter-spacing: 0.5px; }
+.banda-xunta-txt .t2 { font-weight: 400; font-size: 0.68rem; opacity: 0.8; }
+.banda-contact { font-size: 0.68rem; opacity: 0.65; }
+
+header {
+  background: var(--branco);
+  border-bottom: 3px solid var(--xunta-azul);
+  box-shadow: 0 1px 8px var(--sombra);
+}
+.header-inner {
+  max-width: 1200px; margin: 0 auto; padding: 16px 20px;
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+}
+
+/* LOGO CEIP — reconstrucción vectorial del símbolo geométrico */
+.ceip-logo {
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 14px;
+}
+.ceip-logo-svg { width: 110px; height: 52px; }
+.ceip-logo-text {}
+.ceip-logo-text .nombre {
+  font-size: clamp(0.95rem, 2.5vw, 1.25rem);
+  font-weight: 800;
+  color: var(--xunta-azul-esc);
+  line-height: 1.1;
+  letter-spacing: -0.2px;
+}
+.ceip-logo-text .subtitulo {
+  font-size: 0.72rem;
+  color: var(--gris-medio);
+  font-weight: 400;
+  margin-top: 3px;
+}
+
+.header-right {
+  margin-left: auto;
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+}
+.badge {
+  padding: 6px 14px; border-radius: 4px;
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+.badge-azul   { background: var(--xunta-azul); color: white; }
+.badge-esc    { background: var(--xunta-azul-esc); color: white; }
+.badge-borde  { background: transparent; color: var(--xunta-azul); border: 1.5px solid var(--xunta-azul); }
+
+/* ═════════════════════════════════
+   BANDA DECRETO
+   ═════════════════════════════════ */
+.decreto-banner {
+  background: var(--xunta-azul-10);
+  border-bottom: 1px solid var(--xunta-azul-25);
+}
+.decreto-banner .inner {
+  max-width: 1200px; margin: 0 auto; padding: 9px 20px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  font-size: 0.8rem; color: var(--gris-texto);
+}
+.decreto-pill {
+  background: var(--xunta-azul); color: white;
+  padding: 2px 9px; border-radius: 2px;
+  font-size: 0.68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+}
+
+/* ═════════════════════════════════
+   NAV MESES — barra azul Xunta
+   ═════════════════════════════════ */
+nav.meses {
+  background: var(--xunta-azul);
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 10px var(--sombra-med);
+}
+.nav-inner {
+  max-width: 1200px; margin: 0 auto; padding: 0 12px;
+  display: flex; overflow-x: auto; gap: 0;
+  scrollbar-width: none;
+}
+.nav-inner::-webkit-scrollbar { display: none; }
+.mes-btn {
+  padding: 12px 15px; border: none; background: transparent; cursor: pointer;
+  font-family: 'Fira Sans', sans-serif;
+  font-size: 0.78rem; font-weight: 600;
+  color: rgba(255,255,255,0.65);
+  white-space: nowrap; position: relative;
+  transition: color 0.2s, background 0.2s;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.mes-btn::after {
+  content: ''; position: absolute; bottom: 0; left: 50%; right: 50%;
+  height: 3px; background: white;
+  transition: left 0.2s, right 0.2s;
+}
+.mes-btn:hover { color: white; background: rgba(255,255,255,0.1); }
+.mes-btn.activo { color: white; }
+.mes-btn.activo::after { left: 4px; right: 4px; }
+
+/* ═════════════════════════════════
+   MAIN
+   ═════════════════════════════════ */
+main { max-width: 1200px; margin: 0 auto; padding: 24px 14px 60px; }
+
+/* LEYENDA */
+.legend-bar {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-bottom: 18px; padding: 10px 16px;
+  background: var(--branco);
+  border: 1px solid var(--gris-borde);
+  border-radius: 4px;
+  box-shadow: 0 1px 4px var(--sombra);
+}
+.leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--gris-medio); }
+.leg-dot  { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.leg-sep  { width: 1px; height: 16px; background: var(--gris-borde); margin: 0 4px; }
+
+/* ═════════════════════════════════
+   CABECERA MES
+   ═════════════════════════════════ */
+.mes-section { display: none; }
+.mes-section.visible { display: block; }
+.mes-header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 16px; flex-wrap: wrap;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--xunta-azul);
+}
+.mes-header h2 {
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+  font-weight: 800; color: var(--xunta-azul-esc); line-height: 1;
+}
+.mes-header .curso {
+  font-size: 0.75rem; color: var(--branco);
+  background: var(--xunta-azul);
+  padding: 3px 12px; border-radius: 2px; font-weight: 600;
+}
+
+/* ═════════════════════════════════
+   CALENDARIO
+   ═════════════════════════════════ */
+.calendario {
+  background: var(--branco);
+  border: 1px solid var(--gris-borde);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 16px var(--sombra);
+}
+.cal-header {
+  display: grid; grid-template-columns: repeat(5,1fr);
+  background: var(--xunta-azul-esc);
+}
+.cal-dia-nome {
+  text-align: center; padding: 11px 5px;
+  font-size: 0.72rem; font-weight: 700; color: white;
+  text-transform: uppercase; letter-spacing: 0.8px;
+}
+.semana {
+  display: grid; grid-template-columns: repeat(5,1fr);
+  border-bottom: 1px solid var(--xunta-azul-10);
+}
+.semana:last-child { border-bottom: none; }
+.dia {
+  padding: 9px 8px; border-right: 1px solid var(--xunta-azul-10);
+  min-height: 118px; cursor: pointer; transition: background 0.15s;
+}
+.dia:last-child { border-right: none; }
+.dia:hover { background: var(--xunta-azul-5); }
+.dia.vacio { background: #fafafa; cursor: default; }
+.dia.festivo { background: #fff8f5; cursor: default; }
+.dia.nadal-vac { background: var(--xunta-azul-5); cursor: default; }
+
+.dia-num {
+  font-size: 1.05rem; font-weight: 700;
+  color: var(--xunta-azul); margin-bottom: 6px; line-height: 1;
+}
+.dia.festivo .dia-num, .dia.nadal-vac .dia-num { color: var(--gris-medio); }
+.festivo-label {
+  font-size: 0.65rem; font-weight: 600; color: var(--gris-medio);
+  text-transform: uppercase; letter-spacing: 0.3px; margin-top: 3px;
+}
+.platos { display: flex; flex-direction: column; gap: 3px; }
+.prato {
+  font-size: 0.7rem; line-height: 1.3;
+  padding: 3px 6px; border-radius: 2px;
+  font-weight: 500; cursor: pointer; transition: opacity 0.15s;
+}
+.prato:hover { opacity: 0.75; }
+/* Colores platos: azul Xunta en distintas intensidades */
+.pri { background: var(--xunta-azul-10); color: var(--xunta-azul-esc); }
+.seg { background: var(--xunta-azul-25); color: var(--xunta-azul-esc); }
+.pos { background: var(--xunta-azul-5);  color: var(--xunta-azul); border: 1px solid var(--xunta-azul-25); }
+.adots { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 2px; }
+.adot  { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+/* NOTA */
+.nota {
+  background: var(--xunta-azul-10);
+  border-left: 3px solid var(--xunta-azul);
+  padding: 9px 14px; font-size: 0.78rem;
+  color: var(--xunta-azul-esc); margin-top: 14px;
+}
+
+/* ═════════════════════════════════
+   MODAL
+   ═════════════════════════════════ */
+.modal-overlay {
+  display: none; position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,43,74,0.55);
+  z-index: 1000; align-items: center; justify-content: center; padding: 16px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--branco);
+  border-radius: 4px;
+  max-width: 640px; width: 100%; max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,43,74,0.35);
+}
+.modal-head {
+  padding: 15px 20px;
+  background: var(--xunta-azul);
+  color: white;
+  display: flex; justify-content: space-between; align-items: center;
+  position: sticky; top: 0; z-index: 1;
+}
+.modal-head-title { font-size: 1rem; font-weight: 700; letter-spacing: -0.1px; }
+.modal-head-sub   { font-size: 0.72rem; opacity: 0.8; margin-top: 2px; }
+.modal-close {
+  background: rgba(255,255,255,0.18); border: none; color: white;
+  font-size: 20px; width: 32px; height: 32px; border-radius: 2px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s; flex-shrink: 0;
+}
+.modal-close:hover { background: rgba(255,255,255,0.32); }
+.modal-body { padding: 20px; }
+
+.modal-sec-title {
+  font-size: 0.68rem; font-weight: 700; color: var(--xunta-azul);
+  text-transform: uppercase; letter-spacing: 0.8px;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1.5px solid var(--xunta-azul-10);
+}
+.alx-rows { display: flex; flex-direction: column; gap: 0; }
+.alx-row {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 9px 0; border-bottom: 1px solid var(--xunta-azul-5);
+}
+.alx-row:last-child { border-bottom: none; }
+.prato-name { font-size: 0.82rem; color: var(--negro); flex: 1; line-height: 1.4; }
+.tbadge { font-size: 0.6rem; padding: 1px 5px; border-radius: 2px; margin-right: 4px; font-weight: 700; vertical-align: middle; }
+.tb-pri { background: var(--xunta-azul-10); color: var(--xunta-azul-esc); }
+.tb-seg { background: var(--xunta-azul-25); color: var(--xunta-azul-esc); }
+.tb-pos { background: var(--xunta-azul-5);  color: var(--xunta-azul); border: 1px solid var(--xunta-azul-25); }
+.alx-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.atag {
+  font-size: 0.68rem; padding: 2px 8px; border-radius: 2px;
+  white-space: nowrap; font-weight: 600;
+}
+.atag-none {
+  font-size: 0.68rem; padding: 2px 8px; border-radius: 2px;
+  color: var(--gris-medio); background: var(--fondo);
+  border: 1px solid var(--gris-borde);
+}
+.divider { height: 1px; background: var(--xunta-azul-10); margin: 16px 0; }
+.cena-cards {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 10px;
+}
+.cena-card {
+  background: var(--xunta-azul-5);
+  border: 1px solid var(--xunta-azul-25);
+  border-radius: 4px; padding: 12px;
+}
+.cc-label {
+  font-size: 0.65rem; font-weight: 700; color: var(--xunta-azul);
+  text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 5px;
+}
+.cc-val { font-size: 0.78rem; color: var(--negro); line-height: 1.45; }
+.cena-note {
+  margin-top: 12px; font-size: 0.78rem; color: var(--gris-texto); line-height: 1.6;
+  padding: 10px 14px;
+  background: var(--xunta-azul-10);
+  border-left: 3px solid var(--xunta-azul);
+  border-radius: 0 4px 4px 0;
+}
+
+/* ═════════════════════════════════
+   NORMAS RD
+   ═════════════════════════════════ */
+.normas-wrap { padding-bottom: 60px; }
+.normas-header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 20px; padding-bottom: 14px;
+  border-bottom: 2px solid var(--xunta-azul);
+}
+.normas-header h2 {
+  font-size: clamp(1.4rem,4vw,2rem); font-weight: 800;
+  color: var(--xunta-azul-esc);
+}
+.decreto-panel {
+  background: var(--branco);
+  border: 1px solid var(--gris-borde);
+  border-left: 4px solid var(--xunta-azul);
+  border-radius: 4px; padding: 22px 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 6px var(--sombra);
+}
+.decreto-panel h3 {
+  font-size: 0.9rem; font-weight: 700; color: var(--xunta-azul);
+  margin-bottom: 14px; letter-spacing: -0.1px;
+}
+.normas-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); gap: 8px;
+}
+.norma {
+  background: var(--xunta-azul-5);
+  border: 1px solid var(--xunta-azul-10);
+  border-radius: 3px; padding: 11px 13px;
+  font-size: 0.8rem; line-height: 1.5;
+  display: flex; gap: 9px; align-items: flex-start;
+}
+.norma-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+.norma strong { display: block; font-weight: 700; margin-bottom: 1px; color: var(--xunta-azul-esc); font-size: 0.78rem; }
+
+/* alérxenos panel */
+.alx-panel {
+  background: var(--branco); border: 1px solid var(--gris-borde);
+  border-left: 4px solid var(--xunta-azul-50);
+  border-radius: 4px; padding: 22px 24px; margin-top: 16px;
+  box-shadow: 0 1px 6px var(--sombra);
+}
+.alx-panel h3 { font-size: 0.9rem; font-weight: 700; color: var(--xunta-azul); margin-bottom: 16px; }
+.alx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); gap: 8px; }
+.alx-item {
+  text-align: center; padding: 12px 8px;
+  background: var(--xunta-azul-5);
+  border: 1px solid var(--xunta-azul-10);
+  border-radius: 3px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.alx-item:hover { background: var(--xunta-azul-10); border-color: var(--xunta-azul-25); }
+.alx-item .emoji { font-size: 1.6rem; display: block; margin-bottom: 5px; }
+.alx-item .nome  { font-size: 0.7rem; font-weight: 600; color: var(--gris-texto); }
+
+/* especiais */
+.especiais-panel {
+  background: var(--xunta-azul-esc); color: white;
+  border-radius: 4px; padding: 22px 24px; margin-top: 16px;
+}
+.especiais-panel h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 14px; }
+.especiais-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr)); gap: 8px; }
+.especial-item {
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 3px; padding: 12px 14px;
+  font-size: 0.8rem;
+}
+.especial-item strong { display: block; margin-bottom: 3px; font-weight: 700; }
+.especial-item p { opacity: 0.75; font-size: 0.75rem; line-height: 1.45; }
+
+/* ═════════════════════════════════
+   FOOTER
+   ═════════════════════════════════ */
+footer {
+  background: var(--xunta-azul-esc);
+  color: rgba(255,255,255,0.6);
+  text-align: center; padding: 22px;
+  font-size: 0.76rem; line-height: 1.9;
+}
+footer strong { color: white; }
+footer a { color: var(--xunta-azul-50); text-decoration: none; }
+
+/* ═════════════════════════════════
+   RESPONSIVE
+   ═════════════════════════════════ */
+@media(max-width:700px){
+  .cal-dia-nome { font-size: 0.6rem; padding: 9px 3px; letter-spacing: 0; }
+  .dia { padding: 7px 5px; min-height: 95px; }
+  .dia-num { font-size: 0.95rem; }
+  .prato { font-size: 0.6rem; padding: 2px 4px; }
+  .header-right { display: none; }
+  .cena-cards { grid-template-columns: 1fr; }
+  .ceip-logo-svg { width: 80px; height: 38px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ BANDA INSTITUCIONAL ══════════════════════ -->
+<div class="banda-inst">
+  <div class="inner">
+    <div class="banda-xunta">
+      <div class="escudo-xunta">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect width="20" height="20" fill="#007bc4" rx="2"/>
+          <text x="10" y="14" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="sans-serif">⚜</text>
+        </svg>
+      </div>
+      <div class="banda-xunta-txt">
+        <span class="t1">XUNTA DE GALICIA</span>
+        <span class="t2">Consellería de Cultura, Educación e Universidade</span>
+      </div>
+    </div>
+    <div class="banda-contact">Mª Emilia Casas Baamonde s/n, Monforte de Lemos (Lugo) · ceip.monforte@edu.xunta.gal</div>
+  </div>
+</div>
+
+<!-- ══ HEADER ═══════════════════════════════════ -->
+<header>
+  <div class="header-inner">
+    <div class="ceip-logo">
+      <!-- Logo CEIP reconstruído: formas xeométricas abstractas do logo orixinal -->
+      <svg class="ceip-logo-svg" viewBox="0 0 110 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo CEIP Plurilingüe de Monforte de Lemos">
+        <!-- Rectángulo inferior vermello (base) -->
+        <rect x="0" y="34" width="58" height="10" fill="#C0392B"/>
+        <!-- Rectángulo medio azul gris (segunda capa) -->
+        <rect x="0" y="22" width="75" height="10" fill="#4A5E7A"/>
+        <!-- Triángulo / trapezoide verde salvia (fondo inclinado) -->
+        <polygon points="18,0 110,0 110,42 75,42" fill="#7a9e7e" opacity="0.85"/>
+        <!-- Rectángulo azul escuro pequeno (acento) -->
+        <rect x="0" y="16" width="75" height="4" fill="#002b4a" opacity="0.7"/>
+        <!-- Liñas verticais de acento (detalle do logo) -->
+        <rect x="62" y="34" width="3" height="12" fill="#C0392B" opacity="0.9"/>
+        <rect x="67" y="34" width="3" height="12" fill="#C0392B" opacity="0.9"/>
+        <rect x="72" y="34" width="3" height="12" fill="#4A5E7A" opacity="0.9"/>
+        <!-- Rectángulo morado/azul gris (esquina dereita) -->
+        <rect x="78" y="0" width="32" height="42" fill="#6B7FA8" opacity="0.85"/>
+      </svg>
+      <div class="ceip-logo-text">
+        <div class="nombre">CEIP Plurilingüe<br>de Monforte de Lemos</div>
+        <div class="subtitulo">Comedor Escolar · Curso 2025–2026</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="badge badge-borde">RD 315/2025</span>
+      <span class="badge badge-azul">2025–26</span>
+    </div>
+  </div>
+</header>
+
+<!-- ══ BANDA DECRETO ════════════════════════════ -->
+<div class="decreto-banner">
+  <div class="inner">
+    <span class="decreto-pill">✓ Adaptado</span>
+    Menús revisados conforme ao <strong>Real Decreto 315/2025, do 15 de abril</strong> (BOE núm. 92) ·
+    Fai clic en calquera día para ver alérxenos e proposta de cea (Art. 11.1)
+  </div>
+</div>
+
+<!-- ══ NAV MESES ════════════════════════════════ -->
+<nav class="meses">
+  <div class="nav-inner" id="navInner"></div>
+</nav>
+
+<!-- ══ MAIN ═════════════════════════════════════ -->
+<main id="main">
+  <div class="legend-bar">
+    <div class="leg-item"><div class="leg-dot" style="background:#007bc4;opacity:.35"></div>1º prato</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#007bc4;opacity:.6"></div>2º prato</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#007bc4;opacity:.15;border:1px solid #bfdef0"></div>Postre</div>
+    <div class="leg-sep"></div>
+    <div class="leg-item"><div class="leg-dot" style="background:#d97706"></div>Gluten</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#dc2626"></div>Ovo</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#2563eb"></div>Peixe</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#7c3aed"></div>Leite</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#059669"></div>Soia</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#db2777"></div>Moluscos</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#b45309"></div>Crustáceos</div>
+    <div class="leg-sep"></div>
+    <div class="leg-item" style="font-style:italic">Fai clic nun día para ver alérxenos e proposta de cea</div>
+  </div>
+</main>
+
+<!-- ══ NORMAS (oculto ata que se seleccione) ════ -->
+<div id="normas-section" style="display:none;max-width:1200px;margin:0 auto;padding:24px 14px 60px">
+  <div class="normas-header">
+    <h2>Normas RD 315/2025</h2>
+    <span class="badge badge-azul" style="font-size:0.72rem">BOE 16/04/2025</span>
+  </div>
+  <div class="decreto-panel">
+    <h3>📋 Frecuencias de consumo obrigatorias (Art. 9)</h3>
+    <div class="normas-grid">
+      <div class="norma"><span class="norma-icon">🥦</span><div><strong>Hortalizas (1º prato)</strong>1–2 racións por semana</div></div>
+      <div class="norma"><span class="norma-icon">🫘</span><div><strong>Legumes (1º prato)</strong>1–2 racións por semana</div></div>
+      <div class="norma"><span class="norma-icon">🍚</span><div><strong>Arroz</strong>1 ración por semana</div></div>
+      <div class="norma"><span class="norma-icon">🍝</span><div><strong>Pasta</strong>1 ración por semana</div></div>
+      <div class="norma"><span class="norma-icon">🐟</span><div><strong>Peixe (2º prato)</strong>1–3 racións/semana · azul e branco alternos</div></div>
+      <div class="norma"><span class="norma-icon">🥚</span><div><strong>Ovos (2º prato)</strong>1–2 racións por semana</div></div>
+      <div class="norma"><span class="norma-icon">🥩</span><div><strong>Carnes</strong>Máx. 3/semana · Máx. 1 vermella/semana · Máx. 2 procesada/mes</div></div>
+      <div class="norma"><span class="norma-icon">🌱</span><div><strong>Proteína vexetal</strong>1–5 racións por semana</div></div>
+      <div class="norma"><span class="norma-icon">🥗</span><div><strong>Ensaladas guarnición</strong>3–4 racións por semana</div></div>
+      <div class="norma"><span class="norma-icon">🍎</span><div><strong>Froita fresca (postre)</strong>4–5 racións por semana</div></div>
+      <div class="norma"><span class="norma-icon">🥛</span><div><strong>Outros postres</strong>Máx. 1 vez/semana (iogur, cuajada, queixo)</div></div>
+      <div class="norma"><span class="norma-icon">🍕</span><div><strong>Platos precocinados</strong>Máx. 1 ración ao mes</div></div>
+      <div class="norma"><span class="norma-icon">🍟</span><div><strong>Frituras</strong>Máx. 1 ración por semana</div></div>
+      <div class="norma"><span class="norma-icon">🥖</span><div><strong>Pan integral</strong>Mínimo 2 veces á semana</div></div>
+      <div class="norma"><span class="norma-icon">💧</span><div><strong>Bebida única</strong>Auga. Xarras en mesas do comedor.</div></div>
+      <div class="norma"><span class="norma-icon">🫙</span><div><strong>Froitos secos enteiros</strong>Prohibidos en menores de 6 anos</div></div>
+    </div>
+  </div>
+  <div class="decreto-panel" style="border-left-color:#7a9e7e">
+    <h3>🌿 Sostenibilidade e calidade (Art. 4)</h3>
+    <div class="normas-grid">
+      <div class="norma"><span class="norma-icon">🌾</span><div><strong>Alimentos frescos e de tempada</strong>Mín. 45% froitas e hortalizas de tempada</div></div>
+      <div class="norma"><span class="norma-icon">🌱</span><div><strong>Produción ecolóxica</strong>Mín. 5% do custo ou 2 pratos ecolóxicos ao mes</div></div>
+      <div class="norma"><span class="norma-icon">🫒</span><div><strong>Aceite de oliva virxe</strong>Para ensaladas. Oliva ou xirasol alto oleico para cociñar.</div></div>
+      <div class="norma"><span class="norma-icon">🧂</span><div><strong>Sal iodada reducida</strong>Substituír por especias como alternativa</div></div>
+      <div class="norma"><span class="norma-icon">♻️</span><div><strong>Aceite usado</strong>Depositar en circuítos de reciclaxe</div></div>
+      <div class="norma"><span class="norma-icon">📦</span><div><strong>Envases monodose</strong>Máx. 3g azucre · 0,8g sal · 10ml aceite · 8ml vinagre</div></div>
+    </div>
+  </div>
+  <div class="decreto-panel" style="border-left-color:#80bde2">
+    <h3>👨‍⚕️ Supervisión, información e familias (Arts. 9, 11)</h3>
+    <div class="normas-grid">
+      <div class="norma"><span class="norma-icon">🎓</span><div><strong>Supervisión profesional</strong>Menús supervisados por profesionais acreditados en nutrición e dietética</div></div>
+      <div class="norma"><span class="norma-icon">📅</span><div><strong>Planificación mensual ás familias</strong>De forma clara, detallada e accesible</div></div>
+      <div class="norma"><span class="norma-icon">🍽️</span><div><strong>Información por prato</strong>Nome, técnica culinaria, salsas, guarnicións e alérxenos</div></div>
+      <div class="norma"><span class="norma-icon">🌙</span><div><strong>Orientación para a cea</strong>Complemento ao menú do mediodía segundo RD</div></div>
+      <div class="norma"><span class="norma-icon">♿</span><div><strong>Accesibilidade</strong>Información accesible e publicada na web do centro</div></div>
+      <div class="norma"><span class="norma-icon">💰</span><div><strong>Sen incremento de custo</strong>O RD non pode aumentar o custo do menú para as familias</div></div>
+    </div>
+  </div>
+  <div class="alx-panel">
+    <h3>⚠️ Alérxenos presentes no comedor</h3>
+    <div class="alx-grid">
+      <div class="alx-item"><span class="emoji">🌾</span><span class="nome">Gluten</span></div>
+      <div class="alx-item"><span class="emoji">🥚</span><span class="nome">Ovo</span></div>
+      <div class="alx-item"><span class="emoji">🐟</span><span class="nome">Peixe</span></div>
+      <div class="alx-item"><span class="emoji">🥜</span><span class="nome">Cacahuete</span></div>
+      <div class="alx-item"><span class="emoji">🫘</span><span class="nome">Soia</span></div>
+      <div class="alx-item"><span class="emoji">🌰</span><span class="nome">Froitos de Cáscara</span></div>
+      <div class="alx-item"><span class="emoji">🥛</span><span class="nome">Leite</span></div>
+      <div class="alx-item"><span class="emoji">🦪</span><span class="nome">Moluscos</span></div>
+      <div class="alx-item"><span class="emoji">🦀</span><span class="nome">Crustáceos</span></div>
+    </div>
+    <p style="margin-top:12px;font-size:0.77rem;color:var(--gris-medio)">Fai clic en calquera día do calendario para consultar os alérxenos específicos de cada prato. Os menús especiais por alerxias ou intolerancias requiren certificado médico (Art. 10 RD 315/2025).</p>
+  </div>
+  <div class="especiais-panel">
+    <h3>🍽️ Menús Especiais dispoñibles (Art. 10 RD 315/2025)</h3>
+    <div class="especiais-grid">
+      <div class="especial-item"><strong>🏥 Por motivos médicos</strong><p>Alergias, intolerancias ou enfermidades con certificado médico.</p></div>
+      <div class="especial-item"><strong>🌿 Vexetariano</strong><p>Baseado exclusivamente en proteínas de orixe vexetal.</p></div>
+      <div class="especial-item"><strong>🕌 Por motivos relixiosos ou éticos</strong><p>Adaptacións por razóns culturais, relixiosas ou éticas.</p></div>
+      <div class="especial-item"><strong>👨‍👩‍👧 Menú familiar</strong><p>Posibilidade de traer menú especial da casa con medios de conservación adecuados.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL ════════════════════════════════════ -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-head-title" id="modalTitle"></div>
+        <div class="modal-head-sub">CEIP Plurilingüe de Monforte de Lemos · Comedor escolar</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ═══════════════════════════════════ -->
+<footer>
+  <strong>CEIP Plurilingüe de Monforte de Lemos</strong><br>
+  Consellería de Cultura, Educación e Universidade · Xunta de Galicia · Curso 2025–2026<br>
+  Menús adaptados ao <strong>Real Decreto 315/2025, do 15 de abril</strong> (BOE núm. 92, 16/04/2025)<br>
+  <span style="font-size:0.7rem;opacity:0.6">Información nutricional supervisada por profesional acreditado en nutrición humana e dietética · Art. 9.1 RD 315/2025</span>
+</footer>
+
+<script>
+const AC={G:'#d97706',O:'#dc2626',P:'#2563eb',L:'#7c3aed',S:'#059669',M:'#db2777',C:'#b45309'};
+const AN={G:'Gluten',O:'Ovo',P:'Peixe',L:'Leite',S:'Soia',M:'Moluscos',C:'Crustáceos'};
+const MESES={"setembro": {"nome": "Setembro", "emoji": "🍂", "semanas": [[null, null, null, null, null], [{"n": 8, "p": [{"t": "Crema de cabaciña", "k": "pri", "a": ["L"]}, {"t": "Polo asado con guarnición", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de tomate e pepino", "seg": "Peixe branco ao forno con limón", "pos": "Un iogur natural", "note": "O mediodía aportou verdura en creme e carne de ave. A cea introduce peixe magro e verdura fresca. Equilibra os aportes de proteína animal ao longo do día."}}, {"n": 9, "p": [{"t": "Menestra de verduras", "k": "pri", "a": []}, {"t": "Peixe en salsa de verduras con arroz", "k": "seg", "a": ["P"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Caldo de polo con fideos", "seg": "Peituga de polo á prancha con ensalada", "pos": "Froita fresca", "note": "Mediodía con peixe e arroz. A cea usa carne branca lixeira e verdura en caldo. Non se repite peixe nin hidrato pesado."}}, {"n": 10, "p": [{"t": "Sardiñas con tomate", "k": "pri", "a": ["P"]}, {"t": "Fideuá vexetal", "k": "seg", "a": ["G", "M"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de leituga, tomate e cebola", "seg": "Ovos á prancha ou tortilla de verduras", "pos": "Froita fresca", "note": "Mediodía con peixe azul e pasta. A cea é lixeira: verdura fresca, ovo e froita. Evita repetir peixe, gluten e lácteos."}}, {"n": 11, "p": [{"t": "Revolto de champiñóns", "k": "pri", "a": ["O"]}, {"t": "Costelas asadas con patacas", "k": "seg", "a": []}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Crema de verduras (brécol ou cenoria)", "seg": "Peixe branco ao vapor con limón", "pos": "Froita de tempada", "note": "Mediodía con ovo, carne e lácteo. A cea introduce peixe magro e verdura. Evita repetir carne e lácteos pola noite."}}, {"n": 12, "p": [{"t": "Ensalada Mixta", "k": "pri", "a": []}, {"t": "Macarróns con carne de tenreira", "k": "seg", "a": ["G"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Sopa de verduras ou caldo", "seg": "Peixe azul á prancha (sardiña ou cabala)", "pos": "Iogur natural", "note": "Mediodía con pasta e carne. A cea introduce peixe azul (omega-3), caldo e lácteo suave. Equilibra graxas e proteínas da xornada."}}], [{"n": 15, "p": [{"t": "Lentellas vexetais", "k": "pri", "a": []}, {"t": "Peituga de polo con ensalada", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de pataca e porro", "seg": "Peixe branco ao forno (merluza ou bacallau)", "pos": "Un lácteo: iogur ou queixo fresco", "note": "Mediodía con legumes e ave. A cea aporta peixe magro, verdura en creme e calcio. Patrón equilibrado e variado."}}, {"n": 16, "p": [{"t": "Ovos recheos", "k": "pri", "a": ["O", "G", "L"]}, {"t": "Salmón ao forno con verduras asadas", "k": "seg", "a": ["P"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada verde con tomate cherry", "seg": "Peituga de polo á prancha ou pavo", "pos": "Froita fresca", "note": "Mediodía con ovo, peixe e múltiples alérxenos. A cea é moi sinxela: ensalada, carne branca e froita. Evita repetir peixe, ovo e lácteos."}}, {"n": 17, "p": [{"t": "Ensalada Caprese", "k": "pri", "a": ["L"]}, {"t": "Filete con chícharos", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Caldo de verduras con fideos integrais", "seg": "Peixe branco ao forno ou ao vapor", "pos": "Iogur natural sen azucre", "note": "Mediodía con lácteo e carne. A cea introduce peixe e caldo de verduras. Completa o aporte de omega-3 evitando repetir carne e lácteo."}}, {"n": 18, "p": [{"t": "Sopa de estrelas", "k": "pri", "a": ["G"]}, {"t": "Peixe salteado con espinacas", "k": "seg", "a": ["P"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de pepino e tomate", "seg": "Ovos á prancha ou revolto de verduras", "pos": "Froita fresca", "note": "Mediodía con gluten, peixe e lácteo. A cea evita os tres: verdura fresca crúa, ovo e froita. Moi equilibrada e lixeira."}}, {"n": 19, "p": [{"t": "Crema de cenoria", "k": "pri", "a": ["L"]}, {"t": "Paella", "k": "seg", "a": ["G", "M", "C"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada verde sinxela", "seg": "Peituga de polo á prancha", "pos": "Froita fresca", "note": "Mediodía con marisco e múltiples alérxenos. A cea é moi lixeira: verdura crúa e carne branca magra. Sen marisco, gluten nin lácteos pola noite."}}], [{"n": 22, "p": [{"t": "Ensalada César", "k": "pri", "a": ["O", "G", "P", "L"]}, {"t": "Carne guisada con patacas", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de verduras sinxela", "seg": "Peixe branco ao forno con limón", "pos": "Iogur natural", "note": "Mediodía con múltiples alérxenos na ensalada e carne. A cea introduce peixe magro e verdura. Evita repetir todos os alérxenos do mediodía."}}, {"n": 23, "p": [{"t": "Ensalada de garavanzos", "k": "pri", "a": []}, {"t": "Peixe en salsa verde", "k": "seg", "a": ["P", "G"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Sopa de fideos ou caldo de verduras", "seg": "Peituga de polo ou pavo á prancha", "pos": "Un lácteo: iogur ou leite", "note": "Mediodía con legumes e peixe. A cea aporta carne branca, caldo e lácteo. Sen peixe nin gluten pola noite."}}, {"n": 24, "p": [{"t": "Salteado de fabas/verduras", "k": "pri", "a": []}, {"t": "Filete de pavo/leituga", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de brécol ou coliflor", "seg": "Peixe azul á prancha (sardiña ou cabala)", "pos": "Froita fresca ou iogur", "note": "Mediodía con legumes e ave. A cea introduce peixe azul rico en omega-3 e verdura en creme. Patrón dietético moi completo."}}, {"n": 25, "p": [{"t": "Crema de cabaza", "k": "pri", "a": ["L"]}, {"t": "Empanada de atún", "k": "seg", "a": ["G", "P"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de tomate e cebola", "seg": "Polo á prancha ou ovos revoltos con espinacas", "pos": "Froita fresca", "note": "Mediodía con gluten, peixe e lácteos. A cea evita os tres: verdura fresca, proteína suave (polo ou ovo) e froita."}}, {"n": 26, "p": [{"t": "Xudías con atún", "k": "pri", "a": ["P"]}, {"t": "Lasaña de espinacas e carne", "k": "seg", "a": ["G", "L"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada verde sinxela", "seg": "Ovos á prancha ou tortilla de verduras", "pos": "Froita fresca", "note": "Mediodía con peixe, gluten e moito lácteo. A cea é moi lixeira: verdura crúa, ovo e froita. Evita todos os alérxenos principais do mediodía."}}], [{"n": 29, "p": [{"t": "Crema de verduras", "k": "pri", "a": ["L"]}, {"t": "Tenreira guisada", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de pepino, tomate e remolacha", "seg": "Peixe branco ao forno ou ao vapor", "pos": "Iogur natural", "note": "Mediodía con carne vermella e lácteo. A cea introduce peixe magro, verdura fresca e lácteo suave. Completa o aporte de omega-3."}}, {"n": 30, "p": [{"t": "Chícharos con pavo", "k": "pri", "a": []}, {"t": "Peixe á pranxa con tomate", "k": "seg", "a": ["P"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Caldo de verduras ou sopa sinxela", "seg": "Ovo á prancha ou tortilla de pataca (pequena)", "pos": "Froita fresca de tempada", "note": "Mediodía con peixe e lácteo. A cea é lixeira: caldo, ovo como proteína suave e froita. Sen peixe nin lácteos pola noite."}}, null, null, null]]}, "outubro": {"nome": "Outubro", "emoji": "🎃", "semanas": [[null, null, {"n": 1, "p": [{"t": "Crema de cabaciña", "k": "pri", "a": ["L"]}, {"t": "Polo asado con guarnición", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de tomate e pepino", "seg": "Peixe branco ao forno con limón", "pos": "Iogur natural", "note": "Mediodía con lácteo e polo. A cea introduce peixe magro e verdura fresca. Equilibra os aportes proteicos da xornada."}}, {"n": 2, "p": [{"t": "Potaxe de garavanzos", "k": "pri", "a": []}, {"t": "Peixe / ensalada", "k": "seg", "a": ["P"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Sopa de fideos ou caldo de polo", "seg": "Peituga de polo á prancha ou pavo", "pos": "Froita fresca", "note": "Mediodía con legumes e peixe. A cea aporta carne branca lixeira, caldo e froita. Sen peixe nin lácteos pola noite."}}, {"n": 3, "p": [{"t": "Revolto de espinacas", "k": "pri", "a": ["O"]}, {"t": "Costelas con arroz", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de cenoria ou brécol", "seg": "Peixe branco ao vapor con verduras", "pos": "Lácteo: iogur natural", "note": "Mediodía con ovo e carne. A cea introduce peixe magro, verdura en creme e lácteo. Evita repetir ovo e carne."}}], [{"n": 6, "p": [{"t": "Ensalada mixta", "k": "pri", "a": []}, {"t": "Filete de pavo / calabacín", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Caldo de verduras con fideos integrais", "seg": "Peixe azul á prancha (sardiña ou bonito)", "pos": "Iogur natural", "note": "Mediodía lixeiro con ave e ensalada. A cea introduce peixe azul (omega-3), caldo e lácteo. Patrón moi completo."}}, {"n": 7, "p": [{"t": "Crema de cenoria", "k": "pri", "a": ["L"]}, {"t": "Calamares á romana con ensalada", "k": "seg", "a": ["G", "O", "M"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de tomate e cebola", "seg": "Peituga de polo á prancha", "pos": "Froita fresca", "note": "Mediodía con moluscos, gluten e ovo. A cea é sinxela: verdura crúa e carne branca magra. Evita todos os alérxenos do mediodía."}}, {"n": 8, "p": [{"t": "Revolto de champiñóns", "k": "pri", "a": ["O"]}, {"t": "Peixe á pranxa / pataca", "k": "seg", "a": ["P"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada verde con pepino", "seg": "Polo ou pavo á prancha con brócoli", "pos": "Froita fresca", "note": "Mediodía con ovo, peixe e lácteo. A cea evita os tres: verdura fresca, carne branca e froita."}}, {"n": 9, "p": [{"t": "Sopa de fideos e vexetais", "k": "pri", "a": ["G"]}, {"t": "Peituga de polo con tomate", "k": "seg", "a": []}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de espinacas e tomate cherry", "seg": "Peixe branco ao forno ou ovos á prancha", "pos": "Froita fresca", "note": "Mediodía con gluten, polo e lácteo. A cea introduce peixe ou ovo, verdura fresca. Evita repetir gluten e lácteo."}}, {"n": 10, "p": [{"t": "Ensalada de tomate e espárragos", "k": "pri", "a": []}, {"t": "Pasta cremosa / salmón", "k": "seg", "a": ["G", "P", "L"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Crema de verduras lixeira", "seg": "Polo á prancha con ensalada", "pos": "Froita fresca", "note": "Mediodía con pasta, salmón e moito lácteo. A cea evita gluten, peixe e lácteo: verdura, carne branca e froita."}}], [{"n": 13, "p": [{"t": "Ensalada de arroz", "k": "pri", "a": []}, {"t": "Muslito de polo / patacas", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de brécol ou coliflor", "seg": "Peixe branco ao forno con limón", "pos": "Iogur natural", "note": "Mediodía con arroz e polo. A cea introduce peixe magro, verdura en creme e lácteo. Completa o aporte de omega-3."}}, {"n": 14, "p": [{"t": "Caldo Galego", "k": "pri", "a": []}, {"t": "Peixe asado / verduras", "k": "seg", "a": ["P"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de leituga, tomate e pepino", "seg": "Ovos á prancha ou tortilla de verduras", "pos": "Lácteo: iogur ou queixo fresco", "note": "Mediodía con caldo tradicional e peixe. A cea é lixeira: verdura crúa, ovo e lácteo. Sen peixe pola noite."}}, {"n": 15, "p": [{"t": "Espinacas / garavanzos", "k": "pri", "a": []}, {"t": "Filete / ensalada", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Sopa ou caldo de verduras", "seg": "Peixe azul á prancha (sardiña ou cabala)", "pos": "Iogur natural", "note": "Mediodía con legumes e carne. A cea introduce peixe azul (omega-3), caldo e lácteo. Patrón dietético equilibrado."}}, {"n": 16, "p": [{"t": "Salteado de chícharos / atún", "k": "pri", "a": ["P"]}, {"t": "Paella", "k": "seg", "a": ["G", "M", "C"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada verde sinxela", "seg": "Polo á prancha ou ovos revoltos", "pos": "Froita fresca", "note": "Mediodía con marisco e moitos alérxenos. A cea é moi lixeira: verdura crúa, proteína branca e froita. Sen marisco nin gluten pola noite."}}, {"n": 17, "p": [{"t": "Menestra de verduras", "k": "pri", "a": []}, {"t": "Carne en taquiños / arroz", "k": "seg", "a": []}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Crema de pataca e porro", "seg": "Peixe branco ao vapor con espinacas", "pos": "Froita fresca", "note": "Mediodía con carne e arroz. A cea introduce peixe, verdura en creme e froita. Equilibra proteínas e aporta omega-3."}}], [{"n": 20, "p": [{"t": "Lentellas vexetais", "k": "pri", "a": []}, {"t": "Lomo en salsa de champiñóns", "k": "seg", "a": ["G"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de tomate e pepino", "seg": "Peixe azul á prancha ou ao forno", "pos": "Iogur natural", "note": "Mediodía con legumes e carne de porco con gluten. A cea introduce peixe azul, verdura fresca e lácteo. Sen gluten pola noite."}}, {"n": 21, "p": [{"t": "Ensaladilla", "k": "pri", "a": ["O"]}, {"t": "Peixe en salsa de calabacín", "k": "seg", "a": ["P"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Caldo de verduras con fideos", "seg": "Polo ou pavo á prancha con ensalada", "pos": "Lácteo: iogur", "note": "Mediodía con ovo e peixe. A cea aporta carne branca magra, caldo e lácteo. Evita repetir ovo e peixe pola noite."}}, {"n": 22, "p": [{"t": "Xudías / allada", "k": "pri", "a": []}, {"t": "Empanada", "k": "seg", "a": ["G", "O"]}, {"t": "Postre caseiro", "k": "pos", "a": ["G", "L", "O"]}], "cena": {"pri": "Ensalada verde e crúa", "seg": "Peixe branco ao forno con limón", "pos": "Froita fresca", "note": "Mediodía con gluten e ovo en varios pratos. A cea é moi lixeira e sen alérxenos: verdura crúa, peixe e froita."}}, {"n": 23, "p": [{"t": "Sopa", "k": "pri", "a": ["G"]}, {"t": "Polbo / cachelos", "k": "seg", "a": ["M"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de espinacas e tomate", "seg": "Polo á prancha ou ovo á prancha", "pos": "Froita fresca", "note": "Mediodía con polbo (molusco), gluten e lácteo. A cea é sinxela: verdura fresca, proteína branca lixeira e froita."}}, {"n": 24, "p": [{"t": "Crema de porros", "k": "pri", "a": ["L"]}, {"t": "Filetes empanados ao forno con tomate", "k": "seg", "a": ["G", "O"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de leituga, pepino e remolacha", "seg": "Peixe branco ao vapor ou á prancha", "pos": "Froita fresca", "note": "Mediodía con gluten, ovo e moito lácteo. A cea evita os tres: verdura fresca, peixe lixeiro e froita."}}], [{"n": 27, "p": [{"t": "Crema de cabaciña", "k": "pri", "a": ["L"]}, {"t": "Polo asado con guarnición", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de tomate cherry e cebola", "seg": "Peixe branco ao forno ou ao vapor", "pos": "Iogur natural", "note": "Mediodía con lácteo e polo. A cea introduce peixe magro, verdura fresca e lácteo suave."}}, {"n": 28, "p": [{"t": "Sopa de cocido", "k": "pri", "a": ["G"]}, {"t": "Garavanzos con carne e repolo", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de brécol ou cenoria", "seg": "Peixe azul á prancha (sardiña ou bonito)", "pos": "Iogur natural", "note": "Mediodía con legumes, carne e gluten. A cea introduce peixe azul (omega-3), verdura en creme e lácteo. Patrón moi completo."}}, {"n": 29, "p": [{"t": "Ensalada mixta", "k": "pri", "a": []}, {"t": "Peixe en salsa verde", "k": "seg", "a": ["P", "G"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Caldo de verduras con fideos integrais", "seg": "Peituga de polo á prancha ou ovos á prancha", "pos": "Lácteo: iogur ou queixo fresco", "note": "Mediodía con peixe e gluten. A cea aporta proteína branca ou ovo, caldo e lácteo. Sen peixe nin gluten pola noite."}}, {"n": 30, "nonlec": true, "label": "🎃 Menú Samaín"}, null]]}, "novembro": {"nome": "Novembro", "emoji": "🍁", "semanas": [[{"n": 3, "nonlec": true, "label": "Día non lectivo"}, {"n": 4, "p": [{"t": "Sopa", "k": "pri", "a": ["G"]}, {"t": "Peituga de polo con pataca fritida", "k": "seg", "a": []}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de espinacas e tomate", "seg": "Peixe branco ao forno (merluza ou bacallau)", "pos": "Froita fresca", "note": "Mediodía con gluten, polo e lácteo. A cea introduce peixe magro e verdura fresca. Evita repetir gluten e lácteo pola noite."}}, {"n": 5, "p": [{"t": "Fabas con ameixas", "k": "pri", "a": ["M"]}, {"t": "Paella", "k": "seg", "a": ["G", "M", "C"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada verde sinxela", "seg": "Polo ou pavo á prancha", "pos": "Froita fresca", "note": "Mediodía con marisco e moitos alérxenos. A cea é moi lixeira: verdura crúa, carne branca e froita. Sen marisco nin gluten pola noite."}}, {"n": 6, "p": [{"t": "Ensalada mixta", "k": "pri", "a": []}, {"t": "Filete de pavo con cabaciña", "k": "seg", "a": []}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Crema de brécol ou pataca e porro", "seg": "Peixe azul á prancha (sardiña ou cabala)", "pos": "Froita fresca", "note": "Mediodía lixeiro con ave e ensalada. A cea introduce peixe azul (omega-3) e verdura en creme. Patrón moi equilibrado."}}, {"n": 7, "p": [{"t": "Crema de porro", "k": "pri", "a": ["L"]}, {"t": "Salmón ao forno con guarnición", "k": "seg", "a": ["P"]}, {"t": "Postre caseiro", "k": "pos", "a": ["G", "L", "O"]}], "cena": {"pri": "Ensalada de tomate e pepino", "seg": "Ovos á prancha ou tortilla de verduras", "pos": "Froita fresca", "note": "Mediodía con peixe, lácteo e gluten. A cea evita os tres: verdura crúa, ovo e froita. Moi sinxela e lixeira."}}], [{"n": 10, "p": [{"t": "Crema de cenoria", "k": "pri", "a": ["L"]}, {"t": "Peixe en salsa", "k": "seg", "a": ["P", "G"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada verde con tomate cherry", "seg": "Polo á prancha ou pavo con verduras", "pos": "Iogur natural", "note": "Mediodía con lácteo, peixe e gluten. A cea evita os tres: verdura fresca, carne branca e lácteo suave."}}, {"n": 11, "p": [{"t": "Ensalada mixta", "k": "pri", "a": []}, {"t": "Lasaña de carne e calabacín", "k": "seg", "a": ["G", "L"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Caldo de verduras con fideos", "seg": "Peixe branco ao forno ou ovos á prancha", "pos": "Froita fresca", "note": "Mediodía con gluten e lácteo (lasaña). A cea introduce peixe ou ovo, caldo e froita. Evita repetir gluten e lácteo."}}, {"n": 12, "p": [{"t": "Potaxe de garavanzos", "k": "pri", "a": []}, {"t": "Calamares á romana con ensalada", "k": "seg", "a": ["G", "O", "M"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de brécol ou calabaza", "seg": "Peituga de polo á prancha", "pos": "Iogur natural", "note": "Mediodía con moluscos, gluten e ovo. A cea é sinxela: verdura en creme e carne branca. Evita todos os alérxenos do mediodía."}}, {"n": 13, "p": [{"t": "Menestra de verduras", "k": "pri", "a": []}, {"t": "Polo ao forno / patacas", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Sopa de estrelas ou caldo", "seg": "Peixe azul á prancha ou sardiñas con tomate", "pos": "Lácteo: iogur ou queixo fresco", "note": "Mediodía con polo e menestra. A cea introduce peixe azul rico en omega-3, caldo e lácteo. Patrón semanal moi completo."}}, {"n": 14, "p": [{"t": "Ovos recheos", "k": "pri", "a": ["O", "G", "L"]}, {"t": "Peixe con arroz e verduras", "k": "seg", "a": ["P"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de leituga, tomate e pepino", "seg": "Polo ou pavo á prancha con brócoli", "pos": "Froita fresca", "note": "Mediodía con ovo, peixe, gluten e moito lácteo. A cea é moi sinxela e sen alérxenos: verdura, carne branca e froita."}}], [{"n": 17, "p": [{"t": "Crema de brécol", "k": "pri", "a": ["L"]}, {"t": "Filete con menestra", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de tomate, cebola e aceitunas", "seg": "Peixe branco ao vapor ou ao forno", "pos": "Iogur natural", "note": "Mediodía con lácteo e carne. A cea introduce peixe magro e verdura fresca. Equilibra proteínas e aporta omega-3."}}, {"n": 18, "p": [{"t": "Guisantes con xamón", "k": "pri", "a": []}, {"t": "Raxo de polo con pataca", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de cenoria ou pataca", "seg": "Peixe azul á prancha (sardiña ou bonito)", "pos": "Lácteo: iogur", "note": "Mediodía con legumes e polo. A cea introduce peixe azul, verdura en creme e lácteo. Patrón dietético variado e equilibrado."}}, {"n": 19, "p": [{"t": "Xudías con allada", "k": "pri", "a": []}, {"t": "Peixe con guarnición", "k": "seg", "a": ["P"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Sopa de fideos ou caldo de verduras", "seg": "Polo á prancha ou ovos revoltos con champiñóns", "pos": "Iogur natural", "note": "Mediodía con legumes e peixe. A cea aporta proteína branca ou ovo, caldo e lácteo. Sen peixe pola noite."}}, {"n": 20, "p": [{"t": "Revolto de espinacas e gambas", "k": "pri", "a": ["O", "C"]}, {"t": "Lomo en salsa de champiñóns", "k": "seg", "a": ["G"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada verde con tomate cherry", "seg": "Peixe branco ao forno", "pos": "Froita fresca", "note": "Mediodía con crustáceos, ovo, gluten e lácteo. A cea é moi lixeira: verdura fresca, peixe magro e froita. Sen ningún alérxeno do mediodía."}}, {"n": 21, "p": [{"t": "Sopa", "k": "pri", "a": ["G"]}, {"t": "Fideuá", "k": "seg", "a": ["G", "M", "C"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de espinacas e remolacha", "seg": "Polo ou pavo á prancha", "pos": "Froita fresca", "note": "Mediodía con gluten, marisco e lácteo. A cea é sinxela: verdura fresca e carne branca sen alérxenos. Evita todos os do mediodía."}}], [{"n": 24, "p": [{"t": "Crema de cabaza", "k": "pri", "a": ["L"]}, {"t": "Macarróns con carne", "k": "seg", "a": ["G"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de tomate e pepino", "seg": "Peixe branco ao forno ou ao vapor", "pos": "Iogur natural", "note": "Mediodía con gluten, lácteo e carne. A cea evita os tres: verdura fresca, peixe magro e lácteo suave."}}, {"n": 25, "p": [{"t": "Ensalada de pasta", "k": "pri", "a": ["G"]}, {"t": "Costelas asadas con verdura asada", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de brécol ou coliflor", "seg": "Peixe azul á prancha (cabala ou sardiña)", "pos": "Lácteo: iogur ou leite", "note": "Mediodía con pasta e carne. A cea introduce peixe azul (omega-3), verdura en creme e lácteo. Patrón equilibrado."}}, {"n": 26, "p": [{"t": "Ensalada mixta", "k": "pri", "a": []}, {"t": "Arroz negro con chipiróns e gambas", "k": "seg", "a": ["M", "C"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Caldo de verduras con fideos integrais", "seg": "Polo á prancha ou ovo á prancha", "pos": "Iogur natural", "note": "Mediodía con marisco. A cea é lixeira: caldo, proteína branca ou ovo, e lácteo. Sen marisco pola noite."}}, {"n": 27, "p": [{"t": "Revolto de seta ao allo", "k": "pri", "a": ["O"]}, {"t": "Polo asado / pataca", "k": "seg", "a": []}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de espinacas e tomate", "seg": "Peixe branco ao forno ou ao vapor", "pos": "Froita fresca", "note": "Mediodía con ovo e polo. A cea introduce peixe magro, verdura fresca e froita. Evita repetir ovo e lácteo pola noite."}}, {"n": 28, "p": [{"t": "Boloñesa de lentellas / espaguetes", "k": "pri", "a": ["G"]}, {"t": "Peixe con ensalada", "k": "seg", "a": ["P"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada verde con tomate cherry", "seg": "Polo á prancha ou ovos revoltos", "pos": "Froita fresca", "note": "Mediodía con gluten, peixe e lácteo. A cea é sinxela e sen alérxenos: verdura fresca, carne branca e froita."}}]]}, "decembro": {"nome": "Decembro", "emoji": "🎄", "semanas": [[{"n": 1, "p": [{"t": "Crema de porro", "k": "pri", "a": ["L"]}, {"t": "Macarróns / carne e tomate natural", "k": "seg", "a": ["G"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de tomate e pepino", "seg": "Peixe branco ao forno", "pos": "Iogur natural", "note": "Mediodía con lácteo, gluten e carne. A cea introduce peixe magro e verdura fresca. Sen gluten nin lácteo pola noite."}}, {"n": 2, "p": [{"t": "Sopa de estrelas", "k": "pri", "a": ["G"]}, {"t": "Bacallau en salsa", "k": "seg", "a": ["P", "G"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de brécol ou cenoria", "seg": "Polo á prancha ou ovos á prancha", "pos": "Lácteo: iogur", "note": "Mediodía con peixe e gluten. A cea introduce verdura en creme, carne branca e lácteo. Sen peixe nin gluten pola noite."}}, {"n": 3, "p": [{"t": "Menestra de verduras", "k": "pri", "a": []}, {"t": "Polo ao forno / patacas", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Sopa de fideos ou caldo de verduras", "seg": "Peixe azul á prancha (sardiña ou bonito)", "pos": "Iogur natural", "note": "Mediodía con polo e verduras. A cea introduce peixe azul (omega-3), caldo e lácteo. Patrón moi equilibrado."}}, {"n": 4, "p": [{"t": "Arroz 3 delicias", "k": "pri", "a": ["O", "S", "G"]}, {"t": "Pescado á prancha con ensalada", "k": "seg", "a": ["P"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada verde sinxela", "seg": "Polo ou pavo á prancha con brócoli", "pos": "Froita fresca", "note": "Mediodía con ovo, soia, peixe e lácteo. A cea é sinxela: verdura crúa e carne branca. Sen ningún alérxeno do mediodía."}}, {"n": 5, "p": [{"t": "Crema de xudías", "k": "pri", "a": ["L"]}, {"t": "Fideuá", "k": "seg", "a": ["G", "M", "C"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de espinacas e tomate", "seg": "Polo á prancha ou ovos á prancha", "pos": "Froita fresca", "note": "Mediodía con marisco, gluten e lácteo. A cea é moi lixeira: verdura crúa, proteína branca e froita."}}], [{"n": 8, "nonlec": true, "label": "🎉 Festivo"}, {"n": 9, "p": [{"t": "Crema de cenoria", "k": "pri", "a": ["L"]}, {"t": "Filete con ensalada", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Sopa de fideos ou caldo de polo", "seg": "Peixe branco ao forno con limón", "pos": "Lácteo: iogur", "note": "Mediodía con lácteo e carne. A cea introduce peixe magro, caldo e lácteo suave. Equilibra proteínas da xornada."}}, {"n": 10, "p": [{"t": "Chícharos salteados / pavo", "k": "pri", "a": []}, {"t": "Paella", "k": "seg", "a": ["G", "M", "C"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada verde sinxela", "seg": "Polo á prancha ou ovo á prancha", "pos": "Iogur natural", "note": "Mediodía con marisco e gluten. A cea é sinxela e lixeira: verdura crúa, proteína branca e lácteo."}}, {"n": 11, "p": [{"t": "Lentellas vexetais", "k": "pri", "a": []}, {"t": "Lomo en salsa de champiñóns", "k": "seg", "a": ["G"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Crema de brécol ou calabaza", "seg": "Peixe azul á prancha ou ao forno", "pos": "Froita fresca", "note": "Mediodía con legumes, gluten e lácteo. A cea introduce peixe azul (omega-3) e verdura en creme. Sen gluten nin lácteo."}}, {"n": 12, "p": [{"t": "Potaxe de fabas", "k": "pri", "a": []}, {"t": "Salmón / guarnición", "k": "seg", "a": ["P"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de tomate, cebola e pepino", "seg": "Polo á prancha con brócoli ao vapor", "pos": "Froita fresca", "note": "Mediodía con legumes, peixe e lácteo. A cea introduce carne branca, verdura fresca e froita. Sen peixe nin lácteo pola noite."}}], [{"n": 15, "p": [{"t": "Lentellas vexetais", "k": "pri", "a": []}, {"t": "Polo crocante con patacas", "k": "seg", "a": ["G", "O"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de cenoria ou calabaza", "seg": "Peixe branco ao forno con limón", "pos": "Iogur natural", "note": "Mediodía con legumes, gluten e ovo (rebozado). A cea introduce peixe magro, verdura en creme e lácteo. Evita gluten e ovo."}}, {"n": 16, "p": [{"t": "Ensalada de sardiñas", "k": "pri", "a": ["P"]}, {"t": "Tortilla de pataca e calabacín", "k": "seg", "a": ["O"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Sopa de fideos ou caldo de verduras", "seg": "Polo á prancha ou pavo con ensalada", "pos": "Iogur natural", "note": "Mediodía con peixe e ovo. A cea evita os dous: caldo, carne branca e lácteo. Equilibra sen sobrecargar."}}, {"n": 17, "p": [{"t": "Revolto de champiñóns", "k": "pri", "a": ["O"]}, {"t": "Pescado en salsa", "k": "seg", "a": ["P", "G"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de espinacas e tomate", "seg": "Polo á prancha con brócoli", "pos": "Lácteo: iogur", "note": "Mediodía con ovo, peixe e gluten. A cea evita os tres: verdura fresca, carne branca e lácteo suave."}}, {"n": 18, "p": [{"t": "Potaxe de garavanzos", "k": "pri", "a": []}, {"t": "Carne asada con guarnición", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de brécol ou coliflor", "seg": "Peixe azul á prancha (sardiña ou bonito)", "pos": "Iogur natural", "note": "Mediodía con legumes e carne. A cea introduce peixe azul (omega-3), verdura en creme e lácteo. Patrón moi completo."}}, {"n": 19, "p": [{"t": "🎄 Menú especial de Nadal", "k": "pri", "a": ["G", "O", "L", "P"]}, {"t": "Prato especial Navideño", "k": "seg", "a": ["G", "L"]}, {"t": "Postre Navideño 🎅", "k": "pos", "a": ["G", "L", "O"]}], "cena": {"pri": "Crema de verduras suave", "seg": "Polo ou peixe ao forno lixeiro", "pos": "Froita fresca ou iogur natural", "note": "Día especial con menú de Nadal máis rico en alérxenos. A cea debe ser moi sinxela e lixeira para compensar."}}]]}, "xaneiro": {"nome": "Xaneiro", "emoji": "❄️", "semanas": [[null, null, null, {"n": 1, "nonlec": true, "label": "🎄 NADAL"}, {"n": 2, "nonlec": true, "label": "🎄 NADAL"}], [{"n": 5, "nonlec": true, "label": "🎄 NADAL"}, {"n": 6, "nonlec": true, "label": "🎄 NADAL"}, {"n": 7, "nonlec": true, "label": "🎄 NADAL"}, {"n": 8, "p": [{"t": "Crema de verduras", "k": "pri", "a": ["L"]}, {"t": "Macarróns con carne", "k": "seg", "a": ["G"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de tomate e pepino", "seg": "Peixe branco ao forno con limón", "pos": "Iogur natural", "note": "Volta ao cole. Mediodía con lácteo, gluten e carne. A cea introduce peixe magro e verdura fresca. Evita repetir gluten e lácteo."}}, {"n": 9, "p": [{"t": "Sopa de estrelas", "k": "pri", "a": ["G"]}, {"t": "Peixe con patacas", "k": "seg", "a": ["P"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Crema de cenoria ou brécol", "seg": "Polo á prancha con ensalada", "pos": "Froita fresca", "note": "Mediodía con gluten, peixe e lácteo. A cea introduce carne branca, verdura en creme e froita. Sen gluten nin peixe pola noite."}}], [{"n": 12, "p": [{"t": "Lentellas vexetais", "k": "pri", "a": []}, {"t": "Guiso de carne", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Caldo de verduras ou sopa sinxela", "seg": "Peixe azul á prancha (sardiña ou cabala)", "pos": "Iogur natural", "note": "Mediodía con legumes e carne. A cea introduce peixe azul (omega-3), caldo e lácteo. Patrón moi equilibrado."}}, {"n": 13, "p": [{"t": "Sardiñas con tomate", "k": "pri", "a": ["P"]}, {"t": "Lasaña", "k": "seg", "a": ["G", "L"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de espinacas e tomate cherry", "seg": "Polo á prancha ou ovos á prancha", "pos": "Froita fresca", "note": "Mediodía con peixe, gluten e lácteo. A cea evita os tres: verdura fresca, carne branca e froita."}}, {"n": 14, "p": [{"t": "Crema de cenoria", "k": "pri", "a": ["L"]}, {"t": "Merluza con patacas", "k": "seg", "a": ["P"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de leituga e pepino", "seg": "Polo ou pavo á prancha con brócoli", "pos": "Iogur natural", "note": "Mediodía con lácteo e peixe. A cea introduce carne branca, verdura fresca e lácteo suave. Sen peixe pola noite."}}, {"n": 15, "p": [{"t": "Sopa", "k": "pri", "a": ["G"]}, {"t": "Polo asado con ensalada", "k": "seg", "a": []}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Crema de brécol ou coliflor", "seg": "Peixe branco ao forno ou ao vapor", "pos": "Froita fresca", "note": "Mediodía con gluten, polo e lácteo. A cea introduce peixe magro e verdura en creme. Evita repetir gluten e lácteo."}}, {"n": 16, "p": [{"t": "Salteado de xudías con pavo", "k": "pri", "a": []}, {"t": "Calamares con patacas", "k": "seg", "a": ["G", "O", "M"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada verde sinxela", "seg": "Polo á prancha ou peixe branco ao forno", "pos": "Froita fresca", "note": "Mediodía con moluscos, gluten e ovo. A cea é sinxela: verdura crúa, proteína lixeira e froita. Sen ningún alérxeno do mediodía."}}], [{"n": 19, "p": [{"t": "Sopa", "k": "pri", "a": ["G"]}, {"t": "Polo crocante", "k": "seg", "a": ["G", "O"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de calabaza ou cenoria", "seg": "Peixe branco ao forno con limón", "pos": "Iogur natural", "note": "Mediodía con gluten e ovo (rebozado). A cea introduce peixe magro, verdura en creme e lácteo. Evita gluten e ovo."}}, {"n": 20, "p": [{"t": "Crema de cabaciña", "k": "pri", "a": ["L"]}, {"t": "Peixe con arroz", "k": "seg", "a": ["P"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de tomate, cebola e aceitunas", "seg": "Polo á prancha con espinacas salteadas", "pos": "Lácteo: iogur", "note": "Mediodía con lácteo e peixe. A cea introduce carne branca, verdura fresca e lácteo suave. Sen peixe pola noite."}}, {"n": 21, "p": [{"t": "Revolto espinacas e gambas", "k": "pri", "a": ["O", "C"]}, {"t": "Empanada de zorza", "k": "seg", "a": ["G"]}, {"t": "Postre caseiro", "k": "pos", "a": ["G", "L", "O"]}], "cena": {"pri": "Ensalada verde sinxela", "seg": "Peixe branco ao forno ou ao vapor", "pos": "Froita fresca", "note": "Mediodía con crustáceos, gluten e ovo. A cea evita todos: verdura crúa, peixe lixeiro e froita."}}, {"n": 22, "p": [{"t": "Caldo galego", "k": "pri", "a": []}, {"t": "Filete con ensalada", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Sopa de fideos ou crema de verduras", "seg": "Peixe azul á prancha (sardiña ou bonito)", "pos": "Iogur natural", "note": "Mediodía con caldo tradicional e carne. A cea introduce peixe azul (omega-3), sopa e lácteo. Patrón moi completo."}}, {"n": 23, "p": [{"t": "Crema de brécol", "k": "pri", "a": ["L"]}, {"t": "Peixe en salsa / pataca", "k": "seg", "a": ["P", "G"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de espinacas e tomate", "seg": "Polo á prancha ou ovos revoltos con champiñóns", "pos": "Froita fresca", "note": "Mediodía con peixe, gluten e lácteo. A cea evita os tres: verdura fresca, proteína branca e froita."}}], [{"n": 26, "p": [{"t": "Revolto de champiñóns", "k": "pri", "a": ["O"]}, {"t": "Espaguetes con atún", "k": "seg", "a": ["G", "P"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de cenoria ou pataca", "seg": "Polo á prancha con brócoli", "pos": "Iogur natural", "note": "Mediodía con ovo, gluten e peixe. A cea introduce carne branca, verdura en creme e lácteo. Evita repetir todos os alérxenos."}}, {"n": 27, "p": [{"t": "Sopa", "k": "pri", "a": ["G"]}, {"t": "Filete con menestra", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de leituga e tomate", "seg": "Peixe branco ao forno ou ao vapor", "pos": "Lácteo: iogur", "note": "Mediodía con gluten e carne. A cea introduce peixe magro, verdura fresca e lácteo. Patrón equilibrado ao final da semana."}}, {"n": 28, "p": [{"t": "Ensalada mixta", "k": "pri", "a": []}, {"t": "Polo asado con patacas", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de brécol ou coliflor", "seg": "Peixe azul á prancha (sardiña ou cabala)", "pos": "Iogur natural", "note": "Mediodía lixeiro con polo. A cea introduce peixe azul (omega-3) e verdura en creme. Semana ben compensada."}}, {"n": 29, "p": [{"t": "Crema de porros e pataca", "k": "pri", "a": ["L"]}, {"t": "Paella", "k": "seg", "a": ["G", "M", "C"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada verde sinxela", "seg": "Ovos á prancha ou polo á prancha", "pos": "Froita fresca", "note": "Mediodía con marisco, gluten e lácteo. A cea é moi lixeira: verdura crúa, proteína suave e froita. Sen marisco nin gluten pola noite."}}, {"n": 30, "p": [{"t": "Potaxe de garavanzos", "k": "pri", "a": []}, {"t": "Carne asada con guarnición", "k": "seg", "a": []}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de tomate, pepino e remolacha", "seg": "Peixe branco ao forno con limón", "pos": "Froita fresca", "note": "Mediodía con legumes e carne. A cea introduce peixe magro, verdura fresca e froita. Fin de mes equilibrado."}}]]}, "febreiro": {"nome": "Febreiro", "emoji": "🎭", "semanas": [[null, null, null, null, null], [{"n": 2, "p": [{"t": "Lentellas vexetais", "k": "pri", "a": []}, {"t": "Tallaríns á carbonara", "k": "seg", "a": ["G", "O", "L"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de espinacas e tomate", "seg": "Peixe branco ao forno ou ao vapor", "pos": "Froita fresca", "note": "Mediodía con gluten, ovo e lácteo. A cea introduce peixe magro e verdura fresca. Evita todos os alérxenos do mediodía."}}, {"n": 3, "p": [{"t": "Crema de brécol", "k": "pri", "a": ["L"]}, {"t": "Salmón con guarnición", "k": "seg", "a": ["P"]}, {"t": "Rosquillas", "k": "pos", "a": ["G", "O", "L"]}], "cena": {"pri": "Ensalada de tomate e pepino", "seg": "Polo á prancha con brócoli", "pos": "Froita fresca", "note": "Mediodía con lácteo e peixe. A cea evita os dous: verdura fresca, carne branca e froita."}}, {"n": 4, "p": [{"t": "Revolto de champiñóns", "k": "pri", "a": ["O"]}, {"t": "Costelas con patacas e verduras asadas", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de pataca e porro", "seg": "Peixe azul á prancha (sardiña ou bonito)", "pos": "Iogur natural", "note": "Mediodía con ovo e carne. A cea introduce peixe azul (omega-3), verdura en creme e lácteo. Evita repetir ovo e carne."}}, {"n": 5, "p": [{"t": "Menestra de verduras", "k": "pri", "a": []}, {"t": "Pasta con tacos de pescado", "k": "seg", "a": ["G", "P"]}, {"t": "Natillas", "k": "pos", "a": ["L", "O"]}], "cena": {"pri": "Ensalada verde sinxela", "seg": "Polo á prancha ou ovos á prancha", "pos": "Froita fresca", "note": "Mediodía con gluten, peixe e lácteo. A cea é sinxela: verdura crúa, proteína branca e froita. Evita todos os alérxenos."}}, {"n": 6, "p": [{"t": "Ensalada mixta", "k": "pri", "a": []}, {"t": "Carne asada con pataca fritida", "k": "seg", "a": []}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Sopa de fideos ou caldo de verduras", "seg": "Peixe branco ao forno con limón", "pos": "Froita fresca", "note": "Mediodía con carne e lácteo. A cea introduce peixe magro e caldo. Equilibra proteínas e aporta omega-3."}}], [{"n": 9, "p": [{"t": "Crema de calabacín", "k": "pri", "a": ["L"]}, {"t": "Raxo de polo con patacas fritidas", "k": "seg", "a": []}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de tomate, cebola e aceitunas", "seg": "Peixe azul á prancha ou branco ao forno", "pos": "Iogur natural", "note": "Mediodía con lácteo e polo. A cea introduce peixe, verdura fresca e lácteo suave. Completa o aporte proteico."}}, {"n": 10, "p": [{"t": "Ovos recheos", "k": "pri", "a": ["O", "G", "L"]}, {"t": "Pescado en salsa con patacas", "k": "seg", "a": ["P", "G"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Ensalada verde sinxela", "seg": "Polo á prancha ou pavo con brócoli", "pos": "Froita fresca", "note": "Mediodía con ovo, peixe, gluten e lácteo. A cea é moi sinxela: verdura crúa, carne branca e froita. Sen ningún alérxeno."}}, {"n": 11, "p": [{"t": "Caldo de grelos", "k": "pri", "a": []}, {"t": "Empanada de carne", "k": "seg", "a": ["G", "O"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de cenoria ou brécol", "seg": "Peixe branco ao forno con limón", "pos": "Lácteo: iogur", "note": "Mediodía con caldo tradicional, gluten e ovo. A cea introduce peixe magro, verdura en creme e lácteo. Evita gluten e ovo."}}, {"n": 12, "p": [{"t": "Ensalada mixta", "k": "pri", "a": []}, {"t": "Macarróns con polo e salsa de cabaciña", "k": "seg", "a": ["G"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Sopa de estrelas ou caldo de verduras", "seg": "Peixe azul á prancha (cabala ou sardiña)", "pos": "Froita fresca", "note": "Mediodía con gluten e lácteo. A cea introduce peixe azul (omega-3), caldo e froita. Sen gluten nin lácteo pola noite."}}, {"n": 13, "p": [{"t": "Sopa de cocido", "k": "pri", "a": ["G"]}, {"t": "Cocido / Orellas entroido", "k": "seg", "a": ["G"]}, {"t": "Postre entroido", "k": "pos", "a": ["G", "O", "L"]}], "cena": {"pri": "Ensalada de espinacas e tomate", "seg": "Peixe branco ao forno lixeiro", "pos": "Froita fresca", "note": "Día de entroido con moito gluten. A cea é moi lixeira e sen gluten: verdura fresca, peixe magro e froita."}}], [{"n": 16, "nonlec": true, "label": "🎭 Entroido"}, {"n": 17, "nonlec": true, "label": "🎭 Entroido"}, {"n": 18, "nonlec": true, "label": "🎭 Entroido"}, {"n": 19, "p": [{"t": "Xudías salteadas / allo", "k": "pri", "a": []}, {"t": "Peituga de pavo con patacas", "k": "seg", "a": []}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Crema de brécol ou coliflor", "seg": "Peixe branco ao forno con limón", "pos": "Froita fresca", "note": "Mediodía con legumes e ave. A cea introduce peixe magro e verdura en creme. Patrón equilibrado."}}, {"n": 20, "p": [{"t": "Revolto de setas ao allo", "k": "pri", "a": ["O"]}, {"t": "Pescado / pataca cocida", "k": "seg", "a": ["P"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de leituga e tomate cherry", "seg": "Polo á prancha con brócoli", "pos": "Froita fresca", "note": "Mediodía con ovo, peixe e lácteo. A cea evita os tres: verdura fresca, carne branca e froita."}}], [{"n": 23, "p": [{"t": "Lentellas vexetais", "k": "pri", "a": []}, {"t": "Ovos á prancha e arroz con tomate triturado", "k": "seg", "a": ["O"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Crema de calabaza ou brécol", "seg": "Peixe branco ao forno ou ao vapor", "pos": "Iogur natural", "note": "Mediodía con legumes e ovo. A cea introduce peixe magro, verdura en creme e lácteo. Evita repetir ovo pola noite."}}, {"n": 24, "p": [{"t": "Crema de cenoria", "k": "pri", "a": ["L"]}, {"t": "Polo asado con guarnición", "k": "seg", "a": []}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de espinacas e tomate", "seg": "Peixe azul á prancha (sardiña ou cabala)", "pos": "Lácteo: iogur", "note": "Mediodía con lácteo e polo. A cea introduce peixe azul (omega-3), verdura fresca e lácteo suave."}}, {"n": 25, "p": [{"t": "Sardiñas con tomate", "k": "pri", "a": ["P"]}, {"t": "Lasaña de verduras", "k": "seg", "a": ["G", "L"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Caldo de verduras con fideos integrais", "seg": "Polo á prancha ou ovos á prancha", "pos": "Froita fresca", "note": "Mediodía con peixe, gluten e lácteo. A cea evita os tres: caldo, proteína branca e froita."}}, {"n": 26, "p": [{"t": "Menestra de verduras", "k": "pri", "a": []}, {"t": "Peixe con pataca fritida", "k": "seg", "a": ["P"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de tomate e pepino", "seg": "Polo á prancha con brócoli ao vapor", "pos": "Froita fresca", "note": "Mediodía con peixe e lácteo. A cea introduce carne branca e verdura fresca. Evita repetir peixe e lácteo pola noite."}}, {"n": 27, "p": [{"t": "Sopa", "k": "pri", "a": ["G"]}, {"t": "Polbo / cachelos", "k": "seg", "a": ["M"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada verde sinxela", "seg": "Polo á prancha ou peixe branco ao forno", "pos": "Froita fresca", "note": "Mediodía con polbo (molusco), gluten e lácteo. A cea é sinxela: verdura crúa, proteína lixeira e froita."}}]]}, "marzo": {"nome": "Marzo", "emoji": "🌸", "semanas": [[null, null, null, null, null], [{"n": 2, "p": [{"t": "Salteado de chícharos", "k": "pri", "a": []}, {"t": "Peituga de pavo / ensalada", "k": "seg", "a": []}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Crema de cenoria ou brécol", "seg": "Peixe branco ao forno con limón", "pos": "Iogur natural", "note": "Mediodía lixeiro con ave e legumes. A cea introduce peixe magro, verdura en creme e lácteo. Patrón moi equilibrado."}}, {"n": 3, "p": [{"t": "Crema de cabaza", "k": "pri", "a": ["L"]}, {"t": "Macarróns con carne de tenreira e tomate", "k": "seg", "a": ["G"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de espinacas e tomate", "seg": "Peixe azul á prancha (sardiña ou cabala)", "pos": "Froita fresca", "note": "Mediodía con lácteo, gluten e carne. A cea introduce peixe azul (omega-3) e verdura fresca. Evita gluten e lácteo pola noite."}}, {"n": 4, "p": [{"t": "Potaxe de garavanzos", "k": "pri", "a": []}, {"t": "Pescado en salsa verde / arroz", "k": "seg", "a": ["P", "G"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Sopa de fideos ou caldo de polo", "seg": "Polo á prancha con brócoli", "pos": "Iogur natural", "note": "Mediodía con legumes, peixe e gluten. A cea introduce carne branca, caldo e lácteo. Evita peixe e gluten."}}, {"n": 5, "p": [{"t": "Sopa", "k": "pri", "a": ["G"]}, {"t": "Raxo de polo con patacas fritidas", "k": "seg", "a": []}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de leituga, tomate e cebola", "seg": "Peixe branco ao forno ou ao vapor", "pos": "Froita fresca", "note": "Mediodía con gluten, polo e lácteo. A cea introduce peixe magro e verdura fresca. Evita gluten e lácteo."}}, {"n": 6, "p": [{"t": "Ensalada mixta", "k": "pri", "a": []}, {"t": "Paella", "k": "seg", "a": ["G", "M", "C"]}, {"t": "Natillas", "k": "pos", "a": ["L", "O"]}], "cena": {"pri": "Crema de verduras sinxela", "seg": "Polo á prancha ou pavo", "pos": "Froita fresca", "note": "Mediodía con marisco, gluten e lácteo. A cea é moi sinxela e sen alérxenos principais: verdura, carne branca e froita."}}], [{"n": 9, "p": [{"t": "Chícharos con xamón", "k": "pri", "a": []}, {"t": "Filete de pavo en tacos con cebola/calabacín/arroz", "k": "seg", "a": []}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Crema de pataca e porro", "seg": "Peixe branco ao forno con limón", "pos": "Froita fresca", "note": "Mediodía con legumes e ave. A cea introduce peixe magro e verdura en creme. Equilibra proteínas e aporta omega-3."}}, {"n": 10, "p": [{"t": "Sopa", "k": "pri", "a": ["G"]}, {"t": "Carne asada con verduras", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de tomate, pepino e remolacha", "seg": "Peixe azul á prancha (sardiña ou bonito)", "pos": "Iogur natural", "note": "Mediodía con gluten e carne. A cea introduce peixe azul (omega-3), verdura fresca e lácteo."}}, {"n": 11, "p": [{"t": "Crema de verduras", "k": "pri", "a": ["L"]}, {"t": "Merluza con pataca cocida", "k": "seg", "a": ["P"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de leituga e tomate", "seg": "Polo á prancha ou ovos á prancha", "pos": "Lácteo: iogur", "note": "Mediodía con lácteo e peixe. A cea introduce proteína branca lixeira, verdura fresca e lácteo suave. Sen peixe pola noite."}}, {"n": 12, "p": [{"t": "Caldo de xudías e fabas", "k": "pri", "a": []}, {"t": "Empanada de polo", "k": "seg", "a": ["G", "O"]}, {"t": "Postre caseiro", "k": "pos", "a": ["G", "L", "O"]}], "cena": {"pri": "Ensalada verde sinxela", "seg": "Peixe branco ao forno con limón", "pos": "Froita fresca", "note": "Mediodía con caldo galego e gluten no segundo e postre. A cea é moi lixeira: verdura crúa, peixe e froita. Sen gluten nin ovo pola noite."}}, {"n": 13, "p": [{"t": "Crema de lentellas", "k": "pri", "a": ["L"]}, {"t": "Pescado con arroz", "k": "seg", "a": ["P"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Sopa de fideos ou caldo de polo", "seg": "Polo á prancha con brócoli ao vapor", "pos": "Iogur natural", "note": "Mediodía con lácteo e peixe. A cea introduce carne branca, caldo e lácteo suave. Sen peixe pola noite."}}], [{"n": 16, "p": [{"t": "Crema de chícharos", "k": "pri", "a": ["L"]}, {"t": "Filete con ensalada", "k": "seg", "a": []}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de tomate e pepino", "seg": "Peixe branco ao forno ou ao vapor", "pos": "Froita fresca", "note": "Mediodía con lácteo e carne. A cea introduce peixe magro e verdura fresca. Evita repetir lácteo e carne pola noite."}}, {"n": 17, "p": [{"t": "Revolto de champiñóns", "k": "pri", "a": ["O"]}, {"t": "Lasaña de verduras", "k": "seg", "a": ["G", "L"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Caldo de verduras sinxelo", "seg": "Polo á prancha ou peixe branco", "pos": "Froita fresca", "note": "Mediodía con ovo, gluten e lácteo. A cea é sinxela: caldo, proteína branca e froita. Evita todos os alérxenos do mediodía."}}, {"n": 18, "p": [{"t": "Ensalada de pasta", "k": "pri", "a": ["G"]}, {"t": "Costelas asadas con patacas", "k": "seg", "a": []}, {"t": "Iogur caseiro", "k": "pos", "a": ["L"]}], "cena": {"pri": "Crema de brécol ou cenoria", "seg": "Peixe branco ao forno con verduras", "pos": "Froita fresca", "note": "Mediodía con gluten, carne e lácteo. A cea introduce peixe magro e verdura en creme. Sen gluten nin lácteo pola noite."}}, {"n": 19, "nonlec": true, "label": "🎉 Festivo"}, {"n": 20, "p": [{"t": "Crema de cenoria", "k": "pri", "a": ["L"]}, {"t": "Pescado en salsa verde", "k": "seg", "a": ["P", "G"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de espinacas e tomate", "seg": "Polo á prancha ou pavo con brócoli", "pos": "Iogur natural", "note": "Mediodía con lácteo, peixe e gluten. A cea introduce carne branca, verdura fresca e lácteo suave. Evita peixe e gluten."}}], [{"n": 23, "p": [{"t": "Menestra de verduras", "k": "pri", "a": []}, {"t": "Carne guisada / patacas", "k": "seg", "a": []}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Sopa de fideos ou caldo de verduras", "seg": "Peixe azul á prancha (sardiña ou cabala)", "pos": "Froita fresca", "note": "Mediodía con carne e lácteo. A cea introduce peixe azul (omega-3), caldo e froita. Evita repetir carne e lácteo."}}, {"n": 24, "p": [{"t": "Sopa", "k": "pri", "a": ["G"]}, {"t": "Ovos fritidos con arroz", "k": "seg", "a": ["O"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Ensalada verde con tomate e pepino", "seg": "Peixe branco ao forno con limón", "pos": "Iogur natural", "note": "Mediodía con gluten e ovo. A cea introduce peixe magro, verdura fresca e lácteo. Evita gluten e ovo pola noite."}}, {"n": 25, "p": [{"t": "Crema de espárragos", "k": "pri", "a": ["L"]}, {"t": "Pescado á prancha con ensalada", "k": "seg", "a": ["P"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de leituga e tomate cherry", "seg": "Polo á prancha ou pavo con brócoli", "pos": "Froita fresca", "note": "Mediodía con peixe e moito lácteo. A cea introduce carne branca, verdura fresca e froita. Sen peixe nin lácteo pola noite."}}, {"n": 26, "p": [{"t": "Ensalada mixta", "k": "pri", "a": []}, {"t": "Polo asado con salteado de verduras", "k": "seg", "a": []}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Crema de calabaza ou brécol", "seg": "Peixe azul á prancha (sardiña ou bonito)", "pos": "Lácteo: iogur", "note": "Mediodía con polo e ensalada. A cea introduce peixe azul (omega-3), verdura en creme e lácteo."}}, {"n": 27, "p": [{"t": "Potaxe de garavanzos", "k": "pri", "a": []}, {"t": "Pescado ao forno / ensalada", "k": "seg", "a": ["P"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Caldo de verduras con fideos integrais", "seg": "Polo á prancha ou ovos á prancha con espinacas", "pos": "Iogur natural", "note": "Mediodía con legumes e peixe. A cea introduce proteína branca lixeira, caldo e lácteo. Sen peixe pola noite."}}]]}, "abril": {"nome": "Abril", "emoji": "🐣", "semanas": [[null, {"n": 7, "nonlec": true, "label": "🐣 Semana Santa"}, {"n": 8, "p": [{"t": "Lentellas vexetais", "k": "pri", "a": []}, {"t": "Macarróns con carne", "k": "seg", "a": ["G"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de tomate e pepino", "seg": "Peixe branco ao forno con limón", "pos": "Iogur natural", "note": "Mediodía con legumes, gluten e carne. A cea introduce peixe magro, verdura fresca e lácteo suave. Evita gluten pola noite."}}, {"n": 9, "p": [{"t": "Ensalada de pasta", "k": "pri", "a": ["G"]}, {"t": "Costela asada con ensalada de leituga e tomate", "k": "seg", "a": []}, {"t": "Arroz con leite caseiro", "k": "pos", "a": ["L"]}], "cena": {"pri": "Crema de brécol ou cenoria", "seg": "Peixe branco ao forno ou ao vapor", "pos": "Froita fresca", "note": "Mediodía con gluten, carne e lácteo. A cea introduce peixe magro e verdura en creme. Evita gluten e lácteo pola noite."}}, {"n": 10, "p": [{"t": "Crema de cabaza", "k": "pri", "a": ["L"]}, {"t": "Guiso de pescado", "k": "seg", "a": ["P", "G"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada verde con tomate cherry", "seg": "Polo á prancha con brócoli", "pos": "Froita fresca", "note": "Mediodía con lácteo, peixe e gluten. A cea introduce carne branca e verdura fresca. Evita todos os alérxenos do mediodía."}}], [{"n": 13, "p": [{"t": "Ensalada mixta", "k": "pri", "a": []}, {"t": "Polo asado con patacas", "k": "seg", "a": []}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Sopa de fideos ou crema de verduras", "seg": "Peixe azul á prancha (sardiña ou bonito)", "pos": "Lácteo: iogur", "note": "Mediodía lixeiro con polo. A cea introduce peixe azul (omega-3) e caldo ou creme. Patrón moi equilibrado."}}, {"n": 14, "p": [{"t": "Crema de espárragos", "k": "pri", "a": ["L"]}, {"t": "Lasaña vexetal", "k": "seg", "a": ["G", "L"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de tomate, cebola e aceitunas", "seg": "Peixe branco ao forno con limón", "pos": "Froita fresca", "note": "Mediodía con moito lácteo e gluten. A cea introduce peixe magro e verdura fresca. Sen gluten nin lácteo pola noite."}}, {"n": 15, "p": [{"t": "Fabada vexetal", "k": "pri", "a": []}, {"t": "Pasta con tacos de pescado", "k": "seg", "a": ["G", "P"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de calabaza ou brécol", "seg": "Polo á prancha ou ovos á prancha", "pos": "Iogur natural", "note": "Mediodía con legumes, gluten e peixe. A cea introduce proteína branca lixeira, verdura en creme e lácteo."}}, {"n": 16, "p": [{"t": "Crema de verduras", "k": "pri", "a": ["L"]}, {"t": "Ovos á prancha con arroz e tomate triturado", "k": "seg", "a": ["O"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de leituga e pepino", "seg": "Peixe branco ao forno ou ao vapor", "pos": "Lácteo: iogur", "note": "Mediodía con lácteo e ovo. A cea introduce peixe magro, verdura fresca e lácteo suave. Evita repetir ovo pola noite."}}, {"n": 17, "p": [{"t": "Lentellas vexetais", "k": "pri", "a": []}, {"t": "Pescado en salsa verde", "k": "seg", "a": ["P", "G"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Sopa de fideos ou caldo de polo", "seg": "Polo á prancha con brócoli ao vapor", "pos": "Iogur natural", "note": "Mediodía con legumes, peixe e gluten. A cea introduce carne branca, caldo e lácteo. Evita peixe e gluten pola noite."}}], [{"n": 20, "p": [{"t": "Sopa", "k": "pri", "a": ["G"]}, {"t": "Guiso de carne con patacas e vexetais", "k": "seg", "a": []}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Crema de brécol ou cenoria", "seg": "Peixe azul á prancha (sardiña ou cabala)", "pos": "Iogur natural", "note": "Mediodía con gluten e carne. A cea introduce peixe azul (omega-3) e verdura en creme. Evita gluten e carne pola noite."}}, {"n": 21, "p": [{"t": "Potaxe de garbanzos e verduras", "k": "pri", "a": []}, {"t": "Pescado ao forno con patacas", "k": "seg", "a": ["P"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de espinacas e tomate", "seg": "Polo á prancha ou ovos revoltos con champiñóns", "pos": "Lácteo: iogur", "note": "Mediodía con legumes e peixe. A cea introduce carne branca ou ovo, verdura fresca e lácteo. Evita peixe pola noite."}}, {"n": 22, "p": [{"t": "Crema de verduras", "k": "pri", "a": ["L"]}, {"t": "Filete de peituga de polo con ensalada", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Sopa de fideos ou caldo de polo", "seg": "Peixe branco ao forno con limón", "pos": "Iogur natural", "note": "Mediodía con lácteo e polo. A cea introduce peixe magro, caldo e lácteo suave. Equilibra proteínas da xornada."}}, {"n": 23, "p": [{"t": "Ensalada mixta", "k": "pri", "a": []}, {"t": "Paella", "k": "seg", "a": ["G", "M", "C"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de brécol ou calabaza", "seg": "Polo á prancha ou pavo con brócoli", "pos": "Iogur natural", "note": "Mediodía con marisco e gluten. A cea é sinxela: verdura en creme, carne branca e lácteo. Sen marisco nin gluten pola noite."}}, {"n": 24, "p": [{"t": "Crema de calabaza", "k": "pri", "a": ["L"]}, {"t": "Bacaladiños con patacas", "k": "seg", "a": ["P", "G", "O"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada verde sinxela", "seg": "Polo á prancha ou pavo con ensalada", "pos": "Froita fresca", "note": "Mediodía con lácteo, peixe, gluten e ovo. A cea é moi sinxela e sen alérxenos: verdura crúa e carne branca."}}], [{"n": 27, "p": [{"t": "Ensalada de garbanzos", "k": "pri", "a": []}, {"t": "Pasta con pescado en taquiños", "k": "seg", "a": ["G", "P"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de cenoria ou pataca", "seg": "Polo á prancha con brócoli", "pos": "Iogur natural", "note": "Mediodía con legumes, gluten e peixe. A cea introduce carne branca, verdura en creme e lácteo. Sen gluten nin peixe pola noite."}}, {"n": 28, "p": [{"t": "Crema de verduras", "k": "pri", "a": ["L"]}, {"t": "Pescado con pataca panadeira", "k": "seg", "a": ["P"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de espinacas e tomate cherry", "seg": "Polo á prancha ou ovos á prancha", "pos": "Lácteo: iogur", "note": "Mediodía con lácteo e peixe. A cea introduce proteína branca, verdura fresca e lácteo suave. Sen peixe pola noite."}}, {"n": 29, "p": [{"t": "Ensalada de pasta", "k": "pri", "a": ["G"]}, {"t": "Lomo con ensalada", "k": "seg", "a": []}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Sopa de fideos ou caldo de verduras", "seg": "Peixe azul á prancha (sardiña ou cabala)", "pos": "Iogur natural", "note": "Mediodía con gluten e carne de porco. A cea introduce peixe azul (omega-3), caldo e lácteo. Patrón equilibrado."}}, {"n": 30, "p": [{"t": "Ensalada Mixta", "k": "pri", "a": []}, {"t": "Bacallau con tomate", "k": "seg", "a": ["P"]}, {"t": "Froita", "k": "pos", "a": []}], "cena": {"pri": "Crema de brécol ou calabaza", "seg": "Polo á prancha con brócoli", "pos": "Lácteo: iogur", "note": "Mediodía con peixe e ensalada. A cea introduce carne branca, verdura en creme e lácteo. Sen peixe pola noite."}}, null]]}, "maio": {"nome": "Maio", "emoji": "🌻", "semanas": [[{"n": 4, "nonlec": true, "label": "Día non lectivo"}, {"n": 5, "p": [{"t": "Arroz 3 delicias", "k": "pri", "a": ["G", "O", "S"]}, {"t": "Peituga de pavo con ensalada", "k": "seg", "a": []}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Crema de verduras (porro, pataca, zanahoria)", "seg": "Tortilla francesa ou ovo revolto lixeiro con tomate", "pos": "Iogur natural sen azucre", "note": "O mediodía incluíu arroz (hidratos) e proteína de ave. A cea aporta verdura en caldo, ovo como proteína suave e lácteo. Equilibra sen sobrecargar."}}, {"n": 6, "p": [{"t": "Potaxe de garvanzos", "k": "pri", "a": []}, {"t": "Espaguetis Boloñesa", "k": "seg", "a": ["G"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de follas verdes con tomate cherry", "seg": "Peixe branco ao forno (merluza ou pescada) con limón", "pos": "Froita fresca ou infusión", "note": "Mediodía rico en legumes e pasta. A cea aporta peixe magro, verdura fresca e case ningún hidrato para compensar o balance da xornada."}}, {"n": 7, "p": [{"t": "Ensalada Mixta", "k": "pri", "a": []}, {"t": "Peixe con pataca cocida", "k": "seg", "a": ["P"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Sopa de fideos ou arroz con verduras (porción lixeira)", "seg": "Peituga de polo á prancha con brócoli ou coliflor ao vapor", "pos": "Un lácteo: iogur natural ou vaso de leite", "note": "O mediodía aportou peixe e pataca. A cea introduce carne branca e verdura cociñada, completando o aporte proteico e de fibra da xornada."}}, {"n": 8, "p": [{"t": "Crema de cabaza", "k": "pri", "a": ["L"]}, {"t": "Polo asado con ensalada", "k": "seg", "a": []}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Caldo de verduras con fideos integrais", "seg": "Ovos revoltos ou tortilla de espinacas (2 ovos)", "pos": "Froita fresca de tempada", "note": "Mediodía con lácteos e proteína de ave. A cea evita repetir lácteos e carne: ovo como proteína suave e froita como postre compensador."}}], [{"n": 11, "p": [{"t": "Ensalada de garavanzos", "k": "pri", "a": []}, {"t": "Pasta integral con salmón en taquiños", "k": "seg", "a": ["G", "P"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Crema de brécol ou verduras de folla", "seg": "Peituga de polo á prancha ou ovo duro con ensalada", "pos": "Iogur natural sen azucre", "note": "O mediodía aportou legumes, pasta integral e peixe azul (omega-3). A cea é lixeira: verdura, proteína branca e lácteo. Non se repite peixe nin hidratos pesados."}}, {"n": 12, "p": [{"t": "Ensalada de pasta", "k": "pri", "a": ["G"]}, {"t": "Raxo con ensalada", "k": "seg", "a": []}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Sopa de verduras ou caldo de polo", "seg": "Peixe branco ao forno (bacallau ou merluza) con pataca cocida", "pos": "Froita fresca", "note": "O mediodía incluíu pasta e carne de porco. A cea compensa con peixe magro e verdura en caldo. Equilibra o aporte de graxas da xornada."}}, {"n": 13, "p": [{"t": "Revolto de espinacas e gambas", "k": "pri", "a": ["O", "C"]}, {"t": "Paella", "k": "seg", "a": ["G", "M", "C"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Ensalada verde sinxela (leituga, tomate, pepino)", "seg": "Peituga de polo á prancha ou filete de pavo", "pos": "Un iogur natural", "note": "Mediodía moi completo con marisco, ovos e arroz. A cea debe ser lixeira: verdura fresca, carne branca magra e lácteo. Sen marisco nin ovos pola noite."}}, {"n": 14, "p": [{"t": "Ensalada mixta", "k": "pri", "a": []}, {"t": "Filete de tenreira con patacas", "k": "seg", "a": []}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Crema de cenoria ou puré de verduras", "seg": "Peixe azul á prancha (sardiña ou cabala) ou bonito con tomate", "pos": "Froita fresca ou iogur", "note": "O mediodía aportou carne vermella (máx. 1 vez/semana, RD 315/2025). A cea introduce peixe azul rico en omega-3 e verdura en creme, compensando sen saturar."}}, {"n": 15, "p": [{"t": "Lentellas vexetais", "k": "pri", "a": []}, {"t": "Pescado en salsa verde con patacas cocidas", "k": "seg", "a": ["P", "G"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de tomate, cebola e pemento asado", "seg": "Ovos á prancha ou tortilla vexetal (calabacín, cebola)", "pos": "Froita de tempada", "note": "Mediodía con legumes e peixe. A cea aporta verdura fresca, ovo como proteína suave e froita. Evita repetir peixe e hidratos pesados."}}], [{"n": 18, "p": [{"t": "Sardiñas con tomate e espárragos", "k": "pri", "a": ["P"]}, {"t": "Guiso de carne con patacas e verduras", "k": "seg", "a": []}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Caldo de verduras ou sopa de fideos lixeira", "seg": "Tortilla francesa ou ovo escalfado con espinacas salteadas", "pos": "Un lácteo: queixo fresco ou iogur", "note": "Mediodía con peixe azul e carne. A cea é moi lixeira: caldo, ovo e lácteo para non sobrecargar de proteína animal ao final do día."}}, {"n": 19, "p": [{"t": "Ovos recheos", "k": "pri", "a": ["O", "G", "L"]}, {"t": "Pescado con arroz", "k": "seg", "a": ["P"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de leituga, tomate e pepino", "seg": "Peituga de polo á prancha ou pavo con verduras ao forno", "pos": "Froita fresca ou infusión sen azucre", "note": "Mediodía con ovo, peixe e arroz. A cea evita repetir ovo e peixe: carne branca, verdura fresca e froita. Balance proteico axeitado."}}, {"n": 20, "p": [{"t": "Xudías con allada e pataca cocida", "k": "pri", "a": []}, {"t": "Peituga de polo con ensalada", "k": "seg", "a": []}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Crema de verduras (brécol, coliflor ou cenoria)", "seg": "Peixe branco ao forno con limón ou ao vapor", "pos": "Iogur natural sen azucre ou vaso de leite", "note": "Mediodía con legumes e polo. A cea introduce peixe magro e verdura en creme, completando o aporte de omega-3 e calcio. Sen hidratos pesados."}}, {"n": 21, "p": [{"t": "Ensalada Mixta", "k": "pri", "a": []}, {"t": "Lasaña de atún", "k": "seg", "a": ["G", "P", "L"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Sopa de verduras ou consomé", "seg": "Ovos revoltos con champiñóns salteados", "pos": "Froita fresca de tempada", "note": "Mediodía con pasta, atún e lácteos (lasaña). A cea é lixeira: caldo, ovo con verduras e froita. Evita repetir gluten, peixe e lácteos."}}, {"n": 22, "p": [{"t": "Crema de chícharos", "k": "pri", "a": ["L"]}, {"t": "Merluza con pataca panadera", "k": "seg", "a": ["P"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de follas verdes con tomate e cebola", "seg": "Peituga de polo á prancha ou filete de pavo con pemento asado", "pos": "Froita fresca", "note": "Mediodía con peixe, crema de verduras e lácteos. A cea aporta carne branca magra, verdura fresca e froita, evitando repetir lácteos e peixe."}}], [{"n": 25, "p": [{"t": "Ensalada de tomate con queixo fresco e aceitunas", "k": "pri", "a": ["L"]}, {"t": "Macarróns con carne", "k": "seg", "a": ["G"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Crema de cenoria ou caldo de verduras", "seg": "Peixe azul á prancha (sardiña, cabala ou bonito)", "pos": "Un iogur natural sen azucre", "note": "Mediodía con pasta, carne e lácteo. A cea introduce peixe azul, verdura e lácteo suave. Evita repetir gluten e carne para equilibrar a carga calórica."}}, {"n": 26, "p": [{"t": "Potaxe de garavanzos", "k": "pri", "a": []}, {"t": "Peixe en salsa verde con pataca cocida", "k": "seg", "a": ["P", "G"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Ensalada verde con pepino, tomate e remolacha", "seg": "Tortilla de dúas claras con espinacas ou pementos", "pos": "Froita fresca ou infusión", "note": "Mediodía rico en legumes e peixe. A cea aporta verdura fresca crúa, ovo como proteína lixeira e froita. Sen hidratos pesados."}}, {"n": 27, "p": [{"t": "Sopa", "k": "pri", "a": ["G"]}, {"t": "Polo asado con ensalada", "k": "seg", "a": []}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Crema de brécol ou coliflor", "seg": "Peixe branco ao forno (merluza ou bacallau) con limón", "pos": "Iogur natural ou queixo fresco", "note": "Mediodía con sopa e polo. A cea introduce peixe magro e verdura en creme. Aporta omega-3 e calcio sen sobrecargar ao final do día."}}, {"n": 28, "p": [{"t": "Ensalada mixta", "k": "pri", "a": []}, {"t": "Bacaladiños con patacas", "k": "seg", "a": ["P", "G", "O"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Caldo de verduras lixeiro", "seg": "Peituga de polo á prancha ou pavo ao forno con verduras", "pos": "Froita fresca de tempada", "note": "Mediodía con bacallau rebozado (gluten e ovo). A cea é lixeira: caldo, carne branca sen rebozar e froita. Evita repetir gluten, ovo e peixe."}}, {"n": 29, "p": [{"t": "Ensaladilla", "k": "pri", "a": ["O"]}, {"t": "Paella", "k": "seg", "a": ["G", "M", "C"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada sinxela de tomate e pepino", "seg": "Ovo á prancha ou tortilla vexetal", "pos": "Froita fresca", "note": "Mediodía moi completo: marisco, ovo e arroz. A cea debe ser moi lixeira: verdura fresca crúa, ovo suave e froita. Evitar marisco, lácteos e hidratos pesados pola noite."}}]]}, "xuno": {"nome": "Xuño", "emoji": "☀️", "semanas": [[{"n": 2, "p": [{"t": "Ensalada mixta", "k": "pri", "a": []}, {"t": "Lasaña boloñesa", "k": "seg", "a": ["G", "L"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Crema de cenoria ou brécol", "seg": "Peixe branco ao forno con limón", "pos": "Froita fresca", "note": "Mediodía con gluten e lácteo (lasaña). A cea introduce peixe magro e verdura en creme. Evita gluten e lácteo pola noite."}}, {"n": 3, "p": [{"t": "Sopa", "k": "pri", "a": ["G"]}, {"t": "Tortilla de patacas con tomate", "k": "seg", "a": ["O"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de espinacas e tomate", "seg": "Peixe branco ao forno ou ao vapor", "pos": "Iogur natural", "note": "Mediodía con gluten e ovo. A cea introduce peixe magro, verdura fresca e lácteo. Evita gluten e ovo pola noite."}}, {"n": 4, "p": [{"t": "Ensaladilla", "k": "pri", "a": ["O"]}, {"t": "Salmón con pataca cocida", "k": "seg", "a": ["P"]}, {"t": "Iogur", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada verde con tomate cherry", "seg": "Polo á prancha con brócoli ao vapor", "pos": "Froita fresca", "note": "Mediodía con ovo, peixe e lácteo. A cea introduce carne branca e verdura fresca. Evita repetir ovo, peixe e lácteo pola noite."}}, {"n": 5, "p": [{"t": "Crema de chícharos", "k": "pri", "a": ["L"]}, {"t": "Empanada de zorza", "k": "seg", "a": ["G"]}, {"t": "Batido de froita caseiro", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de tomate e pepino", "seg": "Peixe branco ao forno ou sardiñas con tomate", "pos": "Froita fresca", "note": "Mediodía con lácteo e gluten. A cea introduce peixe, verdura fresca e froita. Evita gluten e lácteo pola noite."}}, {"n": 6, "p": [{"t": "Arroz 3 delicias", "k": "pri", "a": ["G", "O", "S"]}, {"t": "Filete de tenreira / ensalada", "k": "seg", "a": []}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Crema de brécol ou coliflor", "seg": "Peixe azul á prancha (sardiña ou bonito)", "pos": "Iogur natural", "note": "Mediodía con arroz, gluten e carne. A cea introduce peixe azul (omega-3), verdura en creme e lácteo. Evita gluten pola noite."}}], [{"n": 9, "p": [{"t": "Entremés", "k": "pri", "a": []}, {"t": "Macarróns con carne", "k": "seg", "a": ["G"]}, {"t": "Chocolatina", "k": "pos", "a": ["L", "G"]}], "cena": {"pri": "Ensalada de leituga, tomate e pepino", "seg": "Peixe branco ao forno con limón", "pos": "Froita fresca", "note": "Mediodía con gluten e lácteo. A cea introduce peixe magro e verdura fresca. Sen gluten nin lácteo pola noite."}}, {"n": 10, "p": [{"t": "Sopa", "k": "pri", "a": ["G"]}, {"t": "Nuggets de polo con patacas", "k": "seg", "a": ["G", "O"]}, {"t": "Postre caseiro", "k": "pos", "a": ["G", "L", "O"]}], "cena": {"pri": "Crema de brécol ou calabaza", "seg": "Peixe branco ao forno ou ao vapor", "pos": "Froita fresca", "note": "Mediodía con gluten e ovo (rebozado). A cea introduce peixe magro, verdura en creme e froita. Evita gluten e ovo pola noite."}}, {"n": 11, "p": [{"t": "Revolto de champiñóns", "k": "pri", "a": ["O"]}, {"t": "Lomos de pescada/pataca", "k": "seg", "a": ["P"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de espinacas e tomate cherry", "seg": "Polo á prancha con brócoli ao vapor", "pos": "Iogur natural", "note": "Mediodía con ovo e peixe. A cea introduce carne branca, verdura fresca e lácteo. Evita repetir ovo e peixe pola noite."}}, {"n": 12, "p": [{"t": "Ensalada de pasta", "k": "pri", "a": ["G"]}, {"t": "Costelas asadas / ensalada", "k": "seg", "a": []}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Crema de cenoria ou pataca", "seg": "Peixe azul á prancha (sardiña ou cabala)", "pos": "Lácteo: iogur", "note": "Mediodía con gluten e carne. A cea introduce peixe azul (omega-3), verdura en creme e lácteo. Patrón equilibrado."}}, {"n": 13, "nonlec": true, "label": "🎉 Festivo Local"}], [{"n": 16, "p": [{"t": "Lentellas vexetais", "k": "pri", "a": []}, {"t": "Ovos fritos con arroz e tomate triturado", "k": "seg", "a": ["O"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Crema de brécol ou calabaza", "seg": "Peixe branco ao forno ou ao vapor", "pos": "Iogur natural", "note": "Mediodía con legumes e ovo. A cea introduce peixe magro, verdura en creme e lácteo. Evita repetir ovo pola noite."}}, {"n": 17, "p": [{"t": "Sopa de pescado", "k": "pri", "a": ["P", "G"]}, {"t": "Polo asado con ensalada", "k": "seg", "a": []}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Ensalada de leituga, tomate e pepino", "seg": "Peixe azul á prancha ou ovo á prancha", "pos": "Lácteo: iogur", "note": "Mediodía con peixe e gluten. A cea introduce proteína lixeira (peixe azul ou ovo), verdura fresca e lácteo. Patrón equilibrado."}}, {"n": 18, "p": [{"t": "Xudías con ovo e chorizo", "k": "pri", "a": ["O"]}, {"t": "Salmón con puré de pataca", "k": "seg", "a": ["P", "L"]}, {"t": "Froita de tempada", "k": "pos", "a": []}], "cena": {"pri": "Ensalada verde sinxela", "seg": "Polo á prancha ou pavo con brócoli", "pos": "Froita fresca", "note": "Mediodía con ovo, peixe e lácteo (puré). A cea introduce carne branca e verdura fresca. Evita todos os alérxenos do mediodía."}}, {"n": 19, "p": [{"t": "Coliflor gratinada", "k": "pri", "a": ["L", "G"]}, {"t": "Albóndegas con arroz", "k": "seg", "a": ["G", "O"]}, {"t": "Iogur caseiro", "k": "pos", "a": ["L"]}], "cena": {"pri": "Ensalada de tomate, cebola e remolacha", "seg": "Peixe branco ao forno con limón", "pos": "Froita fresca", "note": "Mediodía con moito gluten e lácteo. A cea é moi lixeira: verdura fresca, peixe magro e froita. Evita gluten, ovo e lácteo pola noite."}}, {"n": 20, "p": [{"t": "Ensalada mixta", "k": "pri", "a": []}, {"t": "Pizza", "k": "seg", "a": ["G", "L"]}, {"t": "🍦 Xeado fin de curso!", "k": "pos", "a": ["L"]}], "cena": {"pri": "Crema de verduras suave ou caldo", "seg": "Polo á prancha ou pavo con brócoli", "pos": "Froita fresca de tempada", "note": "Último día! Mediodía festivo con pizza e xeado (gluten e lácteo). A cea é moi lixeira: verdura, carne branca e froita para compensar."}}]]}};
+
+const ORDEN=['setembro','outubro','novembro','decembro','xaneiro','febreiro','marzo','abril','maio','xuno'];
+const NOMES={setembro:'Set.',outubro:'Out.',novembro:'Nov.',decembro:'Dec.',xaneiro:'Xan.',febreiro:'Feb.',marzo:'Mar.',abril:'Abr.',maio:'Mai.',xuno:'Xuño'};
+
+function buildNav(){
+  const nav=document.getElementById('navInner');
+  ORDEN.forEach(id=>{
+    const b=document.createElement('button');
+    b.className='mes-btn'; b.id='btn-'+id;
+    b.textContent=NOMES[id];
+    b.onclick=()=>mostrarMes(id);
+    nav.appendChild(b);
+  });
+  const b=document.createElement('button');
+  b.className='mes-btn'; b.id='btn-normas';
+  b.textContent='📋 Normas RD';
+  b.onclick=()=>mostrarNormas();
+  nav.appendChild(b);
+}
+
+function mostrarMes(id){
+  document.querySelectorAll('.mes-btn').forEach(b=>b.classList.remove('activo'));
+  document.getElementById('btn-'+id).classList.add('activo');
+  document.getElementById('normas-section').style.display='none';
+  const main=document.getElementById('main');
+  main.querySelectorAll('.mes-section').forEach(s=>s.remove());
+  main.appendChild(buildMesSection(id));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function mostrarNormas(){
+  document.querySelectorAll('.mes-btn').forEach(b=>b.classList.remove('activo'));
+  document.getElementById('btn-normas').classList.add('activo');
+  document.getElementById('main').querySelectorAll('.mes-section').forEach(s=>s.remove());
+  document.getElementById('normas-section').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function buildMesSection(id){
+  const m=MESES[id];
+  const sec=document.createElement('div');
+  sec.className='mes-section visible';
+  const hd=document.createElement('div'); hd.className='mes-header';
+  hd.innerHTML=`<h2>${m.emoji} ${m.nome}</h2><span class="curso">Curso 2025-2026</span>`;
+  sec.appendChild(hd);
+
+  const cal=document.createElement('div'); cal.className='calendario';
+  const ch=document.createElement('div'); ch.className='cal-header';
+  ['Luns','Martes','Mércores','Xoves','Venres'].forEach(d=>{
+    const c=document.createElement('div'); c.className='cal-dia-nome'; c.textContent=d; ch.appendChild(c);
+  });
+  cal.appendChild(ch);
+
+  m.semanas.forEach(sem=>{
+    const row=document.createElement('div'); row.className='semana';
+    sem.forEach(day=>{
+      const cell=document.createElement('div');
+      if(!day){ cell.className='dia vacio'; }
+      else if(day.nonlec){
+        cell.className='dia festivo';
+        cell.innerHTML=`<div class="dia-num">${day.n}</div><div class="festivo-label">${day.label||''}</div>`;
+      } else {
+        cell.className='dia';
+        cell.onclick=()=>openModal(day,m.nome);
+        let h=`<div class="dia-num">${day.n}</div><div class="platos">`;
+        day.p.forEach(p=>{
+          const dots=p.a.map(c=>`<div class="adot" style="background:${AC[c]}" title="${AN[c]}"></div>`).join('');
+          h+=`<div class="prato ${p.k}">${p.t}<div class="adots">${dots}</div></div>`;
+        });
+        h+=`</div>`;
+        cell.innerHTML=h;
+      }
+      row.appendChild(cell);
+    });
+    cal.appendChild(row);
+  });
+  sec.appendChild(cal);
+
+  const nota=document.createElement('div'); nota.className='nota';
+  nota.textContent='⚠️ Estes menús poden variar debido a imprevistos de última hora que afecten ao funcionamento do servizo do comedor.';
+  sec.appendChild(nota);
+  return sec;
+}
+
+function openModal(day,mesNome){
+  document.getElementById('modalTitle').textContent=`Día ${day.n} · ${mesNome}`;
+  let rows='';
+  day.p.forEach(p=>{
+    const kn=p.k==='pri'?'1º':p.k==='seg'?'2º':'Postre';
+    const tags=p.a.length
+      ? p.a.map(c=>`<span class="atag" style="background:${AC[c]}22;color:${AC[c]};border:1px solid ${AC[c]}55">${AN[c]}</span>`).join('')
+      : `<span class="atag-none">Sen alérxenos principais</span>`;
+    rows+=`<div class="alx-row"><div class="prato-name"><span class="tbadge tb-${p.k}">${kn}</span>${p.t}</div><div class="alx-tags">${tags}</div></div>`;
+  });
+  const c=day.cena;
+  document.getElementById('modalBody').innerHTML=`
+    <div class="modal-sec-title">⚠️ Alérxenos por prato</div>
+    <div class="alx-rows">${rows}</div>
+    <div class="divider"></div>
+    <div class="modal-sec-title">🌙 Proposta de cea equilibrada · Art. 11.1 RD 315/2025</div>
+    <div class="cena-cards">
+      <div class="cena-card"><div class="cc-label">🥗 Primeiro</div><div class="cc-val">${c.pri}</div></div>
+      <div class="cena-card"><div class="cc-label">🍽️ Segundo</div><div class="cc-val">${c.seg}</div></div>
+      <div class="cena-card"><div class="cc-label">🍎 Postre</div><div class="cc-val">${c.pos}</div></div>
+    </div>
+    <div class="cena-note">${c.note}</div>`;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function closeModalOutside(e){ if(e.target===document.getElementById('modalOverlay')) closeModal(); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+
+buildNav();
+mostrarMes('setembro');
+</script>
+</body>
+</html>
