@@ -70,6 +70,12 @@ input[type=number]{font-variant-numeric:tabular-nums}
 .course-n{font-family:var(--display);font-weight:600;font-size:1.08rem}
 .item{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px 14px;align-items:center;padding:10px 12px;border-radius:9px;background:var(--bg)}
 .item.hc{background:var(--carb-soft)}
+.pick{display:flex;align-items:center;gap:12px;flex:1 1 300px;min-width:0}
+.sticker{display:inline-grid;place-items:center;flex:none;width:48px;height:48px;border-radius:50%;font-size:27px;line-height:1;background:var(--surface);border:3px solid var(--surface);box-shadow:0 0 0 1px var(--line),0 3px 8px rgba(20,40,58,.18);transform:rotate(-6deg)}
+.course:nth-of-type(even) .sticker{transform:rotate(5deg)}
+.sticker.sm{width:30px;height:30px;font-size:17px;border-width:2px;margin-right:6px;vertical-align:middle;transform:rotate(-4deg)}
+.wk .dn{display:flex;align-items:flex-start}
+@media (prefers-reduced-motion:no-preference){.pick .sticker{transition:transform .2s}.pick:hover .sticker{transform:rotate(0) scale(1.08)}}
 select.dish{flex:1 1 260px;min-width:0;max-width:100%;font-family:var(--display);font-weight:600;font-size:1.02rem;padding:7px 9px}
 .item .meta{font-size:.84rem;color:var(--muted);margin-top:3px}
 .rac{display:flex;align-items:center;gap:4px}
@@ -135,7 +141,8 @@ footer{font-size:.82rem;color:var(--muted)}
   .item .food{grid-column:1/-1}
   .grams{justify-content:flex-end}
   .course-h{flex-direction:column;align-items:stretch;gap:4px}
-  select.dish{flex:none;width:100%}
+  select.dish{flex:1 1 auto;width:100%}
+  .pick{flex:none;width:100%}
   .row .btn{flex:1 1 100%}
   .meter-total{font-size:1.35rem}
 }
@@ -164,6 +171,8 @@ footer{font-size:.82rem;color:var(--muted)}
   #print tr{break-inside:avoid}
   #print .g{font-weight:700}
   #print .note{color:#333;font-size:8.5pt}
+  #print .sticker{box-shadow:none;border:1px solid #999;background:#fff}
+  #print .ps{font-size:13pt}
   #print .short{color:#000;font-weight:700}
   #print .pf{font-size:8pt;margin-top:10px}
   #print .wk td.d{text-transform:capitalize;font-weight:700;white-space:nowrap}
@@ -569,11 +578,32 @@ function dishesFor(fecha){
   const raw=MENUS[fecha]; if(!raw) return [ALL_DISHES[0][0],ALL_DISHES[1][0],settings.fruta];
   const p=raw.split("|"); return [p[0],p[1],p[2]==="I"?"iogur":(settings.fruta||"manzana")];
 }
+// Stickers: un dibujo identificativo para cada plato (el primer patrón que coincide gana)
+const STICKERS=[
+  [/nadal|navide/,"🎄"],[/pizza/,"🍕"],[/empanada/,"🥧"],[/croquetas/,"🥟"],[/lasaña/,"🍝"],
+  [/paella|arroz negro|fideuá/,"🥘"],[/arroz 3|ensalada de arroz/,"🍚"],
+  [/^ensalad|caprese|césar/,"🥗"],
+  [/^crema de (cabaciña|calabacín)/,"🥒"],
+  [/^crema de (cabaza|calabaza)/,"🎃"],[/^crema de cenoria/,"🥕"],[/^crema de brécol/,"🥦"],[/^crema de chícharos/,"🫛"],
+  [/^crema|^sopa|^caldo/,"🥣"],
+  [/macarr|espague|tallar|pasta|boloñesa/,"🍝"],
+  [/potaxe|fabada|fabas|garavanzos|garbanzos|garvanzos|cocido|lentellas/,"🫘"],
+  [/chícharos|guisantes|xudías/,"🫛"],[/^menestra/,"🥦"],
+  [/tortilla/,"🥔"],[/ovos|revolto/,"🍳"],
+  [/calamares|polbo|chipiróns/,"🦑"],[/gambas/,"🍤"],
+  [/bacalad|bacallau|peixe|pescad|merluza|salmón|sardiñas|atún/,"🐟"],
+  [/albóndegas/,"🧆"],[/polo|pavo|peituga|muslito/,"🍗"],
+  [/carne|filete|costela|lomo|raxo|tenreira|guiso/,"🥩"]
+];
+const FOOD_STICKERS={iogur:"🥛",manzana:"🍎",pera:"🍐",naranja:"🍊",mandarina:"🍊",platano:"🍌",kiwi:"🥝",uva:"🍇",melon:"🍈",sandia:"🍉",melocoton:"🍑",nectarina:"🍑",ciruela:"🍒",pina:"🍍",fresas:"🍓",caqui:"🍊",pan:"🍞",arroz:"🍚",pataca_cocida:"🥔",pataca_asada:"🥔",pataca_frita:"🍟",pure:"🥔"};
+function sticker(name){const n=String(name).toLowerCase();for(const [re,e] of STICKERS) if(re.test(n)) return e;return "🍽️";}
+function courseSticker(ci,c){return ci===2||ci===4?(FOOD_STICKERS[c.items[0].food]||"🍽️"):ci===3?"🍞":sticker(c.name);}
+const stk=(e,cls)=>`<span class="sticker${cls?" "+cls:""}" aria-hidden="true">${e}</span>`;
 function dishOptions(c,sel){
-  if(c===3) return PAN_OPTS.map((n,i)=>`<option value="${i}"${String(i)===sel?" selected":""}>${n}</option>`).join("");
-  if(c===2){const F=foods();let h="";for(const k in F) if(F[k].t==="postre") h+=`<option value="${k}"${k===sel?" selected":""}>${k==="iogur"?"Iogur natural":"Froita: "+esc(F[k].n)}</option>`;return h;}
+  if(c===3) return PAN_OPTS.map((n,i)=>`<option value="${i}"${String(i)===sel?" selected":""}>${i?"🍞 ":""}${n}</option>`).join("");
+  if(c===2){const F=foods();let h="";for(const k in F) if(F[k].t==="postre") h+=`<option value="${k}"${k===sel?" selected":""}>${FOOD_STICKERS[k]||""} ${k==="iogur"?"Iogur natural":"Froita: "+esc(F[k].n)}</option>`;return h;}
   const list=ALL_DISHES[c].slice(); if(!list.some(x=>x.toLowerCase()===sel.toLowerCase())) list.unshift(sel);
-  return list.map(n=>`<option${n.toLowerCase()===sel.toLowerCase()?" selected":""}>${esc(n)}</option>`).join("");
+  return list.map(n=>`<option value="${esc(n)}"${n.toLowerCase()===sel.toLowerCase()?" selected":""}>${sticker(n)} ${esc(n)}</option>`).join("");
 }
 // Medidas caseras para la cocina: [singular, plural, gramos de una unidad]
 // Basadas en «Alimentación en Diabetes I» (Escuela de Pacientes): 1 cucharón de legumbre o pasta cocida = 2 raciones;
@@ -703,7 +733,7 @@ function renderDay(){
   const labels=["Primer plato","Segundo plato","Postre","Pan","Extra"];
   let h="";
   p.courses.forEach((c,ci)=>{
-    h+=`<div class="course"><div class="course-h"><label class="course-k" for="dish${ci}">${labels[ci]}</label>${ci<4?`<select class="dish" id="dish${ci}" data-dish="${ci}">${dishOptions(ci,ci===2?c.items[0].food:ci===3?String(dayEdits[current]&&dayEdits[current].pan!==undefined?dayEdits[current].pan:1):c.name)}</select>`:`<span class="course-n">${esc(c.name)}</span>`}</div>`;
+    h+=`<div class="course"><div class="course-h"><label class="course-k" for="dish${ci}">${labels[ci]}</label><div class="pick">${stk(courseSticker(ci,c))}${ci<4?`<select class="dish" id="dish${ci}" data-dish="${ci}">${dishOptions(ci,ci===2?c.items[0].food:ci===3?String(dayEdits[current]&&dayEdits[current].pan!==undefined?dayEdits[current].pan:1):c.name)}</select>`:`<span class="course-n">${esc(c.name)}</span>`}</div></div>`;
     for(const it of c.items){
       const f=it.f; const per100=f.g?r1(1000/f.g):0;
       const meta=f.g?`${fmt(per100)} g HC/100 g · 1 ración = ${Math.round(f.g)} g <span class="src${f.s==="Estimado"?" est":""}">${esc(f.s||"Propio")}</span>`:"Hidratos despreciables";
@@ -822,7 +852,7 @@ function rangeRows(ks,skipEmpty){
     for(let c=0;c<4;c++){
       const co=c<3?p.courses[c]:{name:p.courses.slice(3).map(x=>x.name).join(" + "),items:p.courses.slice(3).flatMap(x=>x.items)};
       const g=co.items.filter(it=>it.f.g&&it.grams>0.5).map(it=>`<div><span class="g">${r5(it.grams)} g</span> ${esc(it.f.n.toLowerCase())}${casera(it)?` <span class="note">(${casera(it)})</span>`:""}</div>`).join("");
-      h+=`<td data-label="${heads[c]}"><div class="dn">${esc(co.name)}</div>${g||'<div class="note">libre</div>'}</td>`;
+      h+=`<td data-label="${heads[c]}"><div class="dn">${stk(c<3?courseSticker(c,co):"🍞","sm")}${esc(co.name)}</div>${g||'<div class="note">libre</div>'}</td>`;
     }
     const sh=settings.obj-p.total;
     h+=`<td class="num" data-label="Total">${fmt(p.total)} rac.${sh>0.05?`<div class="note short">faltan ${fmt(sh)}</div>`:""}</td></tr>`;
@@ -860,7 +890,7 @@ function printDay(){
   const labels=["Primer plato","Segundo plato","Postre","Pan","Extra"];
   let h=printHead(t[0].toUpperCase()+t.slice(1))+`<table><thead><tr><th>Plato</th><th>Alimento</th><th class="num">Gramos</th><th>Medida casera</th><th class="num">Raciones</th></tr></thead><tbody>`;
   p.courses.forEach((c,ci)=>c.items.forEach((it,i)=>{
-    h+=`<tr>${i===0?`<td rowspan="${c.items.length}"><small>${labels[ci]}</small><br><b>${esc(c.name)}</b></td>`:""}<td>${esc(it.f.n)}</td>
+    h+=`<tr>${i===0?`<td rowspan="${c.items.length}"><small>${labels[ci]}</small><br><span class="ps">${courseSticker(ci,c)}</span> <b>${esc(c.name)}</b></td>`:""}<td>${esc(it.f.n)}</td>
       <td class="num"><b>${it.f.g?r5(it.grams)+" g":"Libre"}</b></td><td>${esc(casera(it))}</td><td class="num">${it.f.g?fmt(it.rac):"—"}</td></tr>`;
   }));
   return h+`</tbody><tfoot><tr><td colspan="4"><b>Total</b></td><td class="num"><b>${fmt(p.total)}</b></td></tr></tfoot></table>`;
