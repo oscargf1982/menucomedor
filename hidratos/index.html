@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raciones HC Comedor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+/* Layout: una columna de trabajo (día → platos → gramos), barra de 6 raciones arriba como resumen */
+:root{
+  --bg:#f3f6f8; --surface:#ffffff; --ink:#14283a; --muted:#5b6f80; --line:#d6e0e7;
+  --accent:#0f6e8c; --accent-soft:#e1f0f5; --carb:#d98a1c; --carb-soft:#fbefdc;
+  --ok:#2f8a57; --ok-soft:#e2f3e8; --warn:#b4471f; --warn-soft:#fbe6dd;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1a22; --surface:#16242f; --ink:#e4edf3; --muted:#93a8b8; --line:#2a3d4b;
+  --accent:#5cc0de; --accent-soft:#173a47; --carb:#f0aa4a; --carb-soft:#3a2c15;
+  --ok:#5fcb8a; --ok-soft:#173526; --warn:#f08a62; --warn-soft:#3d2018; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1a22; --surface:#16242f; --ink:#e4edf3; --muted:#93a8b8; --line:#2a3d4b;
+  --accent:#5cc0de; --accent-soft:#173a47; --carb:#f0aa4a; --carb-soft:#3a2c15;
+  --ok:#5fcb8a; --ok-soft:#173526; --warn:#f08a62; --warn-soft:#3d2018; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;padding-inline:16px;padding-block:20px 48px}
+.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:clamp(1.5rem,4vw,2rem);font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.15rem;font-weight:600}
+.sub{color:var(--muted);margin:2px 0 0}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px}
+.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px}
+.tabs button{border:0;background:none;color:var(--muted);font:inherit;font-weight:700;padding:7px 12px;border-radius:7px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--surface)}
+button{font:inherit;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 12px;cursor:pointer;font-weight:700}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.daynav{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.daynav input[type=date]{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.dayname{font-family:var(--display);font-weight:600;font-size:1.25rem;flex:1 1 220px}
+.dayname::first-letter{text-transform:uppercase}
+.settings{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;color:var(--muted);font-size:.92rem}
+.settings label{display:flex;align-items:center;gap:6px}
+.settings input[type=number]{width:62px}
+input[type=number],input[type=text],select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:5px 7px}
+input[type=number]{font-variant-numeric:tabular-nums}
+/* Barra de raciones */
+.meter{display:flex;flex-direction:column;gap:8px}
+.meter-top{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px}
+.meter-total{font-family:var(--display);font-size:1.6rem;font-weight:800;font-variant-numeric:tabular-nums}
+.meter-total small{font-family:var(--body);font-size:.9rem;font-weight:400;color:var(--muted)}
+.blocks{display:grid;gap:4px;grid-template-columns:repeat(var(--n),1fr)}
+.blk{height:22px;border-radius:5px;background:var(--line);position:relative;overflow:hidden}
+.blk i{position:absolute;inset:0 auto 0 0;background:var(--carb)}
+.blk.over i{background:var(--warn)}
+.pill{display:inline-block;border-radius:99px;padding:2px 10px;font-weight:700;font-size:.85rem}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.warn{background:var(--warn-soft);color:var(--warn)}
+/* Platos */
+.course{display:flex;flex-direction:column;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+.course:first-of-type{border-top:0;padding-top:0}
+.course-h{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.course-k{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;min-width:80px}
+.course-n{font-family:var(--display);font-weight:600;font-size:1.08rem}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px 14px;align-items:center;padding:10px 12px;border-radius:9px;background:var(--bg)}
+.item.hc{background:var(--carb-soft)}
+select.dish{flex:1 1 260px;min-width:0;max-width:100%;font-family:var(--display);font-weight:600;font-size:1.02rem;padding:7px 9px}
+.item .meta{font-size:.84rem;color:var(--muted);margin-top:3px}
+.rac{display:flex;align-items:center;gap:4px}
+.rac button{width:30px;height:30px;border-radius:7px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:700}
+.rac input{width:60px;text-align:right}
+.rac span,.grams span{font-size:.8rem;color:var(--muted)}
+.grams{display:flex;align-items:center;gap:4px;justify-content:flex-end;flex-wrap:wrap}
+.casera{flex-basis:100%;text-align:right;font-size:.85rem;color:var(--ink);font-weight:700}
+.grams input{width:76px;text-align:right;font-weight:700;font-size:1.15rem;font-family:var(--display)}
+.pin{font-size:.78rem;color:var(--accent);background:none;border:0;cursor:pointer;text-decoration:underline;padding:0}
+.free{font-size:.88rem;color:var(--muted);text-align:right}
+.note{font-size:.88rem;color:var(--muted)}
+.warnbox{background:var(--warn-soft);color:var(--ink);border-radius:9px;padding:10px 12px;font-size:.9rem}
+.warnbox b{color:var(--warn)}
+.warnbox.comp{display:flex;flex-direction:column;gap:8px}
+.empty{padding:26px;text-align:center;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.num,th.num{text-align:right}
+.wk td{min-width:150px}
+.wk .g{font-weight:700;color:var(--carb)}
+.wk .d{font-family:var(--display);font-weight:600;min-width:90px}
+.src{font-size:.75rem;padding:1px 7px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:700;white-space:nowrap}
+.src.est{background:var(--carb-soft);color:var(--carb)}
+textarea{width:100%;min-height:150px;font:inherit;font-size:.9rem;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);padding:10px}
+footer{font-size:.82rem;color:var(--muted)}
+.short{color:var(--warn)}
+.wk .dn{font-weight:400}
+#print{display:none}
+/* Tablet */
+@media (max-width:900px){
+  body{font-size:16px}
+  .rac button{width:40px;height:40px;font-size:1.1rem}
+  .btn{padding:10px 14px}
+  .daynav .btn{min-width:44px;min-height:44px}
+  .daynav input[type=date]{min-height:44px}
+}
+/* Tablas de semana y mes como tarjetas en pantallas estrechas */
+@media (max-width:760px){
+  .tablewrap:has(table.wk){overflow:visible}
+  table.wk thead{display:none}
+  table.wk,table.wk tbody,table.wk tr,table.wk td{display:block;width:100%}
+  table.wk tr{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:var(--surface)}
+  table.wk td{border:0;padding:6px 0;min-width:0}
+  table.wk td[data-label]::before{content:attr(data-label);display:block;font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  table.wk td.d{font-size:1.1rem;text-transform:capitalize;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:4px}
+  table.wk td.num{text-align:left;font-weight:700}
+}
+/* Móvil */
+@media (max-width:620px){
+  header{flex-direction:column;align-items:stretch}
+  .tabs{width:100%}
+  .tabs button{flex:1;padding:10px 4px}
+  .daynav{display:grid;grid-template-columns:auto 1fr auto;gap:8px}
+  .daynav input[type=date]{width:100%}
+  .dayname{grid-column:1/-1;order:-1;font-size:1.2rem}
+  #v-semana .dayname,#v-mes .dayname{grid-column:auto;order:0;text-align:center}
+  .settings{display:grid;grid-template-columns:1fr;gap:10px}
+  .item{grid-template-columns:1fr 1fr;padding:12px}
+  .item .food{grid-column:1/-1}
+  .grams{justify-content:flex-end}
+  .course-h{flex-direction:column;align-items:stretch;gap:4px}
+  select.dish{flex:none;width:100%}
+  .row .btn{flex:1 1 100%}
+  .meter-total{font-size:1.35rem}
+}
+@media (max-width:380px){
+  .item{grid-template-columns:1fr}
+  .grams{justify-content:flex-start}
+  .casera{text-align:left}
+}
+/* Impresión: solo el informe preparado, en claro */
+@page{size:A4 portrait;margin:12mm}
+@page land{size:A4 landscape;margin:10mm}
+@media print{
+  :root{--bg:#fff;--surface:#fff;--ink:#000;--muted:#444;--line:#999;--carb:#000;--accent:#000}
+  body{background:#fff;color:#000;padding:0;font-size:11pt}
+  .wrap{display:none!important}
+  #print{display:block!important}
+  #print.land{page:land}
+  #print .ph{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:10px}
+  #print h1{font-size:15pt;margin:0}
+  #print .ph p{margin:2px 0 0;font-size:9pt}
+  #print .pr{text-align:right;font-size:10pt}
+  #print table{width:100%;border-collapse:collapse;font-size:9.5pt}
+  #print th,#print td{border:1px solid #888;padding:4px 6px;vertical-align:top;text-align:left}
+  #print th{background:#eee;color:#000;font-size:8pt}
+  #print td.num,#print th.num{text-align:right}
+  #print tr{break-inside:avoid}
+  #print .g{font-weight:700}
+  #print .note{color:#333;font-size:8.5pt}
+  #print .short{color:#000;font-weight:700}
+  #print .pf{font-size:8pt;margin-top:10px}
+  #print .wk td.d{text-transform:capitalize;font-weight:700;white-space:nowrap}
+}
+@media (prefers-reduced-motion:no-preference){.blk i{transition:width .25s ease}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Raciones de HC · Comedor</h1>
+      <p class="sub">CEIP Plurilingüe de Monforte de Lemos · curso 2026-2027</p>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button role="tab" id="t-dia" aria-selected="true" data-tab="dia">Día</button>
+      <button role="tab" id="t-semana" aria-selected="false" data-tab="semana">Semana</button>
+      <button role="tab" id="t-mes" aria-selected="false" data-tab="mes">Mes</button>
+      <button role="tab" id="t-alim" aria-selected="false" data-tab="alim">Alimentos</button>
+    </nav>
+  </header>
+
+  <div class="warnbox"><b>Valores orientativos.</b> Las cantidades se calculan con la Tabla de raciones de HC de la Fundación para la Salud y con recetas estimadas. Valídalas con la familia y el equipo de endocrinología antes de usarlas, y ajusta cada plato si conoces la receta real del comedor.</div>
+
+  <!-- DÍA -->
+  <section id="v-dia" class="panel">
+    <div class="daynav">
+      <button class="btn" id="prev" aria-label="Día anterior">‹</button>
+      <input type="date" id="fecha" min="2026-09-01" max="2027-06-30">
+      <button class="btn" id="next" aria-label="Día siguiente">›</button>
+      <span class="dayname" id="dayname"></span>
+    </div>
+    <div class="settings">
+      <label>Objetivo <input type="number" id="obj" min="1" max="15" step="0.5"> raciones</label>
+      <label>1 ración = <input type="number" id="gr" min="5" max="20" step="1"> g HC</label>
+      <label>Rebanada de pan <input type="number" id="rebanada" min="0" max="80" step="5"> g</label>
+      <label><input type="checkbox" id="pan"> Si falta, dar más pan</label>
+    </div>
+    <div class="meter" id="meter"></div>
+    <div id="dia"></div>
+    <div class="row">
+      <button class="btn primary" id="copiar">Copiar para el comedor</button>
+      <button class="btn" id="reset">Volver al reparto automático</button>
+      <button class="btn print" data-print="dia">Imprimir / PDF</button>
+      <span class="note" id="copymsg" role="status"></span>
+    </div>
+    <textarea id="copytxt" hidden readonly></textarea>
+  </section>
+
+  <!-- SEMANA -->
+  <section id="v-semana" class="panel" hidden>
+    <div class="daynav">
+      <button class="btn" id="wprev" aria-label="Semana anterior">‹</button>
+      <span class="dayname" id="wkname"></span>
+      <button class="btn" id="wnext" aria-label="Semana siguiente">›</button>
+    </div>
+    <p class="note">Gramos a servir de cada alimento con hidratos. Lo que no aparece (carne, pescado, huevo, verdura) es de consumo libre.</p>
+    <div class="tablewrap"><table class="wk" id="wk"></table></div>
+    <div class="row"><button class="btn primary" id="wcopiar">Copiar la semana</button><button class="btn print" data-print="semana">Imprimir / PDF</button><span class="note" id="wcopymsg" role="status"></span></div>
+    <textarea id="wcopytxt" hidden readonly></textarea>
+  </section>
+
+  <!-- MES -->
+  <section id="v-mes" class="panel" hidden>
+    <div class="daynav">
+      <button class="btn" id="mprev" aria-label="Mes anterior">‹</button>
+      <span class="dayname" id="msname"></span>
+      <button class="btn" id="mnext" aria-label="Mes siguiente">›</button>
+    </div>
+    <p class="note">Todos los días de comedor del mes con los gramos de cada alimento con hidratos.</p>
+    <div class="tablewrap"><table class="wk" id="ms"></table></div>
+    <div class="row"><button class="btn primary print" data-print="mes">Imprimir / PDF</button></div>
+  </section>
+
+  <!-- ALIMENTOS -->
+  <section id="v-alim" class="panel" hidden>
+    <h2>Tabla de alimentos</h2>
+    <p class="note">«g por ración» son los gramos de alimento (ya cocinado) que contienen 1 ración de HC. <span class="src">FSNN</span> sale de la tabla de la Fundación para la Salud; <span class="src est">Estimado</span> es una receta típica de comedor calculada con esa tabla. Puedes cambiar cualquier valor; se guarda en este navegador.</p>
+    <div class="tablewrap"><table id="alimtab"></table></div>
+    <h2>Añadir alimento</h2>
+    <form class="row" id="addform">
+      <input type="text" id="an" placeholder="Nombre (p. ej. Arroz con leche)" required style="flex:1 1 220px">
+      <label class="note">g por ración <input type="number" id="ag" min="1" step="1" required style="width:80px"></label>
+      <label class="note">Ración habitual <input type="number" id="ap" min="1" step="5" value="150" style="width:80px"> g</label>
+      <button class="btn primary" type="submit">Añadir</button>
+    </form>
+  </section>
+
+  <p class="warnbox" id="printmsg" hidden role="status"></p>
+  <footer>Fuente: Tabla de raciones de hidratos de carbono, 3.ª edición, Fundación para la Salud (Novo Nordisk España). Medidas caseras (cucharón, pieza, rebanada): «Alimentación en Diabetes I», Escuela de Pacientes, Escuela Andaluza de Salud Pública. Menús: comedor escolar, curso 2026-2027. Los menús pueden cambiar por imprevistos del servicio.</footer>
+</div>
+<div id="print" aria-hidden="true"></div>
+
+<script>
+const MENUS={
+"2026-09-09":"Crema de cabaciña|Polo asado con guarnición|F",
+"2026-09-10":"Menestra de verduras|Peixe en salsa de verduras con arroz|F",
+"2026-09-11":"Sardiñas con tomate|Fideuá vexetal|I",
+"2026-09-14":"Lentellas vexetais|Peituga de polo á prancha|F",
+"2026-09-15":"Ensalada Mixta|Macarróns con carne de tenreira|F",
+"2026-09-16":"Ovos recheos|Guiso de pescado con patacas|F",
+"2026-09-17":"Revolto de champiñóns|Costelas asadas con patacas|F",
+"2026-09-18":"Ensalada Caprese|Filete con guarnición de verduras|I",
+"2026-09-21":"Sopa de estrelas|Peixe ao forno con ensalada|F",
+"2026-09-22":"Crema de cenoria|Paella|F",
+"2026-09-23":"Ensalada César|Carne guisada con patacas|F",
+"2026-09-24":"Ensalada de garavanzos|Peixe en salsa verde|F",
+"2026-09-25":"Potaxe de fabas|Filete de pavo/leituga|I",
+"2026-09-28":"Crema de verduras|Guiso de tenreira con patacas|F",
+"2026-09-29":"Xudías con atún|Lasaña de espinacas e carne|F",
+"2026-09-30":"Crema de cabaza|Empanada de atún|F",
+"2026-10-01":"Chícharos con pavo|Peixe á pranxa con tomate|F",
+"2026-10-02":"Crema de cabaciña|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|I",
+"2026-10-05":"Ensalada de garavanzos|Macarróns con carne picada|F",
+"2026-10-06":"Revolto de champiñóns|Peixe á prancha con puré de pataca|F",
+"2026-10-07":"Ensalada mixta|Filete de pavo con arroz e calabacín troceado|F",
+"2026-10-08":"Crema de cenoria|Peixe en salsa verde con pataca cocida|F",
+"2026-10-09":"Xudías con ovo|Costelas con patacas|I",
+"2026-10-13":"Sopa de fideos e vexetais|Peituga de polo á prancha con leituga|F",
+"2026-10-14":"Ensalada de tomate e espárragos|Espaguetis con salmón desmenuzado|F",
+"2026-10-15":"Lentellas vexetais|Empanada de zorza|F",
+"2026-10-16":"Caldo galego|Bacallau á galega|I",
+"2026-10-19":"Ensalada mixta|Guiso de carne con verduras e patacas|F",
+"2026-10-20":"Crema de verduras|Paella|F",
+"2026-10-21":"Menestra de verduras|Raxo con patacas|F",
+"2026-10-22":"Ensalada de arroz|Muslito de polo con guarnición de verduras|F",
+"2026-10-23":"Ensaladilla|Peixe en salsa de calabacín con pataca cocida|I",
+"2026-10-26":"Crema de porros|Filetes empanados con patacas|F",
+"2026-10-27":"Sopa|Merluza ao forno con ensalada|F",
+"2026-10-28":"Ensalada mixta|Lasaña de carne|F",
+"2026-10-29":"Crema de cabaciña|Polo asado con leituga|F",
+"2026-10-30":"Revolto de champiñóns|Peixe á prancha con arroz|I",
+"2026-11-02":"Ensalada mixta|Peixe en salsa verde|F",
+"2026-11-03":"Sopa|Peituga de polo con pataca fritida|F",
+"2026-11-04":"Fabas con ameixas|Paella|F",
+"2026-11-05":"Ensalada mixta|Filete de pavo con cabaciña|F",
+"2026-11-06":"Crema de porro|Salmón ao forno con guarnición|I",
+"2026-11-09":"Crema de cenoria|Peixe en salsa|F",
+"2026-11-10":"Ensalada mixta|Lasaña de carne e calabacín|F",
+"2026-11-11":"Potaxe de garavanzos|Calamares á romana con ensalada|F",
+"2026-11-12":"Menestra de verduras|Polo ao forno / patacas|F",
+"2026-11-13":"Ovos recheos|Peixe con arroz e verduras|I",
+"2026-11-16":"Crema de brécol|Filete con menestra|F",
+"2026-11-17":"Guisantes con xamón|Raxo de polo con pataca|F",
+"2026-11-18":"Xudías con allada|Peixe con guarnición|F",
+"2026-11-19":"Revolto de espinacas e gambas|Lomo en salsa de champiñóns|F",
+"2026-11-20":"Sopa|Fideuá|I",
+"2026-11-23":"Crema de cabaza|Macarróns con carne|F",
+"2026-11-24":"Ensalada de pasta|Costelas asadas con verdura asada|F",
+"2026-11-25":"Ensalada mixta|Arroz negro con chipiróns e gambas|F",
+"2026-11-26":"Revolto de seta ao allo|Polo asado / pataca|F",
+"2026-11-27":"Boloñesa de lentellas / espaguetes|Peixe con ensalada|I",
+"2026-11-30":"Crema de porro|Macarróns / carne e tomate natural|F",
+"2026-12-01":"Sopa de estrelas|Bacallau en salsa|F",
+"2026-12-02":"Menestra de verduras|Polo ao forno / patacas|F",
+"2026-12-03":"Arroz 3 delicias|Pescado á prancha con ensalada|F",
+"2026-12-04":"Crema de xudías|Fideuá|I",
+"2026-12-09":"Crema de cenoria|Filete con ensalada|F",
+"2026-12-10":"Chícharos salteados / pavo|Paella|F",
+"2026-12-11":"Lentellas vexetais|Lomo en salsa de champiñóns|I",
+"2026-12-14":"Potaxe de fabas|Salmón / guarnición|F",
+"2026-12-15":"Lentellas vexetais|Polo crocante con patacas|F",
+"2026-12-16":"Ensalada de sardiñas|Tortilla de pataca e calabacín|F",
+"2026-12-17":"Revolto de champiñóns|Pescado en salsa|F",
+"2026-12-18":"Potaxe de garavanzos|Carne asada con guarnición|I",
+"2026-12-21":"Menú especial de Nadal|Prato especial navideño|F",
+"2027-01-08":"Crema de verduras|Macarróns con carne|I",
+"2027-01-11":"Sopa de estrelas|Peixe con patacas|F",
+"2027-01-12":"Lentellas vexetais|Guiso de carne|F",
+"2027-01-13":"Sardiñas con tomate|Lasaña|F",
+"2027-01-14":"Crema de cenoria|Merluza con patacas|F",
+"2027-01-15":"Sopa|Polo asado con ensalada|I",
+"2027-01-18":"Salteado de xudías con pavo|Calamares con patacas|F",
+"2027-01-19":"Sopa|Polo crocante|F",
+"2027-01-20":"Crema de cabaciña|Peixe con arroz|F",
+"2027-01-21":"Revolto espinacas e gambas|Empanada de zorza|F",
+"2027-01-22":"Caldo galego|Filete con ensalada|I",
+"2027-01-25":"Crema de brécol|Peixe en salsa / pataca|F",
+"2027-01-26":"Revolto de champiñóns|Espaguetes con atún|F",
+"2027-01-27":"Sopa|Filete con menestra|F",
+"2027-01-28":"Ensalada mixta|Polo asado con patacas|F",
+"2027-01-29":"Crema de porros e pataca|Paella|I",
+"2027-02-01":"Potaxe de garavanzos|Carne asada con guarnición|F",
+"2027-02-02":"Lentellas vexetais|Tallaríns á carbonara|F",
+"2027-02-03":"Crema de brécol|Salmón con guarnición|F",
+"2027-02-04":"Revolto de champiñóns|Costelas con patacas e verduras asadas|F",
+"2027-02-05":"Menestra de verduras|Pasta con tacos de pescado|I",
+"2027-02-11":"Ensalada mixta|Carne asada con pataca fritida|F",
+"2027-02-12":"Crema de calabacín|Raxo de polo con patacas fritidas|I",
+"2027-02-15":"Ovos recheos|Pescado en salsa con patacas|F",
+"2027-02-16":"Caldo de grelos|Empanada de carne|F",
+"2027-02-17":"Ensalada mixta|Macarróns con polo e salsa de cabaciña|F",
+"2027-02-18":"Sopa de cocido|Cocido / Orellas entroido|F",
+"2027-02-19":"Xudías salteadas / allo|Peituga de pavo con patacas|I",
+"2027-02-22":"Revolto de setas ao allo|Pescado / pataca cocida|F",
+"2027-02-23":"Lentellas vexetais|Ovos á prancha e arroz con tomate triturado|F",
+"2027-02-24":"Crema de cenoria|Polo asado con guarnición|F",
+"2027-02-25":"Sardiñas con tomate|Lasaña de verduras|F",
+"2027-02-26":"Menestra de verduras|Peixe con pataca fritida|I",
+"2027-03-30":"Menestra de verduras|Carne guisada / patacas|F",
+"2027-03-31":"Sopa|Ovos fritidos con arroz|F",
+"2027-04-01":"Crema de espárragos|Pescado á prancha con ensalada|F",
+"2027-04-02":"Ensalada mixta|Polo asado con salteado de verduras|I",
+"2027-04-05":"Potaxe de garavanzos|Pescado ao forno / ensalada|F",
+"2027-04-06":"Lentellas vexetais|Macarróns con carne|F",
+"2027-04-07":"Ensalada de pasta|Costela asada con ensalada de leituga e tomate|F",
+"2027-04-08":"Crema de cabaza|Guiso de pescado|F",
+"2027-04-09":"Ensalada mixta|Polo asado con patacas|I",
+"2027-04-12":"Crema de espárragos|Lasaña vexetal|F",
+"2027-04-13":"Fabada vexetal|Pasta con tacos de pescado|F",
+"2027-04-14":"Crema de verduras|Ovos á prancha con arroz e tomate triturado|F",
+"2027-04-15":"Lentellas vexetais|Pescado en salsa verde|F",
+"2027-04-16":"Sopa|Guiso de carne con patacas e vexetais|I",
+"2027-04-19":"Potaxe de garavanzos e verduras|Pescado ao forno con patacas|F",
+"2027-04-20":"Crema de verduras|Filete de peituga de polo con ensalada|F",
+"2027-04-21":"Ensalada mixta|Paella|F",
+"2027-04-22":"Crema de cabaza|Bacaladiños con patacas|F",
+"2027-04-23":"Ensalada de garbanzos|Pasta con pescado en taquiños|I",
+"2027-04-26":"Crema de verduras|Pescado con pataca panadeira|F",
+"2027-04-27":"Ensalada de pasta|Lomo con ensalada|F",
+"2027-04-28":"Ensalada Mixta|Bacallau con tomate|F",
+"2027-04-29":"Arroz 3 delicias|Peituga de pavo con ensalada|F",
+"2027-04-30":"Potaxe de garvanzos|Espaguetis Boloñesa|I",
+"2027-05-03":"Ensalada Mixta|Peixe con pataca cocida|F",
+"2027-05-04":"Crema de cabaza|Polo asado con ensalada|F",
+"2027-05-05":"Ensalada de garavanzos|Pasta integral con salmón en taquiños|F",
+"2027-05-06":"Ensalada de pasta|Raxo con ensalada|F",
+"2027-05-07":"Revolto de espinacas e gambas|Paella|I",
+"2027-05-10":"Ensalada mixta|Filete de tenreira con patacas|F",
+"2027-05-11":"Lentellas vexetais|Pescado en salsa verde con patacas cocidas|F",
+"2027-05-12":"Sardiñas con tomate e espárragos|Guiso de carne con patacas e verduras|F",
+"2027-05-13":"Ovos recheos|Pescado con arroz|F",
+"2027-05-14":"Xudías con allada e pataca cocida|Peituga de polo con ensalada|I",
+"2027-05-17":"Ensalada Mixta|Lasaña de atún|F",
+"2027-05-18":"Crema de chícharos|Merluza con pataca panadera|F",
+"2027-05-19":"Ensalada de tomate con queixo fresco e aceitunas|Macarróns con carne|F",
+"2027-05-20":"Potaxe de garavanzos|Peixe en salsa verde con pataca cocida|F",
+"2027-05-21":"Sopa|Polo asado con ensalada|I",
+"2027-05-24":"Ensalada mixta|Bacaladiños con patacas|F",
+"2027-05-25":"Ensaladilla|Paella|F",
+"2027-05-26":"Ensalada de tomate, queixo fresco e aceitunas negras|Tortilla de patacas con tomate|F",
+"2027-05-27":"Ensalada mixta|Lasaña boloñesa|F",
+"2027-05-28":"Sardiñas con tomate e espárragos|Peituga de polo con patacas fritas|I",
+"2027-05-31":"Ensaladilla|Empanada de atún|F",
+"2027-06-01":"Arroz 3 delicias|Guiso de carne con patacas e verduras|F",
+"2027-06-02":"Crema de verduras|Macarróns con carne|F",
+"2027-06-03":"Revolto de champiñóns|Peituga de polo con patacas fritas|F",
+"2027-06-04":"Ensalada mixta|Lomos de pescada/pataca|I",
+"2027-06-07":"Ensalada de pasta|Costelas asadas / ensalada|F",
+"2027-06-08":"Ensalada de garavanzos|Paella de pescado|F",
+"2027-06-09":"Lentellas vexetais|Ovos fritos con arroz e tomate triturado|F",
+"2027-06-10":"Sopa de pescado|Polo asado con ensalada|F",
+"2027-06-11":"Xudías con allada|Bacaladiños con patacas fritas|I",
+"2027-06-14":"Ensalada mixta|Albóndegas con arroz|F",
+"2027-06-15":"Croquetas de polo|Pizza|F",
+"2027-06-16":"Menestra de verduras|Carne guisada / patacas|F",
+"2027-06-17":"Sopa|Ovos fritidos con arroz|F",
+"2027-06-18":"Crema de espárragos|Pescado á prancha con ensalada|I",
+"2027-06-21":"Ensalada mixta|Polo asado con salteado de verduras|F"
+};
+const FESTIVOS=[["2026-09-01","2026-09-08","Vacaciones de verano"],["2026-10-12","2026-10-12","Día de la Hispanidad"],["2026-12-07","2026-12-07","Día do Ensino"],["2026-12-08","2026-12-08","Inmaculada Concepción"],["2026-12-22","2027-01-07","Navidad"],["2027-02-08","2027-02-10","Entroido"],["2027-03-01","2027-03-29","Semana Santa"],["2027-06-22","2027-06-30","Fin de curso"]];
+
+
+// g = gramos de alimento cocinado que contienen 1 ración de HC (10 g). null = no valorable / sin HC.
+// t: 'hc' se reparte para llegar al objetivo; 'fijo' cuenta una ración habitual fija; 'libre' no cuenta; 'postre' cantidad fija editable.
+const BASE_FOODS={
+  arroz:{n:"Arroz cocido",g:38,s:"FSNN",t:"hc",p:80},
+  pataca_cocida:{n:"Patata cocida",g:65,s:"FSNN",t:"hc",p:100},
+  pataca_asada:{n:"Patata asada / al horno / panadera",g:35,s:"FSNN",t:"hc",p:100},
+  pure:{n:"Puré de patata con leche",g:80,s:"FSNN",t:"hc",p:150},
+  pataca_frita:{n:"Patatas fritas",g:30,s:"FSNN",t:"hc",p:80},
+  pasta:{n:"Pasta cocida (sola)",g:45,s:"FSNN",t:"hc",p:150},
+  lasana:{n:"Lasaña",g:100,s:"FSNN",t:"hc",p:200},
+  empanada:{n:"Empanada (como empanadilla)",g:50,s:"FSNN",t:"hc",p:100},
+  pizza:{n:"Pizza",g:40,s:"FSNN",t:"hc",p:120},
+  croquetas:{n:"Croquetas",g:50,s:"FSNN",t:"hc",p:90},
+  tortilla:{n:"Tortilla de patatas",g:120,s:"FSNN",t:"hc",p:150},
+  ensaladilla:{n:"Ensaladilla rusa",g:100,s:"FSNN",t:"hc",p:150},
+  rebozado_peixe:{n:"Calamares / pescado rebozado",g:120,s:"FSNN",t:"hc",p:120},
+  rebozado_carne:{n:"Carne o pollo rebozado / empanado",g:150,s:"FSNN",t:"hc",p:120},
+  pan:{n:"Pan blanco",g:20,s:"FSNN",t:"fijo",p:20},
+  paella:{n:"Paella / arroz negro (plato)",g:62,s:"Estimado",t:"hc",p:220},
+  arroz3:{n:"Arroz tres delicias (plato)",g:50,s:"Estimado",t:"hc",p:200},
+  fideua:{n:"Fideuá (plato)",g:62,s:"Estimado",t:"hc",p:220},
+  pasta_plato:{n:"Pasta con carne, pescado o salsa (plato)",g:62,s:"Estimado",t:"hc",p:220},
+  pasta_lent:{n:"Espaguetis con boloñesa de lentejas",g:55,s:"Estimado",t:"hc",p:220},
+  lentellas:{n:"Lentejas guisadas con verduras",g:75,s:"Estimado",t:"hc",p:220},
+  legume:{n:"Potaje / guiso de garbanzos o alubias",g:85,s:"Estimado",t:"hc",p:220},
+  chicharos:{n:"Guisantes salteados (plato)",g:130,s:"Estimado",t:"hc",p:200},
+  sopa:{n:"Sopa con fideos o estrellas",g:165,s:"Estimado",t:"hc",p:250},
+  caldo:{n:"Caldo gallego / de grelos (con patata y alubia)",g:140,s:"Estimado",t:"hc",p:250},
+  crema_verd:{n:"Crema de verduras con patata",g:165,s:"Estimado",t:"hc",p:250},
+  crema_lix:{n:"Crema ligera (calabacín, brócoli, espárrago, judía)",g:220,s:"Estimado",t:"hc",p:250},
+  crema_legume:{n:"Crema de guisantes",g:125,s:"Estimado",t:"hc",p:250},
+  menestra:{n:"Menestra de verduras",g:165,s:"Estimado",t:"hc",p:200},
+  ens_pasta:{n:"Ensalada de pasta",g:85,s:"Estimado",t:"hc",p:200},
+  ens_arroz:{n:"Ensalada de arroz",g:75,s:"Estimado",t:"hc",p:200},
+  ens_garav:{n:"Ensalada de garbanzos",g:110,s:"Estimado",t:"hc",p:200},
+  ens_cesar:{n:"Ensalada César (con picatostes)",g:200,s:"Estimado",t:"fijo",p:150},
+  albondegas:{n:"Albóndigas en salsa",g:125,s:"Estimado",t:"hc",p:120},
+  xudias:{n:"Judías verdes",g:250,s:"FSNN",t:"fijo",p:200},
+  ensalada:{n:"Ensalada (lechuga, tomate, zanahoria)",g:285,s:"Estimado",t:"fijo",p:150},
+  verdura:{n:"Guarnición de verdura",g:300,s:"FSNN",t:"fijo",p:100},
+  proteina:{n:"Carne / pescado / huevo (sin rebozar)",g:null,s:"FSNN",t:"libre",p:0},
+  descon:{n:"Sin datos: elige un alimento",g:null,s:"",t:"libre",p:0},
+  iogur:{n:"Yogur natural",g:200,s:"FSNN",t:"postre",p:125},
+  manzana:{n:"Manzana",g:100,s:"FSNN",t:"postre",p:150},
+  pera:{n:"Pera",g:100,s:"FSNN",t:"postre",p:150},
+  naranja:{n:"Naranja",g:100,s:"FSNN",t:"postre",p:150},
+  mandarina:{n:"Mandarina",g:100,s:"FSNN",t:"postre",p:100},
+  platano:{n:"Plátano",g:50,s:"FSNN",t:"postre",p:100},
+  kiwi:{n:"Kiwi",g:100,s:"FSNN",t:"postre",p:100},
+  uva:{n:"Uvas",g:50,s:"FSNN",t:"postre",p:100},
+  melon:{n:"Melón",g:200,s:"FSNN",t:"postre",p:200},
+  sandia:{n:"Sandía",g:200,s:"FSNN",t:"postre",p:200},
+  melocoton:{n:"Melocotón",g:100,s:"FSNN",t:"postre",p:150},
+  nectarina:{n:"Nectarina",g:100,s:"FSNN",t:"postre",p:100},
+  ciruela:{n:"Ciruela",g:100,s:"FSNN",t:"postre",p:100},
+  pina:{n:"Piña",g:100,s:"FSNN",t:"postre",p:100},
+  fresas:{n:"Fresas",g:200,s:"FSNN",t:"postre",p:200},
+  caqui:{n:"Caqui",g:65,s:"FSNN",t:"postre",p:150}
+};
+
+const store={
+  get(k,d){try{const v=localStorage.getItem("hc_"+k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem("hc_"+k,JSON.stringify(v))}catch(e){}}
+};
+let foodEdits=store.get("foodEdits",{});   // {key:{g,p}}
+let customFoods=store.get("customFoods",{}); // {key:{n,g,p,t,s}}
+let dayEdits=store.get("dayEdits",{});      // {fecha:{idx:{food,rac}}}
+const MAXF=2; // como mucho el doble de la ración habitual de cada plato
+let settings=Object.assign({obj:6,gr:10,masPan:false,rebanada:20,fruta:"manzana"},store.get("settings",{}));
+
+function foods(){
+  const out={};
+  for(const k in BASE_FOODS) out[k]=Object.assign({},BASE_FOODS[k],foodEdits[k]||{});
+  for(const k in customFoods) out[k]=Object.assign({},customFoods[k]);
+  return out;
+}
+
+// ---- Interpretación de cada plato del menú ----
+const WHOLE=[
+  [/men[uú] especial|prato especial/,"descon"],
+  [/lasaña/,"lasana"],[/empanada/,"empanada"],[/pizza/,"pizza"],[/croquetas/,"croquetas"],
+  [/tortilla/,"tortilla"],[/ensaladilla/,"ensaladilla"],[/arroz 3|tres delicias/,"arroz3"],
+  [/paella|arroz negro/,"paella"],[/fideuá/,"fideua"],[/ensalada de pasta/,"ens_pasta"],
+  [/ensalada de arroz/,"ens_arroz"],[/ensalada de garavanzos|ensalada de garbanzos/,"ens_garav"],
+  [/césar/,"ens_cesar"],[/^ensalada|caprese/,"ensalada"],
+  [/^sopa/,"sopa"],[/^caldo/,"caldo"],
+  [/^crema de (verduras|cenoria|cabaza|calabaza|porro)/,"crema_verd"],
+  [/^crema de chícharos/,"crema_legume"],[/^crema/,"crema_lix"],
+  [/boloñesa de lentellas/,"pasta_lent"],
+  [/macarr|espague|tallar|^pasta/,"pasta_plato"],
+  [/potaxe|fabada|fabas|garavanzos|garbanzos|cocido/,"legume"],
+  [/lentellas/,"lentellas"],[/chícharos|guisantes/,"chicharos"],[/menestra/,"menestra"],
+  [/xudías/,"xudias"],[/calamares|bacalad/,"rebozado_peixe"],
+  [/crocante|empanados/,"rebozado_carne"],[/albóndegas/,"albondegas"]
+];
+const ALLOW_EXTRAS=[null,"rebozado_peixe","rebozado_carne","albondegas","xudias"];
+function analyze(name,course){
+  const n=name.toLowerCase();
+  if(course===2) return [{food:name}];
+  let base=null;
+  for(const [re,k] of WHOLE){ if(re.test(n)){base=k;break;} }
+  const it=[];
+  it.push({food:base||"proteina"});
+  if(ALLOW_EXTRAS.includes(base)){
+    if(/arroz/.test(n)) it.push({food:"arroz"});
+    if(/puré/.test(n)) it.push({food:"pure"});
+    else if(/pataca|patacas|cachelos|á galega/.test(n)){
+      let k="pataca_cocida";
+      if(/frit|raxo/.test(n)) k="pataca_frita";
+      else if(/panade/.test(n)) k="pataca_asada";
+      else if(/cocid|cachelos/.test(n)) k="pataca_cocida";
+      else if(/asad|forno/.test(n)) k="pataca_asada";
+      it.push({food:k});
+    }
+    if(course===1 && /ensalada|leituga/.test(n)) it.push({food:"ensalada",p:80});
+    if(course===1 && base===null && /guarnición|menestra|verdura|vexetais|calabacín|cabaciña/.test(n)) it.push({food:"verdura",guar:/guarnición/.test(n)});
+  }
+  return it;
+}
+
+// ---- Cálculo ----
+const pad=n=>String(n).padStart(2,"0");
+const keyOf=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const parseKey=k=>{const [y,m,d]=k.split("-").map(Number);return new Date(y,m-1,d)};
+const r1=x=>Math.round(x*10)/10;
+const r5=x=>Math.round(x/5)*5;
+const fmt=x=>String(r1(x)).replace(".",",");
+
+// Listas de platos de todo el curso para los desplegables
+const PAN_OPTS=["Sin pan","Una rebanada de pan","Dos rebanadas de pan","Tres rebanadas de pan"];
+const ALL_DISHES=[0,1].map(c=>{
+  const seen=new Map();
+  for(const k in MENUS){const n=MENUS[k].split("|")[c];const key=n.toLowerCase();if(!seen.has(key))seen.set(key,n);}
+  return [...seen.values()].sort((a,b)=>a.localeCompare(b,"es"));
+});
+function dishesFor(fecha){
+  const e=dayEdits[fecha]||{}; if(e.dish) return e.dish;
+  const raw=MENUS[fecha]; if(!raw) return [ALL_DISHES[0][0],ALL_DISHES[1][0],settings.fruta];
+  const p=raw.split("|"); return [p[0],p[1],p[2]==="I"?"iogur":(settings.fruta||"manzana")];
+}
+function dishOptions(c,sel){
+  if(c===3) return PAN_OPTS.map((n,i)=>`<option value="${i}"${String(i)===sel?" selected":""}>${n}</option>`).join("");
+  if(c===2){const F=foods();let h="";for(const k in F) if(F[k].t==="postre") h+=`<option value="${k}"${k===sel?" selected":""}>${k==="iogur"?"Iogur natural":"Froita: "+esc(F[k].n)}</option>`;return h;}
+  const list=ALL_DISHES[c].slice(); if(!list.some(x=>x.toLowerCase()===sel.toLowerCase())) list.unshift(sel);
+  return list.map(n=>`<option${n.toLowerCase()===sel.toLowerCase()?" selected":""}>${esc(n)}</option>`).join("");
+}
+// Medidas caseras para la cocina: [singular, plural, gramos de una unidad]
+// Basadas en «Alimentación en Diabetes I» (Escuela de Pacientes): 1 cucharón de legumbre o pasta cocida = 2 raciones;
+// 1 patata pequeña cocida = 2 raciones; 1 rebanada de pan de 20 g = 1 ración; 10 uvas = 1 ración.
+const MEDIDAS={
+  arroz:["cucharón","cucharones",100], pasta:["cucharón","cucharones",90],
+  pataca_cocida:["patata pequeña","patatas pequeñas",130], pataca_asada:["patata pequeña","patatas pequeñas",70],
+  pure:["cucharón","cucharones",100],
+  legume:["cucharón","cucharones",100], lentellas:["cucharón","cucharones",100], chicharos:["cucharón","cucharones",100],
+  paella:["cucharón","cucharones",100], arroz3:["cucharón","cucharones",100], fideua:["cucharón","cucharones",100],
+  pasta_plato:["cucharón","cucharones",100], pasta_lent:["cucharón","cucharones",100], menestra:["cucharón","cucharones",100],
+  ens_pasta:["cucharón","cucharones",100], ens_arroz:["cucharón","cucharones",100], ens_garav:["cucharón","cucharones",100],
+  sopa:["plato hondo","platos hondos",250], caldo:["plato hondo","platos hondos",250],
+  crema_verd:["plato hondo","platos hondos",250], crema_lix:["plato hondo","platos hondos",250], crema_legume:["plato hondo","platos hondos",250],
+  pan:["rebanada","rebanadas",20], croquetas:["croqueta","croquetas",30],
+  manzana:["pieza mediana","piezas medianas",200], naranja:["pieza mediana","piezas medianas",200], melocoton:["pieza mediana","piezas medianas",200],
+  nectarina:["pieza","piezas",200], pera:["pieza","piezas",250], platano:["plátano","plátanos",150], kiwi:["kiwi","kiwis",100],
+  uva:["uva","uvas",5], iogur:["yogur","yogures",125]
+};
+function frac(x){
+  const h=Math.round(x*2)/2, w=Math.floor(h);
+  return h===0?"":(w>0?String(w):"")+(h-w?"½":"");
+}
+function casera(it){
+  const m=MEDIDAS[it.food]; if(!m||!(it.grams>0)) return "";
+  const n=it.grams/m[2], s=frac(n);
+  if(!s) return `menos de ½ ${m[0]}`;
+  return `≈ ${s} ${Math.round(n*2)/2>1?m[1]:m[0]}`;
+}
+function plan(fecha){
+  const edits=dayEdits[fecha]||{};
+  const raw=MENUS[fecha]; if(!raw&&!edits.dish) return null;
+  const F=foods();
+  const names=dishesFor(fecha);
+  const courses=names.slice(0,3).map((name,c)=>({name:c===2?(name==="iogur"?"Iogur natural":"Froita: "+(F[name]?F[name].n:name)):name,items:analyze(name,c)}));
+  const nPan=edits.pan===undefined?1:edits.pan;
+  courses.push({name:PAN_OPTS[nPan],items:[{food:"pan",isPan:true,p:settings.rebanada*nPan}]});
+  if(edits.comp) courses.push({name:"Para completar",items:[{food:edits.comp,isComp:true}]});
+  const all=[]; let idx=0;
+  courses.forEach(c=>c.items.forEach(it=>{
+    const e=edits[idx]||{};
+    it.idx=idx++; if(e.food&&F[e.food]) it.food=e.food;
+    it.f=F[it.food]||F.descon;
+    it.pinned=(typeof e.rac==="number");
+    it.rac=e.rac; all.push(it);
+  }));
+  let fixed=0; const hc=[]; let panIt=null, compIt=null;
+  for(const it of all){
+    const f=it.f;
+    if(it.pinned){fixed+=it.rac;continue;}
+    if(it.isComp){compIt=it;it.rac=0;continue;}
+    if(it.isPan){panIt=it;it.rac=f.g?it.p/f.g:0;fixed+=it.rac;continue;}
+    if(!f.g||f.t==="libre"){it.rac=0;continue;}
+    if(f.t==="hc"){hc.push(it);continue;}
+    it.rac=(it.p||f.p)/f.g; fixed+=it.rac;
+  }
+  const remaining=settings.obj-fixed;
+  // Reparto proporcional a la ración habitual, sin pasar de MAXF veces esa ración
+  let left=Math.max(0,remaining), open=hc.slice();
+  hc.forEach(it=>{it.rac=0;it.cap=MAXF*(it.p||it.f.p)/it.f.g;});
+  for(let guard=0;guard<10&&open.length&&left>1e-9;guard++){
+    const w=open.reduce((s,it)=>s+(it.p||it.f.p)/it.f.g,0);
+    let spill=0; const next=[];
+    for(const it of open){
+      const share=left*((it.p||it.f.p)/it.f.g)/w;
+      if(it.rac+share>=it.cap){spill+=it.rac+share-it.cap;it.rac=it.cap;}
+      else{it.rac+=share;next.push(it);}
+    }
+    left=spill; open=next;
+  }
+  const short=Math.max(0,left);
+  if(compIt&&!compIt.pinned){compIt.rac=short;left=0;}
+  if(panIt&&!panIt.pinned&&settings.masPan) panIt.rac+=Math.max(0,left);
+  for(const it of all) it.grams=it.f.g?it.rac*it.f.g:0;
+  const total=all.reduce((s,it)=>s+it.rac,0);
+  return {courses,all,total,remaining,short,hasComp:!!compIt,hcCount:hc.length};
+}
+
+// ---- Vista Día ----
+const $=id=>document.getElementById(id);
+let current=null;
+const KEYS=Object.keys(MENUS).sort();
+function festivo(k){for(const [a,b,l] of FESTIVOS) if(k>=a&&k<=b) return l; return null;}
+function nearest(k){return KEYS.find(x=>x>=k)||KEYS[KEYS.length-1];}
+const DIAS=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+const MESES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const longDate=k=>{const d=parseKey(k);return DIAS[d.getDay()]+" "+d.getDate()+" de "+MESES[d.getMonth()]};
+
+function foodOptions(sel){
+  const F=foods(); const groups={hc:"Con hidratos",fijo:"Pocos hidratos",libre:"Sin hidratos",postre:"Postre / fruta"};
+  let h="";
+  for(const t in groups){
+    h+=`<optgroup label="${groups[t]}">`;
+    for(const k in F) if(F[k].t===t) h+=`<option value="${k}"${k===sel?" selected":""}>${esc(F[k].n)}</option>`;
+    h+="</optgroup>";
+  }
+  return h;
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+function renderMeter(p){
+  const n=Math.max(1,Math.ceil(Math.max(settings.obj,p?p.total:0)));
+  let blocks="";
+  for(let i=0;i<n;i++){
+    const fill=p?Math.max(0,Math.min(1,p.total-i)):0;
+    blocks+=`<div class="blk${i>=settings.obj?" over":""}"><i style="width:${fill*100}%"></i></div>`;
+  }
+  let pill="";
+  if(p){
+    const diff=r1(p.total-settings.obj);
+    pill=Math.abs(diff)<0.05?`<span class="pill ok">Objetivo cumplido</span>`:
+      `<span class="pill warn">${diff>0?"Sobran":"Faltan"} ${fmt(Math.abs(diff))} raciones</span>`;
+  }
+  $("meter").innerHTML=`<div class="meter-top"><div class="meter-total">${p?fmt(p.total):"—"} <small>de ${fmt(settings.obj)} raciones · ${p?Math.round(p.total*settings.gr):0} g de HC</small></div>${pill}</div><div class="blocks" style="--n:${n}">${blocks}</div>`;
+}
+
+function renderDay(){
+  const k=current; $("fecha").value=k;
+  $("dayname").textContent=longDate(k);
+  const p=plan(k);
+  renderMeter(p);
+  if(!p){
+    const f=festivo(k); const d=parseKey(k).getDay();
+    $("dia").innerHTML=`<div class="empty">${f?`<b>${esc(f)}</b>: no hay comedor.`:(d===0||d===6)?"Fin de semana: no hay comedor.":"No hay menú para este día."}<div class="row" style="justify-content:center;margin-top:12px"><button class="btn" id="elegir">Elegir los platos a mano</button></div></div>`;
+    return;
+  }
+  const labels=["Primer plato","Segundo plato","Postre","Pan","Extra"];
+  let h="";
+  p.courses.forEach((c,ci)=>{
+    h+=`<div class="course"><div class="course-h"><label class="course-k" for="dish${ci}">${labels[ci]}</label>${ci<4?`<select class="dish" id="dish${ci}" data-dish="${ci}">${dishOptions(ci,ci===2?c.items[0].food:ci===3?String(dayEdits[current]&&dayEdits[current].pan!==undefined?dayEdits[current].pan:1):c.name)}</select>`:`<span class="course-n">${esc(c.name)}</span>`}</div>`;
+    for(const it of c.items){
+      const f=it.f; const per100=f.g?r1(1000/f.g):0;
+      const meta=f.g?`${fmt(per100)} g HC/100 g · 1 ración = ${Math.round(f.g)} g <span class="src${f.s==="Estimado"?" est":""}">${esc(f.s||"Propio")}</span>`:"Hidratos despreciables";
+      const extra=it.isComp?" · Lo que falta para llegar al objetivo.":it.isPan&&settings.masPan?" · Más lo que falte para llegar al objetivo.":"";
+      h+=`<div class="item${f.t==="hc"||it.rac>0.05?" hc":""}">
+        <div class="food" style="min-width:0"><b>${esc(f.n)}</b>
+        <div class="meta">${meta}${extra}</div></div>`;
+      if(f.g){
+        h+=`<div class="rac"><button data-step="${it.idx}" data-d="-0.5" aria-label="Media ración menos">−</button><input type="number" step="0.1" min="0" value="${r1(it.rac)}" data-rac="${it.idx}" aria-label="Raciones"><button data-step="${it.idx}" data-d="0.5" aria-label="Media ración más">+</button><span>rac.</span></div>
+        <div class="grams"><input type="number" step="5" min="0" value="${r5(it.grams)}" data-g="${it.idx}" aria-label="Gramos"><span>g</span>${it.pinned?`<button class="pin" data-unpin="${it.idx}">auto</button>`:""}${casera(it)?`<div class="casera">${casera(it)}</div>`:""}</div>`;
+      } else h+=`<div class="free">Libre</div><div></div>`;
+      h+=`</div>`;
+    }
+    h+=`</div>`;
+  });
+  const diff=p.total-settings.obj;
+  if(diff>0.05) h+=`<div class="warnbox"><b>Atención:</b> sobran ${fmt(diff)} raciones. Baja las cantidades fijadas a mano o reduce el postre.</div>`;
+  else if(diff<-0.05&&!p.hasComp){
+    const F=foods(), gp=Math.round(-diff*F.pataca_cocida.g/5)*5, ga=Math.round(-diff*F.arroz.g/5)*5;
+    h+=`<div class="warnbox comp"><div><b>Faltan ${fmt(-diff)} raciones.</b> Completar con patata o arroz:</div>
+      <div class="row"><button class="btn" data-comp="pataca_cocida">Patata cocida · ${gp} g</button><button class="btn" data-comp="arroz">Arroz cocido · ${ga} g</button></div>
+      <div class="note">Los platos de hoy ya están al máximo razonable (el doble de la ración habitual).</div></div>`;
+  }
+  if(p.hasComp) h+=`<div class="row"><button class="btn" data-comp="">Quitar el complemento</button></div>`;
+  if(p.all.some(it=>it.food==="descon")) h+=`<div class="warnbox"><b>Menú especial:</b> elige en los desplegables los platos que se sirvan realmente ese día.</div>`;
+  if(dayEdits[current]&&dayEdits[current].dish&&MENUS[current]) h+=`<div class="row"><button class="btn" id="oficial">Volver al menú oficial de este día</button></div>`;
+  h+=`<p class="note">Las cantidades son de alimento ya cocinado. Pon la báscula a cero con el plato y sirve los gramos indicados. Los platos naranjas llevan hidratos; los grises son de consumo libre.</p>`;
+  $("dia").innerHTML=h;
+}
+
+function setEdit(idx,patch){
+  const d=dayEdits[current]=dayEdits[current]||{};
+  d[idx]=Object.assign(d[idx]||{},patch);
+  for(const k in patch) if(patch[k]===undefined) delete d[idx][k];
+  store.set("dayEdits",dayEdits); renderDay();
+}
+$("dia").addEventListener("change",e=>{
+  const t=e.target, p=plan(current);
+  if(t.dataset.dish!==undefined){
+    const c=+t.dataset.dish, d=dayEdits[current]=dayEdits[current]||{};
+    for(const k in d) if(/^\d+$/.test(k)) delete d[k];
+    if(c===3) d.pan=+t.value;
+    else{
+      d.dish=dishesFor(current).slice(0,3); d.dish[c]=t.value;
+    }
+    store.set("dayEdits",dayEdits); renderDay();
+  } else if(t.dataset.rac!==undefined){
+    setEdit(+t.dataset.rac,{rac:Math.max(0,parseFloat(t.value.replace(",","."))||0)});
+  } else if(t.dataset.g!==undefined){
+    const idx=+t.dataset.g, it=p.all.find(x=>x.idx===idx);
+    setEdit(idx,{rac:Math.max(0,(parseFloat(t.value)||0)/it.f.g)});
+  }
+});
+$("dia").addEventListener("click",e=>{
+  const t=e.target.closest("button"); if(!t) return;
+  if(t.dataset.step!==undefined){
+    const idx=+t.dataset.step, it=plan(current).all.find(x=>x.idx===idx);
+    setEdit(idx,{rac:Math.max(0,Math.round((it.rac+parseFloat(t.dataset.d))*2)/2)});
+  } else if(t.dataset.unpin!==undefined) setEdit(+t.dataset.unpin,{rac:undefined});
+  else if(t.id==="elegir"){dayEdits[current]=dayEdits[current]||{};dayEdits[current].dish=dishesFor(current).slice(0,3);store.set("dayEdits",dayEdits);renderDay();}
+  else if(t.id==="oficial"){const d=dayEdits[current];delete d.dish;delete d.pan;for(const k in d) if(/^\d+$/.test(k)) delete d[k];store.set("dayEdits",dayEdits);renderDay();}
+  else if(t.dataset.comp!==undefined){
+    const d=dayEdits[current]=dayEdits[current]||{};
+    const n=plan(current).all.length-(d.comp?1:0);
+    if(t.dataset.comp) d.comp=t.dataset.comp; else delete d.comp;
+    delete d[n]; store.set("dayEdits",dayEdits); renderDay();
+  }
+});
+$("reset").onclick=()=>{
+  const d=dayEdits[current]; if(d){for(const i in d) delete d[i].rac; store.set("dayEdits",dayEdits);} renderDay();
+};
+function go(k){current=k;renderDay();if(!$("v-semana").hidden)renderWeek();if(!$("v-mes").hidden)renderMonth();}
+$("fecha").onchange=e=>{if(e.target.value)go(e.target.value)};
+function shift(dir){
+  let d=parseKey(current);
+  for(let i=0;i<14;i++){d.setDate(d.getDate()+dir);const k=keyOf(d);if(MENUS[k]){go(k);return;}}
+  d=parseKey(current);d.setDate(d.getDate()+dir);go(keyOf(d));
+}
+$("prev").onclick=()=>shift(-1); $("next").onclick=()=>shift(1);
+
+function bindSettings(){
+  $("obj").value=settings.obj; $("gr").value=settings.gr; $("pan").checked=settings.masPan; $("rebanada").value=settings.rebanada;
+  $("obj").onchange=e=>{settings.obj=Math.max(0.5,parseFloat(e.target.value)||6);store.set("settings",settings);renderDay();};
+  $("gr").onchange=e=>{settings.gr=Math.max(1,parseFloat(e.target.value)||10);store.set("settings",settings);renderDay();};
+  $("pan").onchange=e=>{settings.masPan=e.target.checked;store.set("settings",settings);renderDay();};
+  $("rebanada").onchange=e=>{settings.rebanada=Math.max(0,parseFloat(e.target.value)||0);store.set("settings",settings);renderDay();};
+}
+
+function dayText(k){
+  const p=plan(k); if(!p) return longDate(k)+": sin comedor.";
+  const L=[`${longDate(k)} · objetivo ${fmt(settings.obj)} raciones (${Math.round(settings.obj*settings.gr)} g HC)`];
+  p.courses.forEach(c=>{
+    const parts=c.items.filter(it=>it.f.g&&it.grams>0.5).map(it=>`${it.f.n}: ${r5(it.grams)} g${casera(it)?" ("+casera(it)+")":""}, ${fmt(it.rac)} rac.`);
+    L.push(`- ${c.name}: ${parts.length?parts.join("; "):"libre"}`);
+  });
+  L.push(`Total: ${fmt(p.total)} raciones.`);
+  return L.join("\n");
+}
+async function copy(text,ta,msg){
+  try{await navigator.clipboard.writeText(text);$(msg).textContent="Copiado. Pégalo en un correo o mensaje.";$(ta).hidden=true;}
+  catch(e){$(ta).hidden=false;$(ta).value=text;$(ta).select();$(msg).textContent="Selecciona el texto de abajo y cópialo.";}
+}
+$("copiar").onclick=()=>copy(dayText(current)+"\n\nValores orientativos, validados por la familia.","copytxt","copymsg");
+
+// ---- Vista Semana ----
+function monday(k){const d=parseKey(k);const w=(d.getDay()+6)%7;d.setDate(d.getDate()-w);return d;}
+function weekKeys(){const m=monday(current);return [0,1,2,3,4].map(i=>{const d=new Date(m);d.setDate(m.getDate()+i);return keyOf(d)});}
+function rangeRows(ks,skipEmpty){
+  let h=`<thead><tr><th>Día</th><th>Primer plato</th><th>Segundo plato</th><th>Postre</th><th>Pan y extra</th><th class="num">Total</th></tr></thead><tbody>`;
+  for(const k of ks){
+    const p=plan(k), d=parseKey(k);
+    if(!p&&skipEmpty&&(d.getDay()===0||d.getDay()===6)) continue;
+    h+=`<tr><td class="d">${DIAS[d.getDay()]} ${d.getDate()}</td>`;
+    if(!p){h+=`<td colspan="5" class="note">${esc(festivo(k)||"Sin comedor")}</td></tr>`;continue;}
+    const heads=["Primer plato","Segundo plato","Postre","Pan y extra"];
+    for(let c=0;c<4;c++){
+      const co=c<3?p.courses[c]:{name:p.courses.slice(3).map(x=>x.name).join(" + "),items:p.courses.slice(3).flatMap(x=>x.items)};
+      const g=co.items.filter(it=>it.f.g&&it.grams>0.5).map(it=>`<div><span class="g">${r5(it.grams)} g</span> ${esc(it.f.n.toLowerCase())}${casera(it)?` <span class="note">(${casera(it)})</span>`:""}</div>`).join("");
+      h+=`<td data-label="${heads[c]}"><div class="dn">${esc(co.name)}</div>${g||'<div class="note">libre</div>'}</td>`;
+    }
+    const sh=settings.obj-p.total;
+    h+=`<td class="num" data-label="Total">${fmt(p.total)} rac.${sh>0.05?`<div class="note short">faltan ${fmt(sh)}</div>`:""}</td></tr>`;
+  }
+  return h+"</tbody>";
+}
+const weekTitle=ks=>"Semana del "+longDate(ks[0]).replace(/^lunes /,"");
+function renderWeek(){
+  const ks=weekKeys();
+  $("wkname").textContent=weekTitle(ks);
+  $("wk").innerHTML=rangeRows(ks,false);
+}
+function monthKeys(){
+  const d=parseKey(current), y=d.getFullYear(), m=d.getMonth(), out=[];
+  for(let i=1;i<=31;i++){const x=new Date(y,m,i); if(x.getMonth()!==m) break; out.push(keyOf(x));}
+  return out;
+}
+const monthTitle=()=>{const d=parseKey(current);const s=MESES[d.getMonth()];return s[0].toUpperCase()+s.slice(1)+" "+d.getFullYear();};
+function renderMonth(){
+  $("msname").textContent=monthTitle();
+  $("ms").innerHTML=rangeRows(monthKeys().filter(k=>{const g=parseKey(k).getDay();return g!==0&&g!==6;}),true);
+}
+$("mprev").onclick=()=>{const d=parseKey(current);current=keyOf(new Date(d.getFullYear(),d.getMonth()-1,1));renderMonth();};
+$("mnext").onclick=()=>{const d=parseKey(current);current=keyOf(new Date(d.getFullYear(),d.getMonth()+1,1));renderMonth();};
+
+// ---- Imprimir / PDF ----
+function printHead(title){
+  return `<header class="ph"><div><h1>Raciones de HC · Comedor</h1><p>CEIP Plurilingüe de Monforte de Lemos · curso 2026-2027</p></div>
+  <div class="pr"><b>${esc(title)}</b><br>Objetivo: ${fmt(settings.obj)} raciones (${Math.round(settings.obj*settings.gr)} g de HC)</div></header>`;
+}
+const PRINT_FOOT=`<p class="pf">Valores orientativos calculados con la Tabla de raciones de HC (Fundación para la Salud) y medidas caseras de la Escuela de Pacientes. Cantidades de alimento ya cocinado. Validar con la familia y el equipo médico.</p>`;
+function printDay(){
+  const p=plan(current); const t=longDate(current);
+  if(!p) return printHead(t)+`<p>${esc(festivo(current)||"Sin comedor")}</p>`;
+  const labels=["Primer plato","Segundo plato","Postre","Pan","Extra"];
+  let h=printHead(t[0].toUpperCase()+t.slice(1))+`<table><thead><tr><th>Plato</th><th>Alimento</th><th class="num">Gramos</th><th>Medida casera</th><th class="num">Raciones</th></tr></thead><tbody>`;
+  p.courses.forEach((c,ci)=>c.items.forEach((it,i)=>{
+    h+=`<tr>${i===0?`<td rowspan="${c.items.length}"><small>${labels[ci]}</small><br><b>${esc(c.name)}</b></td>`:""}<td>${esc(it.f.n)}</td>
+      <td class="num"><b>${it.f.g?r5(it.grams)+" g":"Libre"}</b></td><td>${esc(casera(it))}</td><td class="num">${it.f.g?fmt(it.rac):"—"}</td></tr>`;
+  }));
+  return h+`</tbody><tfoot><tr><td colspan="4"><b>Total</b></td><td class="num"><b>${fmt(p.total)}</b></td></tr></tfoot></table>`;
+}
+function doPrint(kind){
+  let h;
+  if(kind==="dia") h=printDay();
+  else if(kind==="semana"){const ks=weekKeys();h=printHead(weekTitle(ks))+`<table class="wk">${rangeRows(ks,false)}</table>`;}
+  else h=printHead(monthTitle())+`<table class="wk">${rangeRows(monthKeys().filter(k=>{const g=parseKey(k).getDay();return g!==0&&g!==6;}),true)}</table>`;
+  const el=$("print"); el.innerHTML=h+PRINT_FOOT; el.className=kind==="dia"?"":"land";
+  let inFrame=false; try{inFrame=window.self!==window.top}catch(e){inFrame=true}
+  const msg=$("printmsg");
+  if(inFrame){msg.hidden=false;msg.innerHTML="<b>Para imprimir o guardar en PDF</b> abre la versión guardada en GitHub (el archivo index.html). Desde esta vista previa de Claude el navegador no permite abrir el diálogo de impresión.";}
+  try{window.print();}catch(e){}
+}
+document.querySelectorAll(".print").forEach(b=>b.addEventListener("click",()=>doPrint(b.dataset.print)));
+
+$("wprev").onclick=()=>{const d=monday(current);d.setDate(d.getDate()-7);current=keyOf(d);renderWeek();};
+$("wnext").onclick=()=>{const d=monday(current);d.setDate(d.getDate()+7);current=keyOf(d);renderWeek();};
+$("wcopiar").onclick=()=>copy(weekKeys().map(dayText).join("\n\n")+"\n\nValores orientativos, validados por la familia.","wcopytxt","wcopymsg");
+
+// ---- Vista Alimentos ----
+function renderFoods(){
+  const F=foods();
+  const tipos={hc:"Con hidratos",fijo:"Pocos hidratos",postre:"Postre",libre:"Sin hidratos"};
+  let h=`<thead><tr><th>Alimento</th><th class="num">g por ración</th><th class="num">g HC/100 g</th><th class="num">Ración habitual</th><th>Origen</th><th></th></tr></thead><tbody>`;
+  for(const t in tipos){
+    h+=`<tr><th colspan="6">${tipos[t]}</th></tr>`;
+    for(const k in F){ const f=F[k]; if(f.t!==t) continue;
+      const edited=!!foodEdits[k]||!!customFoods[k];
+      h+=`<tr><td>${esc(f.n)}</td><td class="num">${f.g?`<input type="number" min="1" step="1" value="${Math.round(f.g)}" data-fg="${k}" style="width:76px" aria-label="Gramos por ración">`:"—"}</td>
+      <td class="num">${f.g?fmt(1000/f.g):"0"}</td>
+      <td class="num">${f.g&&t!=="libre"?`<input type="number" min="0" step="5" value="${f.p}" data-fp="${k}" style="width:70px" aria-label="Ración habitual"> g`:"—"}</td>
+      <td>${f.s?`<span class="src${f.s==="Estimado"?" est":""}">${esc(f.s)}</span>`:""}</td>
+      <td>${edited?`<button class="pin" data-frest="${k}">${customFoods[k]?"Borrar":"Restaurar"}</button>`:""}</td></tr>`;
+    }
+  }
+  $("alimtab").innerHTML=h+"</tbody>";
+}
+$("alimtab").addEventListener("change",e=>{
+  const t=e.target, k=t.dataset.fg||t.dataset.fp; if(!k) return;
+  const field=t.dataset.fg?"g":"p", v=Math.max(t.dataset.fg?1:0,parseFloat(t.value)||0);
+  if(customFoods[k]){customFoods[k][field]=v;store.set("customFoods",customFoods);}
+  else{foodEdits[k]=Object.assign(foodEdits[k]||{},{[field]:v});store.set("foodEdits",foodEdits);}
+  renderFoods();
+});
+$("alimtab").addEventListener("click",e=>{
+  const k=e.target.dataset&&e.target.dataset.frest; if(!k) return;
+  if(customFoods[k]){delete customFoods[k];store.set("customFoods",customFoods);}
+  else{delete foodEdits[k];store.set("foodEdits",foodEdits);}
+  renderFoods();
+});
+$("addform").addEventListener("submit",e=>{
+  e.preventDefault();
+  const n=$("an").value.trim(), g=parseFloat($("ag").value), p=parseFloat($("ap").value)||150;
+  if(!n||!g) return;
+  customFoods["c_"+Date.now()]={n,g,p,t:"hc",s:"Propio"};
+  store.set("customFoods",customFoods); $("addform").reset(); renderFoods();
+});
+
+// ---- Pestañas ----
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===b?"true":"false"));
+  ["dia","semana","mes","alim"].forEach(v=>$("v-"+v).hidden=v!==b.dataset.tab);
+  $("printmsg").hidden=true;
+  if(b.dataset.tab==="dia")renderDay(); if(b.dataset.tab==="semana")renderWeek(); if(b.dataset.tab==="mes")renderMonth(); if(b.dataset.tab==="alim")renderFoods();
+});
+
+bindSettings();
+current=nearest(keyOf(new Date()));
+renderDay();
+</script>
+
+</body>
+</html>
