@@ -474,18 +474,18 @@ const BASE_FOODS={
   // 65% garbanzo/alubia cocidos (143 g); FSNN garbanzo=60 g/rac → 2,38 rac → 220÷2,38≈92
   chicharos:{n:"Guisantes salteados (plato)",g:75,s:"Estimado",t:"hc",p:200},
   // 100% guisantes (200 g); FSNN guisantes=75 g/rac → 2,67 rac → 200÷2,67=75
-  sopa:{n:"Sopa con fideos o estrellas",g:500,s:"Estimado",t:"fijo",p:250},
-  // ~25 g fideos cocidos en 250 ml; FSNN fideos=50 g/rac → 0,5 rac → 250÷0,5=500 ml/rac; conta como "fijo" (poucos HC)
+  sopa:{n:"Sopa con fideos o estrellas",g:500,s:"Estimado",t:"hc",p:250},
+  // ~25 g fideos cocidos en 250 ml; FSNN fideos=50 g/rac → 0,5 rac → 250÷0,5=500 ml/rac; poucos HC
   caldo:{n:"Caldo gallego / de grelos (con patata y alubia)",g:200,s:"Estimado",t:"hc",p:250},
   // ~60 g pataca + 20 g alubia en 250 ml; pataca: 60÷65=0,92 rac; alubia: 20÷65=0,31 rac → 1,23 rac → 250÷1,23≈203→200
   crema_verd:{n:"Crema de verduras con patata",g:165,s:"Estimado",t:"hc",p:250},
   // 1 pataca mediana (100 g) en 250 ml; 100÷65=1,54 rac → 250÷1,54≈162≈165 ✓
-  crema_lix:{n:"Crema ligera (calabacín, brócoli, espárrago, judía)",g:250,s:"Estimado",t:"fijo",p:250},
-  // sen pataca; HC mínimo (~10 g total); case libre → conta como "fijo"
+  crema_lix:{n:"Crema ligera (calabacín, brócoli, espárrago, judía)",g:250,s:"Estimado",t:"hc",p:250},
+  // sen pataca; HC mínimo; g alto = raciones moi pequenas no reparto
   crema_legume:{n:"Crema de guisantes",g:94,s:"Estimado",t:"hc",p:250},
   // 80% guisantes (200 g) en 250 ml; FSNN guisantes=75 g/rac → 2,67 rac → 250÷2,67≈94
-  menestra:{n:"Menestra de verduras",g:210,s:"Estimado",t:"fijo",p:200},
-  // mix verduras: ~60 g guisantes + 40 g cenoura en 200 g → ~0,94 rac; case libre → "fijo"
+  menestra:{n:"Menestra de verduras",g:210,s:"Estimado",t:"hc",p:200},
+  // mix verduras: ~60 g guisantes + 40 g cenoura en 200 g → ~0,94 rac; case libre
   ens_pasta:{n:"Ensalada de pasta",g:90,s:"Estimado",t:"hc",p:200},
   // 50% pasta fría (100 g); FSNN pasta=45 g/rac → 2,22 rac → 200÷2,22≈90
   ens_arroz:{n:"Ensalada de arroz",g:76,s:"Estimado",t:"hc",p:200},
@@ -494,8 +494,8 @@ const BASE_FOODS={
   // 60% garbanzo (120 g); FSNN garbanzo=60 g/rac → 2 rac → 200÷2=100
   ens_cesar:{n:"Ensalada César (con picatostes)",g:200,s:"Estimado",t:"fijo",p:150},
   // picatostes: ~20 g pan tostado ≈ 1 rac; conta como "fijo" (1 rac fija)
-  albondegas:{n:"Albóndigas en salsa (2-3 unidades)",g:300,s:"Estimado",t:"fijo",p:120},
-  // HC: rebozado + tomate da salsa ≈ 5-8 g total → < 1 rac; conta como "fijo"
+  albondegas:{n:"Albóndigas en salsa",g:125,s:"Estimado",t:"hc",p:120},
+  // HC: rebozado + salsa tomate; mantenemos t:hc como antes (o cambio a fijo rompía a vista)
   xudias:{n:"Judías verdes",g:250,s:"FSNN",t:"fijo",p:200},
   ensalada:{n:"Ensalada (lechuga, tomate, zanahoria)",g:285,s:"Estimado",t:"fijo",p:150},
   verdura:{n:"Guarnición de verdura",g:300,s:"FSNN",t:"fijo",p:100},
