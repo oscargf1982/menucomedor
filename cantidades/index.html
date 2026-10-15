@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<title>Cantidades de Cocina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: una columna tipo "comanda" de cocina; tarjeta por plato, aviso amarillo como ticket */
+:root{
+  --bg:#edf1f2; --surface:#ffffff; --ink:#1c2a30; --muted:#5b6b72; --line:#d3dcdf;
+  --accent:#0f6b72; --accent-ink:#ffffff; --accent-soft:#dcefef;
+  --ticket:#fff3c4; --ticket-ink:#6b4e00; --ticket-line:#e8cf72;
+  --meat:#9e3434; --meat-soft:#f7e3e1; --fish:#235d97; --fish-soft:#e0ebf7;
+  --ok:#2e7a3c; --ok-soft:#e1f1e3; --danger:#a02c2c;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12191c; --surface:#1b2428; --ink:#e6eef0; --muted:#9aabb1; --line:#2f3c41;
+  --accent:#4fb3b9; --accent-ink:#06282b; --accent-soft:#1d3436;
+  --ticket:#3a3216; --ticket-ink:#f3dc8a; --ticket-line:#5e5124;
+  --meat:#f09a92; --meat-soft:#3a2321; --fish:#8fbdf0; --fish-soft:#1e2c3d;
+  --ok:#86d394; --ok-soft:#1c3221; --danger:#f08a8a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12191c; --surface:#1b2428; --ink:#e6eef0; --muted:#9aabb1; --line:#2f3c41;
+  --accent:#4fb3b9; --accent-ink:#06282b; --accent-soft:#1d3436;
+  --ticket:#3a3216; --ticket-ink:#f3dc8a; --ticket-line:#5e5124;
+  --meat:#f09a92; --meat-soft:#3a2321; --fish:#8fbdf0; --fish-soft:#1e2c3d;
+  --ok:#86d394; --ok-soft:#1c3221; --danger:#f08a8a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.45}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:12px 64px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:.01em}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+header.top h1{font-size:1.7rem}
+.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px}
+.tabs button{border:0;background:transparent;color:var(--muted);font:700 .95rem var(--body);padding:8px 16px;border-radius:999px;cursor:pointer;min-height:40px}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+button,input,select{font-family:var(--body)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.daybar{margin-top:14px;display:grid;grid-template-columns:52px 1fr 52px;gap:8px;align-items:center}
+.navbtn{height:52px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:1.5rem;cursor:pointer}
+.navbtn:disabled{opacity:.35;cursor:default}
+.daylabel{text-align:center;position:relative}
+.daylabel .dname{font-family:var(--display);font-size:1.5rem;font-weight:700;display:block}
+.daylabel .dname::first-letter{text-transform:uppercase}
+[hidden]{display:none!important}
+.daylabel .sub{color:var(--muted);font-size:.9rem}
+.daylabel input[type=date]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.todaylink{display:block;margin:6px auto 0;border:0;background:none;color:var(--accent);font:700 .9rem var(--body);cursor:pointer;text-decoration:underline}
+.comensales{margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 14px}
+.comensales label{font-weight:700}
+.comensales input[type=number]{width:110px}
+.comensales .hint{color:var(--muted);font-size:.85rem;flex:1 1 200px}
+.cards{display:flex;flex-direction:column;gap:14px;margin-top:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.card-head{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.card-head h2{font-size:1.35rem;line-height:1.15;min-width:0}
+.course{display:block;font:700 .72rem var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0}
+.chip{font:700 .75rem var(--body);padding:4px 9px;border-radius:999px;white-space:nowrap}
+.chip.meat{background:var(--meat-soft);color:var(--meat)}
+.chip.fish{background:var(--fish-soft);color:var(--fish)}
+.chip.done{background:var(--ok-soft);color:var(--ok)}
+.chip.half{background:var(--ticket);color:var(--ticket-ink)}
+.ticket{background:var(--ticket);color:var(--ticket-ink);border:1px dashed var(--ticket-line);border-radius:12px;padding:10px 12px;font-size:.95rem}
+.ticket strong.t{display:block;font-family:var(--display);font-size:1.05rem;margin-bottom:4px}
+.ticket ul{margin:4px 0 0;padding-left:18px}
+.ticket li{margin:2px 0}
+.ticket .sug{font-weight:700}
+.ticket.none{background:transparent;border-color:var(--line);color:var(--muted)}
+.rows{display:flex;flex-direction:column;gap:10px}
+.rowhead{display:grid;grid-template-columns:1fr 150px 120px 44px;gap:8px;font:700 .75rem var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.row{display:grid;grid-template-columns:1fr 150px 120px 44px;gap:8px;align-items:center}
+.qty{display:flex;gap:4px}
+.qty input{min-width:0;flex:1}
+.qty select{width:62px}
+input[type=text],input[type=number],select{height:48px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:1.05rem;padding:0 10px;width:100%;font-variant-numeric:tabular-nums}
+select{padding:0 4px}
+.lbl{display:none}
+.del{height:44px;width:44px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:1.3rem;cursor:pointer}
+.add{align-self:flex-start;border:1px dashed var(--accent);background:transparent;color:var(--accent);font:700 .95rem var(--body);padding:10px 14px;border-radius:10px;cursor:pointer;min-height:44px}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.save{background:var(--accent);color:var(--accent-ink);border:0;border-radius:12px;font:700 1.05rem var(--body);padding:0 22px;min-height:52px;cursor:pointer;flex:1 1 180px}
+.save:disabled{opacity:.5;cursor:default}
+.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:12px;font:700 .9rem var(--body);padding:0 14px;min-height:52px;cursor:pointer}
+.ghost.danger{color:var(--danger);border-color:var(--danger)}
+.msg{font-size:.9rem;color:var(--muted)}
+.msg.ok{color:var(--ok);font-weight:700}
+.msg.err{color:var(--danger);font-weight:700}
+.otro{display:flex;gap:8px;flex-wrap:wrap}
+.otro input{flex:1 1 220px}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:16px;padding:20px;color:var(--muted);text-align:center}
+.banner{margin-top:12px;padding:10px 14px;border-radius:12px;background:var(--ticket);color:var(--ticket-ink);font-size:.92rem}
+.search{margin-top:14px}
+.hgroup{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:12px}
+.hgroup h3{font-size:1.2rem}
+.hrec{border-top:1px solid var(--line);padding-top:8px;margin-top:8px;font-size:.95rem}
+.hrec .d{font-weight:700}
+.hrec table{border-collapse:collapse;margin-top:4px;font-variant-numeric:tabular-nums;width:100%}
+.hrec td,.hrec th{padding:3px 8px 3px 0;text-align:left}
+.hrec th{font:700 .72rem var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.tblwrap{overflow-x:auto}
+@media (max-width:560px){
+  .rowhead{display:none}
+  .row{grid-template-columns:1fr 1fr 44px;grid-template-areas:"n n n" "u s x";padding-bottom:10px;border-bottom:1px solid var(--line)}
+  .row .n{grid-area:n}.row .u{grid-area:u}.row .s{grid-area:s}.row .del{grid-area:x}
+  .lbl{display:block;font:700 .7rem var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:2px}
+  .row .s{display:block}
+}
+@media (prefers-reduced-motion:no-preference){.card{transition:border-color .2s}}
+.collapsed-note{color:var(--muted);font-size:.92rem}
+
+.pedidobtn{margin-top:14px;width:100%;min-height:58px;border:0;border-radius:14px;background:var(--ink);color:var(--bg);font:700 1.1rem var(--display);letter-spacing:.06em;cursor:pointer}
+.ped-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px}
+.ped-head h2{font-size:1.5rem}
+.weekbar{margin-top:10px;display:grid;grid-template-columns:52px 1fr 52px;gap:8px;align-items:center;text-align:center}
+.weekbar .wl{font-family:var(--display);font-weight:700;font-size:1.2rem}
+.total{background:var(--surface);border:2px solid var(--ink);border-radius:16px;padding:14px;margin-top:14px}
+.total h3{font-size:1.3rem;margin-bottom:6px}
+.total table,.pday table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+.total td,.total th,.pday td,.pday th{padding:6px 8px 6px 0;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.total th,.pday th{font:700 .72rem var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.total td.q{font-weight:700;font-size:1.15rem;white-space:nowrap}
+.total td.w{color:var(--muted);font-size:.85rem}
+.pday{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:12px}
+.pday h3{font-size:1.2rem}
+.pdish{margin-top:10px}
+.pdish .pn{font-weight:700}
+.pdish .src{color:var(--muted);font-size:.85rem}
+.pdish .nodata{color:var(--ticket-ink);background:var(--ticket);border-radius:8px;padding:6px 10px;font-size:.9rem;margin-top:4px}
+.est{color:var(--ticket-ink);font-weight:700}
+.card.dirty{border-color:var(--accent)}
+</style>
+<div class="wrap">
+  <header class="top">
+    <h1>Cantidades de Cocina</h1>
+    <div class="tabs" role="tablist">
+      <button id="tabDia" role="tab" aria-selected="true">Día</button>
+      <button id="tabHist" role="tab" aria-selected="false">Historial</button>
+    </div>
+  </header>
+  <div id="banner" class="banner" hidden></div>
+  <button class="pedidobtn" id="pedidoBtn">REALIZAR PEDIDO SEMANA SIGUIENTE</button>
+
+  <section id="viewDia">
+    <div class="daybar">
+      <button class="navbtn" id="prev" aria-label="Día anterior">‹</button>
+      <div class="daylabel">
+        <span class="dname" id="dname"></span>
+        <span class="sub" id="dsub">Toca para elegir otra fecha</span>
+        <input type="date" id="datePick" aria-label="Elegir fecha">
+      </div>
+      <button class="navbtn" id="next" aria-label="Día siguiente">›</button>
+    </div>
+    <button class="todaylink" id="goToday" hidden>Volver a hoy</button>
+    <div class="comensales">
+      <label for="comensales">Comensales hoy</label>
+      <input type="number" id="comensales" inputmode="numeric" min="0" placeholder="260">
+      <span class="hint">Por defecto 260. Cámbialo si hoy come más o menos gente y la cantidad sugerida se ajusta.</span>
+    </div>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <section id="viewPedido" hidden>
+    <div class="ped-head"><h2>Pedido de la semana</h2><button class="ghost" id="pedVolver">Volver</button></div>
+    <div class="weekbar"><button class="navbtn" id="wPrev" aria-label="Semana anterior">‹</button><span class="wl" id="wLabel"></span><button class="navbtn" id="wNext" aria-label="Semana siguiente">›</button></div>
+    <div id="pedido"></div>
+  </section>
+
+  <section id="viewHist" hidden>
+    <input type="text" id="buscar" class="search" placeholder="Buscar plato o ingrediente (polo, merluza…)" autocomplete="off">
+    <div id="hist"></div>
+  </section>
+</div>
+<datalist id="ingList"></datalist>
+
+<script>
+const MENU = {"2026-09-09":["Crema de cabaciña","Polo asado con guarnición","Froita de tempada"],"2026-09-10":["Menestra de verduras","Peixe en salsa de verduras con arroz","Froita de tempada"],"2026-09-11":["Sardiñas con tomate","Fideuá vexetal","Iogur"],"2026-09-14":["Revolto de champiñóns","Costelas asadas con patacas","Froita de tempada"],"2026-09-15":["Ensalada Mixta","Macarróns con carne de tenreira","Froita de tempada"],"2026-09-16":["Lentellas vexetais","Peituga de polo con ensalada","Froita de tempada"],"2026-09-17":["Ovos recheos","Salmón ao forno con verduras asadas","Froita de tempada"],"2026-09-18":["Ensalada Caprese","Filete con guarnición de verduras","Iogur"],"2026-09-21":["Sopa de estrelas","Peixe ao forno con ensalada","Froita de tempada"],"2026-09-22":["Crema de cenoria","Paella","Froita de tempada"],"2026-09-23":["Ensalada César","Carne guisada con patacas","Froita de tempada"],"2026-09-24":["Ensalada de garavanzos","Peixe en salsa verde","Froita de tempada"],"2026-09-25":["Potaxe de fabas","Filete de pavo/leituga","Iogur"],"2026-09-28":["Crema de cabaza","Empanada de atún","Froita de tempada"],"2026-09-29":["Xudías con atún","Lasaña de espinacas e carne","Froita de tempada"],"2026-09-30":["Crema de verduras","Tenreira guisada","Froita de tempada"],"2026-10-01":["Chícharos con pavo","Peixe á pranxa con tomate","Froita de tempada"],"2026-10-02":["Crema de cabaciña","Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns","Iogur"],"2026-10-05":["Ensalada de garavanzos","Macarróns con carne picada","Froita de tempada"],"2026-10-06":["Revolto de champiñóns","Peixe á prancha con puré de pataca","Froita de tempada"],"2026-10-07":["Ensalada mixta","Filete de pavo con arroz e calabacín troceado","Froita de tempada"],"2026-10-08":["Crema de cenoria","Peixe en salsa verde con pataca cocida","Froita de tempada"],"2026-10-09":["Xudías con ovo","Costelas con patacas","Iogur"],"2026-10-13":["Sopa de fideos e vexetais","Peituga de polo á prancha con leituga","Froita de tempada"],"2026-10-14":["Ensalada de tomate e espárragos","Espaguetis con salmón desmenuzado","Froita de tempada"],"2026-10-15":["Lentellas vexetais","Empanada de zorza","Froita de tempada"],"2026-10-16":["Caldo Galego","Bacallau á galega","Iogur"],"2026-10-19":["Ensalada mixta","Guiso de carne con verduras e patacas","Froita de tempada"],"2026-10-20":["Crema de verduras","Paella","Froita de tempada"],"2026-10-21":["Menestra de verduras","Raxo con patacas","Froita de tempada"],"2026-10-22":["Ensalada de arroz","Muslito de polo con guarnición de verduras","Froita de tempada"],"2026-10-23":["Ensaladilla","Peixe en salsa de calabacín con pataca cocida","Iogur"],"2026-10-26":["Crema de porros","Filetes empanados con patacas","Froita de tempada"],"2026-10-27":["Sopa","Merluza ao forno con ensalada","Froita de tempada"],"2026-10-28":["Ensalada mixta","Lasaña de carne","Froita de tempada"],"2026-10-29":["Crema de cabaciña","Polo asado con leituga","Froita de tempada"],"2026-10-30":["Revolto de champiñóns","Peixe á prancha con arroz","Iogur"],"2026-11-02":["Sopa","Peituga de polo con pataca fritida","Froita de tempada"],"2026-11-03":["Ensalada mixta","Peixe en salsa verde","Froita de tempada"],"2026-11-04":["Fabas con ameixas","Paella","Froita de tempada"],"2026-11-05":["Ensalada mixta","Filete de pavo con cabaciña","Froita de tempada"],"2026-11-06":["Crema de porro","Bacaladiños con patacas fritas","Iogur"],"2026-11-09":["Menestra de verduras","Polo ao forno / patacas","Froita de tempada"],"2026-11-10":["Ensalada mixta","Lasaña de carne e calabacín","Froita de tempada"],"2026-11-11":["Potaxe de garavanzos","Calamares á romana con ensalada","Froita de tempada"],"2026-11-12":["Crema de cenoria","Peixe en salsa","Froita de tempada"],"2026-11-13":["Ovos recheos","Peixe con arroz e verduras","Iogur"],"2026-11-16":["Crema de brécol","Filete con menestra","Froita de tempada"],"2026-11-17":["Guisantes con xamón","Raxo de polo con pataca","Froita de tempada"],"2026-11-18":["Xudías con allada","Peixe con guarnición","Froita de tempada"],"2026-11-19":["Revolto de espinacas e gambas","Lomo en salsa de champiñóns","Froita de tempada"],"2026-11-20":["Sopa","Fideuá","Iogur"],"2026-11-23":["Crema de cabaza","Macarróns con carne","Froita de tempada"],"2026-11-24":["Ensalada de pasta","Costelas asadas con verdura asada","Froita de tempada"],"2026-11-25":["Ensalada mixta","Arroz negro con chipiróns e gambas","Froita de tempada"],"2026-11-26":["Revolto de seta ao allo","Polo asado / pataca","Froita de tempada"],"2026-11-27":["Boloñesa de lentellas / espaguetes","Peixe con ensalada","Iogur"],"2026-11-30":["Crema de porro","Macarróns / carne e tomate natural","Froita de tempada"],"2026-12-01":["Sopa de estrelas","Bacallau en salsa","Froita de tempada"],"2026-12-02":["Menestra de verduras","Polo ao forno / patacas","Froita de tempada"],"2026-12-03":["Arroz 3 delicias","Pescado á prancha con ensalada","Froita de tempada"],"2026-12-04":["Crema de xudías","Fideuá","Iogur"],"2026-12-09":["Crema de cenoria","Filete con ensalada","Froita de tempada"],"2026-12-10":["Chícharos salteados / pavo","Paella","Froita de tempada"],"2026-12-11":["Lentellas vexetais","Lomo en salsa de champiñóns","Iogur"],"2026-12-14":["Potaxe de fabas","Salmón / guarnición","Froita de tempada"],"2026-12-15":["Lentellas vexetais","Polo crocante con patacas","Froita de tempada"],"2026-12-16":["Ensalada de sardiñas","Tortilla de pataca e calabacín","Froita de tempada"],"2026-12-17":["Revolto de champiñóns","Pescado en salsa","Froita de tempada"],"2026-12-18":["Potaxe de garavanzos","Carne asada con guarnición","Iogur"],"2026-12-21":["🎄 Menú especial de Nadal","Prato especial Navideño","Froita de tempada"],"2027-01-08":["Crema de verduras","Macarróns con carne","Iogur"],"2027-01-11":["Sopa de estrelas","Peixe con patacas","Froita de tempada"],"2027-01-12":["Lentellas vexetais","Guiso de carne","Froita de tempada"],"2027-01-13":["Sardiñas con tomate","Lasaña","Froita de tempada"],"2027-01-14":["Crema de cenoria","Merluza con patacas","Froita de tempada"],"2027-01-15":["Sopa","Polo asado con ensalada","Iogur"],"2027-01-18":["Salteado de xudías con pavo","Calamares con patacas","Froita de tempada"],"2027-01-19":["Sopa","Polo crocante","Froita de tempada"],"2027-01-20":["Crema de cabaciña","Peixe con arroz","Froita de tempada"],"2027-01-21":["Revolto espinacas e gambas","Empanada de zorza","Froita de tempada"],"2027-01-22":["Caldo galego","Filete con ensalada","Iogur"],"2027-01-25":["Crema de brécol","Peixe en salsa / pataca","Froita de tempada"],"2027-01-26":["Revolto de champiñóns","Espaguetes con atún","Froita de tempada"],"2027-01-27":["Sopa","Filete con menestra","Froita de tempada"],"2027-01-28":["Ensalada mixta","Polo asado con patacas","Froita de tempada"],"2027-01-29":["Crema de porros e pataca","Paella","Iogur"],"2027-02-01":["Potaxe de garavanzos","Carne asada con guarnición","Froita de tempada"],"2027-02-02":["Lentellas vexetais","Tallaríns á carbonara","Froita de tempada"],"2027-02-03":["Crema de brécol","Salmón con guarnición","Froita de tempada"],"2027-02-04":["Revolto de champiñóns","Costelas con patacas e verduras asadas","Froita de tempada"],"2027-02-05":["Menestra de verduras","Pasta con tacos de pescado","Iogur"],"2027-02-11":["Ensalada mixta","Carne asada con pataca fritida","Froita de tempada"],"2027-02-12":["Crema de calabacín","Raxo de polo con patacas fritidas","Iogur"],"2027-02-15":["Ovos recheos","Pescado en salsa con patacas","Froita de tempada"],"2027-02-16":["Caldo de grelos","Empanada de carne","Froita de tempada"],"2027-02-17":["Ensalada mixta","Macarróns con polo e salsa de cabaciña","Froita de tempada"],"2027-02-18":["Sopa de cocido","Cocido / Orellas entroido","Froita de tempada"],"2027-02-19":["Xudías salteadas / allo","Peituga de pavo con patacas","Iogur"],"2027-02-22":["Revolto de setas ao allo","Pescado / pataca cocida","Froita de tempada"],"2027-02-23":["Lentellas vexetais","Ovos á prancha e arroz con tomate triturado","Froita de tempada"],"2027-02-24":["Crema de cenoria","Polo asado con guarnición","Froita de tempada"],"2027-02-25":["Sardiñas con tomate","Lasaña de verduras","Froita de tempada"],"2027-02-26":["Menestra de verduras","Peixe con pataca fritida","Iogur"],"2027-03-31":["Sopa","Ovos fritidos con arroz","Froita de tempada"],"2027-04-01":["Crema de espárragos","Pescado á prancha con ensalada","Froita de tempada"],"2027-04-02":["Ensalada mixta","Polo asado con salteado de verduras","Iogur"],"2027-04-05":["Potaxe de garavanzos","Pescado ao forno / ensalada","Froita de tempada"],"2027-04-06":["Lentellas vexetais","Macarróns con carne","Froita de tempada"],"2027-04-07":["Ensalada de pasta","Costela asada con ensalada de leituga e tomate","Froita de tempada"],"2027-04-08":["Crema de cabaza","Guiso de pescado","Froita de tempada"],"2027-04-09":["Ensalada mixta","Polo asado con patacas","Iogur"],"2027-04-12":["Crema de espárragos","Lasaña vexetal","Froita de tempada"],"2027-04-13":["Fabada vexetal","Pasta con tacos de pescado","Froita de tempada"],"2027-04-14":["Crema de verduras","Ovos á prancha con arroz e tomate triturado","Froita de tempada"],"2027-04-15":["Lentellas vexetais","Pescado en salsa verde","Froita de tempada"],"2027-04-16":["Sopa","Guiso de carne con patacas e vexetais","Iogur"],"2027-04-19":["Potaxe de garbanzos e verduras","Pescado ao forno con patacas","Froita de tempada"],"2027-04-20":["Crema de verduras","Filete de peituga de polo con ensalada","Froita de tempada"],"2027-04-21":["Ensalada mixta","Paella","Froita de tempada"],"2027-04-22":["Crema de calabaza","Bacaladiños con patacas","Froita de tempada"],"2027-04-23":["Ensalada de garbanzos","Pasta con pescado en taquiños","Iogur"],"2027-04-26":["Crema de verduras","Pescado con pataca panadeira","Froita de tempada"],"2027-04-27":["Ensalada de pasta","Lomo con ensalada","Froita de tempada"],"2027-04-28":["Ensalada Mixta","Bacallau con tomate","Froita de tempada"],"2027-04-29":["Arroz 3 delicias","Peituga de pavo con ensalada","Froita de tempada"],"2027-04-30":["Potaxe de garvanzos","Espaguetis Boloñesa","Iogur"],"2027-05-03":["Ensalada Mixta","Peixe con pataca cocida","Froita de tempada"],"2027-05-04":["Crema de cabaza","Polo asado con ensalada","Froita de tempada"],"2027-05-05":["Ensalada de garavanzos","Pasta integral con salmón en taquiños","Froita de tempada"],"2027-05-06":["Ensalada de pasta","Raxo con ensalada","Froita de tempada"],"2027-05-07":["Revolto de espinacas e gambas","Paella","Iogur"],"2027-05-10":["Ensalada mixta","Filete de tenreira con patacas","Froita de tempada"],"2027-05-11":["Lentellas vexetais","Pescado en salsa verde con patacas cocidas","Froita de tempada"],"2027-05-12":["Sardiñas con tomate e espárragos","Guiso de carne con patacas e verduras","Froita de tempada"],"2027-05-13":["Ovos recheos","Pescado con arroz","Froita de tempada"],"2027-05-14":["Xudías con allada e pataca cocida","Peituga de polo con ensalada","Iogur"],"2027-05-17":["Ensalada Mixta","Lasaña de atún","Froita de tempada"],"2027-05-18":["Crema de chícharos","Merluza con pataca panadera","Froita de tempada"],"2027-05-19":["Ensalada de tomate con queixo fresco e aceitunas","Macarróns con carne","Froita de tempada"],"2027-05-20":["Potaxe de garavanzos","Peixe en salsa verde con pataca cocida","Froita de tempada"],"2027-05-21":["Sopa","Polo asado con ensalada","Iogur"],"2027-05-24":["Ensalada mixta","Bacaladiños con patacas","Froita de tempada"],"2027-05-25":["Ensaladilla","Paella","Froita de tempada"],"2027-05-26":["Ensalada de tomate, queixo fresco e aceitunas negras","Tortilla de patacas con tomate","Froita de tempada"],"2027-05-27":["Ensalada mixta","Lasaña boloñesa","Froita de tempada"],"2027-05-28":["Sardiñas con tomate e espárragos","Peituga de polo con patacas fritas","Iogur"],"2027-05-31":["Ensaladilla","Empanada de atún","Froita de tempada"],"2027-06-01":["Arroz 3 delicias","Guiso de carne con patacas e verduras","Froita de tempada"],"2027-06-02":["Crema de verduras","Macarróns con carne","Froita de tempada"],"2027-06-03":["Revolto de champiñóns","Peituga de polo con patacas fritas","Froita de tempada"],"2027-06-04":["Ensalada mixta","Lomos de pescada/pataca","Iogur"],"2027-06-07":["Ensalada de pasta","Costelas asadas / ensalada","Froita de tempada"],"2027-06-08":["Ensalada de garavanzos","Paella de pescado","Froita de tempada"],"2027-06-09":["Lentellas vexetais","Ovos fritos con arroz e tomate triturado","Froita de tempada"],"2027-06-10":["Sopa de pescado","Polo asado con ensalada","Froita de tempada"],"2027-06-11":["Xudías con allada","Bacaladiños con patacas fritas","Iogur"],"2027-06-15":["Croquetas de polo","Pizza","Froita de tempada"],"2027-06-16":["Menestra de verduras","Carne guisada / patacas","Froita de tempada"],"2027-06-17":["Sopa","Ovos fritidos con arroz","Froita de tempada"],"2027-06-18":["Crema de espárragos","Pescado á prancha con ensalada","Iogur"],"2027-06-21":["Ensalada mixta","Polo asado con salteado de verduras","Froita de tempada"]};
+const UNITS = ["kg","g","l","ud"];
+const HOY = isoDate(new Date());
+const COM_DEF = 260;
+function comDe(f){const v=num(dias.get(f)?.comensales);return v===null?COM_DEF:v}
+
+function isoDate(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function norm(s){return (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g," ").trim()}
+function slug(s){return norm(s).replace(/ /g,"-").slice(0,80)||"plato"}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function num(v){if(v===null||v===undefined||v==="")return null;const n=parseFloat(String(v).replace(",","."));return isFinite(n)?n:null}
+function fmt(n){if(n===null||n===undefined)return "—";return (Math.round(n*100)/100).toLocaleString("es-ES")}
+function fdate(iso,long){const [y,m,d]=iso.split("-").map(Number);const dt=new Date(y,m-1,d);
+  return long?dt.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"}):dt.toLocaleDateString("es-ES",{weekday:"short",day:"numeric",month:"short",year:"2-digit"})}
+
+// Grupo principal (carne / pescado) para avisos de platos parecidos
+const GROUPS=[
+  ["polo","Polo","meat"],["pavo","Pavo","meat"],["raxo","Raxo","meat"],["costel","Costelas","meat"],["lomo","Lomo","meat"],
+  ["salmon","Salmón","fish"],["atun","Atún","fish"],
+  ["sardin","Sardiñas","fish"],["calamar|chipiron|lura","Calamares","fish"],["paella(?! de pescado)|gamba|ameixa|marisco","Marisco","fish"],
+  ["peixe|pescado|merluza|pescada|bacall|bacalad","Peixe branco","fish"],
+  ["xamon|zorza|cocido|orellas|carbonara","Porco","meat"],
+  ["tenreira|carne|filete|lasana bolonesa|espaguetis bolonesa|lasana$","Carne","meat"]
+];
+function groupOf(name){const n=norm(name);if(/lentellas|vexetal|verduras$/.test(n)&&!/carne|polo|peixe|pescado/.test(n))return null;
+  for(const [re,label,kind] of GROUPS){if(new RegExp(re).test(n))return {key:label,label,kind}}return null}
+
+// Estado
+let db=null, writable=true;
+const regs=new Map();   // id -> registro
+const dias=new Map();   // fecha -> {comensales}
+let fecha = MENU[HOY]?HOY:(Object.keys(MENU).sort().find(d=>d>=HOY)||Object.keys(MENU).sort().pop());
+const drafts={};
+const expanded=new Set();        // key -> {ings:[...], dirty:true}
+let extra={};           // fecha -> [platos añadidos a mano sin guardar]
+const MENU_DAYS=Object.keys(MENU).sort();
+
+function recId(f,plato){return f+"_"+slug(plato)}
+function platosDelDia(f){
+  const m=MENU[f]||[];const list=[];
+  if(m[1])list.push({plato:m[1],curso:"Segundo plato"});
+  if(m[0])list.push({plato:m[0],curso:"Primer plato"});
+  // carne/pescado primero
+  list.sort((a,b)=>(groupOf(b.plato)?1:0)-(groupOf(a.plato)?1:0));
+  const seen=new Set(list.map(x=>slug(x.plato)));
+  for(const r of regs.values())if(r.fecha===f&&!seen.has(slug(r.plato))){list.push({plato:r.plato,curso:"Otro plato"});seen.add(slug(r.plato))}
+  for(const p of (extra[f]||[]))if(!seen.has(slug(p))){list.push({plato:p,curso:"Otro plato"});seen.add(slug(p))}
+  return list;
+}
+
+// Buscar registro anterior: mismo plato, si no, plato parecido (mismo grupo)
+function anterior(plato,f){
+  const k=slug(plato), all=[...regs.values()].filter(r=>r.fecha!==f&&(r.ingredientes||[]).some(i=>num(i.cant)!==null));
+  const byDate=(a,b)=>b.fecha.localeCompare(a.fecha);
+  const pick=arr=>{const before=arr.filter(r=>r.fecha<f).sort(byDate);return before[0]||arr.sort(byDate)[0]||null};
+  const exact=pick(all.filter(r=>slug(r.plato)===k));
+  if(exact)return {r:exact,parecido:false};
+  const g=groupOf(plato);if(!g)return null;
+  const sim=pick(all.filter(r=>groupOf(r.plato)?.key===g.key));
+  return sim?{r:sim,parecido:true,grupo:g.label}:null;
+}
+
+function ticketHTML(plato){
+  const a=anterior(plato,fecha);
+  if(!a)return `<div class="ticket none">Primera vez que se anota este plato. La próxima vez que salga en el menú verás aquí un aviso con lo que se usó y lo que sobró.</div>`;
+  const r=a.r, cHoy=comDe(fecha), cAnt=comDe(r.fecha);
+  const items=(r.ingredientes||[]).filter(i=>num(i.cant)!==null).map(i=>{
+    const c=num(i.cant), s=num(i.sobra), u=esc(i.unidad||"kg");
+    let t=`<b>${esc(i.nombre||"Ingrediente")}</b>: se usaron ${fmt(c)} ${u}`;
+    if(s!==null){const cons=Math.max(c-s,0);t+=`, sobraron ${fmt(s)} ${u}`;
+      let sug=cons;let extraTxt="";
+      if(cHoy&&cAnt&&cHoy!==cAnt){sug=cons/cAnt*cHoy;extraTxt=` (ajustado a ${cHoy} comensales)`}
+      t+=`. <span class="sug">Sugerido hoy: ~${fmt(sug)} ${u}${extraTxt}</span>`;
+    } else t+=` (no se anotó lo que sobró)`;
+    return `<li>${t}</li>`}).join("");
+  const head=a.parecido
+    ? `Plato parecido (${esc(a.grupo)}): «${esc(r.plato)}», ${fdate(r.fecha)}`
+    : `La última vez: ${fdate(r.fecha)}${cAnt?` · ${cAnt} comensales`:""}`;
+  return `<div class="ticket"><strong class="t">⚠ ${head}</strong><ul>${items}</ul></div>`;
+}
+
+function estadoChip(rec){
+  if(!rec)return "";
+  const ings=(rec.ingredientes||[]).filter(i=>num(i.cant)!==null);
+  if(!ings.length)return "";
+  const conSobra=ings.every(i=>num(i.sobra)!==null);
+  return conSobra?`<span class="chip done">Completo</span>`:`<span class="chip half">Falta lo que sobró</span>`;
+}
+
+function baseIngs(plato){
+  const rec=regs.get(recId(fecha,plato));
+  if(rec&&rec.ingredientes?.length)return rec.ingredientes.map(i=>({...i}));
+  const a=anterior(plato,fecha);
+  if(a&&!a.parecido)return a.r.ingredientes.map(i=>({nombre:i.nombre,unidad:i.unidad||"kg",cant:"",sobra:"",prev:i.cant}));
+  return [{nombre:"",unidad:"kg",cant:"",sobra:""}];
+}
+
+function rowHTML(i,idx){
+  const units=UNITS.map(u=>`<option${u===(i.unidad||"kg")?" selected":""}>${u}</option>`).join("");
+  return `<div class="row" data-i="${idx}">
+    <div class="n"><span class="lbl">Ingrediente</span><input type="text" list="ingList" data-f="nombre" value="${esc(i.nombre)}" placeholder="Ej.: Polo, Merluza…" aria-label="Ingrediente"></div>
+    <div class="u"><span class="lbl">Cantidad usada</span><div class="qty"><input type="text" inputmode="decimal" data-f="cant" value="${esc(i.cant??"")}" placeholder="${i.prev!=null&&i.prev!==""?"antes "+esc(fmt(num(i.prev))):"0"}" aria-label="Cantidad usada"><select data-f="unidad" aria-label="Unidad">${units}</select></div></div>
+    <div class="s"><span class="lbl">Sobró</span><input type="text" inputmode="decimal" data-f="sobra" value="${esc(i.sobra??"")}" placeholder="al acabar" aria-label="Cantidad que sobró"></div>
+    <button class="del" data-act="delrow" aria-label="Quitar ingrediente">×</button>
+  </div>`;
+}
+
+function cardEl(p){
+  const key=slug(p.plato), rec=regs.get(recId(fecha,p.plato)), g=groupOf(p.plato);
+  const d=drafts[fecha+"|"+key];
+  const ings=d?d.ings:baseIngs(p.plato);
+  const el=document.createElement("article");
+  el.className="card"+(d?" dirty":"");el.dataset.key=key;el.dataset.plato=p.plato;
+  const collapsed=!g&&!rec&&!d&&!expanded.has(fecha+"|"+key)&&!anterior(p.plato,fecha);
+  if(collapsed){el.innerHTML=`<div class="card-head"><div style="min-width:0"><span class="course">${esc(p.curso)}</span><h2>${esc(p.plato)}</h2></div></div>
+    <span class="collapsed-note">Sin carne ni pescado. Anótalo solo si quieres llevar control.</span>
+    <button class="add" data-act="expand">+ Anotar ingredientes</button>`;return el}
+  el.innerHTML=`<div class="card-head"><div style="min-width:0"><span class="course">${esc(p.curso)}</span><h2>${esc(p.plato)}</h2></div>
+    <div class="chips">${g?`<span class="chip ${g.kind}">${g.kind==="meat"?"Carne":"Pescado"}</span>`:""}${estadoChip(rec)}</div></div>
+    ${ticketHTML(p.plato)}
+    <div class="rows"><div class="rowhead"><span>Ingrediente</span><span>Usado</span><span>Sobró</span><span></span></div>
+      ${ings.map(rowHTML).join("")}</div>
+    <button class="add" data-act="addrow">+ Añadir ingrediente</button>
+    <div class="actions"><button class="save" data-act="save"${writable?"":" disabled"}>Guardar</button>
+      ${rec?`<button class="ghost danger" data-act="askdel">Borrar</button>`:""}
+      ${d?`<button class="ghost" data-act="discard">Deshacer cambios</button>`:""}
+      <span class="msg" aria-live="polite"></span></div>`;
+  return el;
+}
+
+function readCard(el){
+  return [...el.querySelectorAll(".row")].map(r=>{const o={};r.querySelectorAll("[data-f]").forEach(x=>o[x.dataset.f]=x.value.trim());
+    const prev=r.querySelector('[data-f="cant"]').placeholder;o.prev=prev.startsWith("antes ")?prev.slice(6):"";return o});
+}
+
+function renderDia(){
+  document.getElementById("dname").textContent=fdate(fecha,true);
+  document.getElementById("dsub").textContent=(fecha===HOY?"Hoy · ":"")+"Toca para elegir otra fecha";
+  document.getElementById("datePick").value=fecha;
+  document.getElementById("goToday").hidden=(fecha===HOY)||!MENU[HOY];
+  const i=MENU_DAYS.indexOf(fecha);
+  document.getElementById("prev").disabled=!MENU_DAYS.some(d=>d<fecha);
+  document.getElementById("next").disabled=!MENU_DAYS.some(d=>d>fecha);
+  const ci=document.getElementById("comensales");if(document.activeElement!==ci)ci.value=comDe(fecha);
+  const box=document.getElementById("cards");box.innerHTML="";
+  const list=platosDelDia(fecha);
+  if(!MENU[fecha])box.insertAdjacentHTML("beforeend",`<div class="empty">Este día no hay menú de comedor (fin de semana, festivo o vacaciones). Puedes añadir un plato a mano si hizo falta.</div>`);
+  list.forEach(p=>box.appendChild(cardEl(p)));
+  box.insertAdjacentHTML("beforeend",`<div class="card"><h3>¿Se cocinó otro plato?</h3><div class="otro"><input type="text" id="otroPlato" placeholder="Nombre del plato"><button class="ghost" id="otroBtn">Añadir plato</button></div></div>`);
+  document.getElementById("otroBtn").onclick=()=>{const v=document.getElementById("otroPlato").value.trim();if(!v)return;(extra[fecha]=extra[fecha]||[]).push(v);renderDia()};
+}
+
+function refreshCleanCards(){
+  // tras cambios remotos: rehacer solo tarjetas sin cambios pendientes y sin foco
+  const box=document.getElementById("cards");
+  const keys=platosDelDia(fecha).map(p=>slug(p.plato));
+  const shown=[...box.querySelectorAll("article.card")].map(c=>c.dataset.key);
+  if(keys.join()!==shown.join()&&!Object.keys(drafts).some(k=>k.startsWith(fecha+"|"))){renderDia();return}
+  box.querySelectorAll("article.card").forEach(c=>{
+    if(drafts[fecha+"|"+c.dataset.key]||c.contains(document.activeElement))return;
+    const p=platosDelDia(fecha).find(x=>slug(x.plato)===c.dataset.key);if(p)c.replaceWith(cardEl(p));
+  });
+  const ci=document.getElementById("comensales");if(document.activeElement!==ci)ci.value=comDe(fecha);
+}
+
+function markDirty(card){const k=fecha+"|"+card.dataset.key;drafts[k]={ings:readCard(card)};
+  if(!card.classList.contains("dirty")){card.classList.add("dirty");
+    if(!card.querySelector('[data-act="discard"]'))card.querySelector(".msg").insertAdjacentHTML("beforebegin",`<button class="ghost" data-act="discard">Deshacer cambios</button>`)}}
+
+document.getElementById("cards").addEventListener("input",e=>{const c=e.target.closest("article.card");if(c&&e.target.dataset.f)markDirty(c)});
+document.getElementById("cards").addEventListener("change",e=>{const c=e.target.closest("article.card");if(c&&e.target.dataset.f)markDirty(c)});
+document.getElementById("cards").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-act]");if(!b)return;const card=b.closest("article.card");if(!card)return;
+  const plato=card.dataset.plato, k=fecha+"|"+card.dataset.key, msg=card.querySelector(".msg");
+  const act=b.dataset.act;
+  if(act==="expand"){expanded.add(k);card.replaceWith(cardEl(platosDelDia(fecha).find(p=>slug(p.plato)===card.dataset.key)));return}
+  if(act==="addrow"){const ings=readCard(card);ings.push({nombre:"",unidad:ings.at(-1)?.unidad||"kg",cant:"",sobra:""});drafts[k]={ings};
+    card.replaceWith(cardEl(platosDelDia(fecha).find(p=>slug(p.plato)===card.dataset.key)));
+    const nc=document.querySelector(`article.card[data-key="${card.dataset.key}"]`);nc.querySelectorAll('.row [data-f="nombre"]').item(ings.length-1)?.focus();return}
+  if(act==="delrow"){const idx=+b.closest(".row").dataset.i;const ings=readCard(card);ings.splice(idx,1);if(!ings.length)ings.push({nombre:"",unidad:"kg",cant:"",sobra:""});drafts[k]={ings};
+    card.replaceWith(cardEl(platosDelDia(fecha).find(p=>slug(p.plato)===card.dataset.key)));return}
+  if(act==="discard"){delete drafts[k];card.replaceWith(cardEl(platosDelDia(fecha).find(p=>slug(p.plato)===card.dataset.key)));return}
+  if(act==="askdel"){b.outerHTML=`<button class="ghost danger" data-act="del">Sí, borrar registro</button><button class="ghost" data-act="discard">No</button>`;return}
+  if(act==="del"){try{await db.doc("registros/"+recId(fecha,plato)).delete();delete drafts[k];}catch(err){msg.className="msg err";msg.textContent="No se pudo borrar. Inténtalo de nuevo."}return}
+  if(act==="save"){
+    if(!db){msg.className="msg err";msg.textContent="Sin conexión con el almacén de datos.";return}
+    const ings=readCard(card).filter(i=>i.nombre||i.cant||i.sobra).map(i=>({nombre:i.nombre,unidad:i.unidad||"kg",cant:num(i.cant),sobra:num(i.sobra)}));
+    const bad=ings.find(i=>i.cant!==null&&i.sobra!==null&&i.sobra>i.cant);
+    if(bad){msg.className="msg err";msg.textContent=`En ${bad.nombre||"un ingrediente"} sobra más de lo que se usó. Revisa los números.`;return}
+    if(ings.some(i=>!i.nombre)){msg.className="msg err";msg.textContent="Escribe el nombre de cada ingrediente.";return}
+    b.disabled=true;msg.className="msg";msg.textContent="Guardando…";
+    try{await db.doc("registros/"+recId(fecha,plato)).set({fecha,plato,ingredientes:ings,actualizado:new Date().toISOString()});
+      delete drafts[k];
+      const nc=cardEl(platosDelDia(fecha).find(p=>slug(p.plato)===card.dataset.key)||{plato,curso:"Otro plato"});
+      card.replaceWith(nc);const m=nc.querySelector(".msg");m.className="msg ok";m.textContent="Guardado ✓";
+    }catch(err){b.disabled=false;msg.className="msg err";
+      msg.textContent=err?.code==="invalid_argument"?"No tienes permiso para guardar en esta página. Pide a Oscar acceso de colaboradora.":"No se pudo guardar. Comprueba la conexión e inténtalo de nuevo."}
+  }
+});
+
+let comTimer=null;
+document.getElementById("comensales").addEventListener("input",e=>{clearTimeout(comTimer);const f=fecha,v=num(e.target.value);
+  comTimer=setTimeout(async()=>{if(!db)return;try{await db.doc("dias/"+f).set({fecha:f,comensales:v});}catch(err){}},700)});
+
+function go(f){fecha=f;renderDia();window.scrollTo({top:0})}
+document.getElementById("prev").onclick=()=>{const p=MENU_DAYS.filter(d=>d<fecha).pop();if(p)go(p)};
+document.getElementById("next").onclick=()=>{const n=MENU_DAYS.find(d=>d>fecha);if(n)go(n)};
+document.getElementById("goToday").onclick=()=>go(HOY);
+document.getElementById("datePick").addEventListener("change",e=>{if(e.target.value)go(e.target.value)});
+
+
+// Pedido semanal
+let semana=null; // lunes ISO
+function addDays(iso,n){const [y,m,d]=iso.split("-").map(Number);return isoDate(new Date(y,m-1,d+n))}
+function lunesSiguiente(){const [y,m,d]=HOY.split("-").map(Number);const dt=new Date(y,m-1,d);const wd=(dt.getDay()+6)%7;return isoDate(new Date(y,m-1,d-wd+7))}
+function toBase(q,u){u=(u||"kg").toLowerCase();if(u==="g")return [q/1000,"kg"];return [q,u]}
+function calcPedido(lunes){
+  const dias5=[0,1,2,3,4].map(i=>addDays(lunes,i));
+  const days=[], tot=new Map();
+  for(const f of dias5){
+    if(!MENU[f]){days.push({f,sin:true});continue}
+    const m=MENU[f];
+    const dishes=[];
+    for(const pl of [m[1],m[0]].filter(Boolean)){
+      const g=groupOf(pl), a=anterior(pl,f);
+      if(!g&&!a)continue;
+      if(!a){dishes.push({plato:pl,g,items:[]});continue}
+      const cHoy=comDe(f), cAnt=comDe(a.r.fecha);
+      const items=(a.r.ingredientes||[]).filter(i=>num(i.cant)!==null).map(i=>{
+        const c=num(i.cant), s=num(i.sobra);let q=s!==null?Math.max(c-s,0):c;
+        if(cHoy&&cAnt)q=q/cAnt*cHoy;
+        const [bq,bu]=toBase(q,i.unidad);
+        const k=norm(i.nombre)+"|"+bu;
+        if(!tot.has(k))tot.set(k,{nombre:i.nombre,u:bu,q:0,usos:[],est:false});
+        const t=tot.get(k);t.q+=bq;t.usos.push(fdate(f).split(",")[0]);if(a.parecido||s===null)t.est=true;
+        return {nombre:i.nombre,q:bq,u:bu,sinSobra:s===null};
+      });
+      dishes.push({plato:pl,g,a,items});
+    }
+    days.push({f,dishes,com:comDe(f)});
+  }
+  return {days,tot:[...tot.values()].sort((a,b)=>a.nombre.localeCompare(b.nombre,"es"))};
+}
+function fq(q,u){if(u==="kg"&&q<1)return fmt(Math.round(q*1000))+" g";return fmt(Math.round(q*10)/10)+" "+u}
+function renderPedido(){
+  const fin=addDays(semana,4);
+  document.getElementById("wLabel").textContent=`${fdate(semana).replace(/,.*$/,"")} ${semana.slice(8)} al ${fin.slice(8)}/${fin.slice(5,7)}`;
+  const {days,tot}=calcPedido(semana);
+  const box=document.getElementById("pedido");
+  const hayMenu=days.some(d=>!d.sin);
+  if(!hayMenu){box.innerHTML=`<div class="empty" style="margin-top:14px">Esta semana no hay menú de comedor (vacaciones o festivos).</div>`;return}
+  const sinDatos=days.flatMap(d=>(d.dishes||[]).filter(x=>!x.a).map(x=>x.plato));
+  let h=`<div class="total"><h3>Total a pedir</h3>`;
+  if(tot.length){
+    h+=`<div class="tblwrap"><table><tr><th>Ingrediente</th><th>Cantidad</th><th>Días</th></tr>${tot.map(t=>`<tr><td>${esc(t.nombre)}${t.est?' <span class="est">*</span>':""}</td><td class="q">${fq(t.q,t.u)}</td><td class="w">${esc(t.usos.join(", "))}</td></tr>`).join("")}</table></div>`;
+    if(tot.some(t=>t.est))h+=`<p class="msg">* Cantidad estimada: viene de un plato parecido o de un día en que no se anotó lo que sobró.</p>`;
+    h+=`<div class="actions" style="margin-top:8px"><button class="save" id="copiarPedido">Copiar pedido</button><span class="msg" id="copiarMsg" aria-live="polite"></span></div>`;
+  } else h+=`<p class="msg">Todavía no hay cantidades anotadas de estos platos, así que no se puede calcular el pedido. En cuanto la cocinera guarde lo usado y lo que sobró, aquí saldrán los kilos.</p>`;
+  if(sinDatos.length&&tot.length)h+=`<p class="msg">Sin datos anteriores (calcular a mano): ${esc(sinDatos.join(", "))}.</p>`;
+  h+=`</div>`;
+  for(const d of days){
+    h+=`<div class="pday"><h3>${esc(fdate(d.f,true).replace(/^./,c=>c.toUpperCase()))}</h3>`;
+    if(d.sin){h+=`<p class="msg">Sin comedor.</p></div>`;continue}
+    const m=MENU[d.f];h+=`<p class="msg">${esc(m.filter(Boolean).join(" · "))} · ${d.com} comensales</p>`;
+    if(!d.dishes.length)h+=`<p class="msg">Ningún plato con carne o pescado.</p>`;
+    for(const x of d.dishes){
+      h+=`<div class="pdish"><span class="pn">${esc(x.plato)}</span>${x.g?` <span class="chip ${x.g.kind}">${x.g.kind==="meat"?"Carne":"Pescado"}</span>`:""}`;
+      if(!x.a)h+=`<div class="nodata">Sin datos de veces anteriores. Calcular a mano.</div>`;
+      else{h+=`<div class="src">Según ${x.a.parecido?`plato parecido «${esc(x.a.r.plato)}»`:"la última vez"} (${fdate(x.a.r.fecha)})</div>`;
+        h+=`<div class="tblwrap"><table>${x.items.map(i=>`<tr><td>${esc(i.nombre)}</td><td class="q"><b>${fq(i.q,i.u)}</b>${i.sinSobra?' <span class="est">*</span>':""}</td></tr>`).join("")}</table></div>`}
+      h+=`</div>`;
+    }
+    h+=`</div>`;
+  }
+  box.innerHTML=h;
+  const cb=document.getElementById("copiarPedido");
+  if(cb)cb.onclick=async()=>{const txt=`Pedido comedor semana del ${fdate(semana)} al ${fdate(fin)}\n`+tot.map(t=>`- ${t.nombre}: ${fq(t.q,t.u)}`).join("\n");
+    const msg=document.getElementById("copiarMsg");
+    try{await navigator.clipboard.writeText(txt);msg.className="msg ok";msg.textContent="Copiado ✓"}catch(e){msg.className="msg";msg.textContent="No se pudo copiar automáticamente. Selecciona la tabla y cópiala."}};
+}
+document.getElementById("pedidoBtn").onclick=()=>{semana=lunesSiguiente();setTab("pedido")};
+document.getElementById("pedVolver").onclick=()=>setTab("dia");
+document.getElementById("wPrev").onclick=()=>{semana=addDays(semana,-7);renderPedido()};
+document.getElementById("wNext").onclick=()=>{semana=addDays(semana,7);renderPedido()};
+
+// Historial
+function renderHist(){
+  const q=norm(document.getElementById("buscar").value);
+  const groups=new Map();
+  [...regs.values()].sort((a,b)=>b.fecha.localeCompare(a.fecha)).forEach(r=>{
+    if(q&&!norm(r.plato).includes(q)&&!(r.ingredientes||[]).some(i=>norm(i.nombre).includes(q)))return;
+    const k=slug(r.plato);if(!groups.has(k))groups.set(k,{plato:r.plato,recs:[]});groups.get(k).recs.push(r)});
+  const box=document.getElementById("hist");
+  if(!groups.size){box.innerHTML=`<div class="empty" style="margin-top:12px">${regs.size?"Ningún plato coincide con la búsqueda.":"Todavía no hay nada anotado. Cuando la cocinera guarde las cantidades de un plato, aparecerán aquí agrupadas por plato."}</div>`;return}
+  box.innerHTML=[...groups.values()].map(g=>`<div class="hgroup"><h3>${esc(g.plato)}</h3>${g.recs.map(r=>{
+    const c=comDe(r.fecha);
+    return `<div class="hrec"><span class="d">${fdate(r.fecha)}</span>${c?` · ${c} comensales`:""}<div class="tblwrap"><table><tr><th>Ingrediente</th><th>Usado</th><th>Sobró</th><th>Consumido</th></tr>${(r.ingredientes||[]).map(i=>{
+      const u=esc(i.unidad||"kg"),cn=num(i.cant),s=num(i.sobra);
+      return `<tr><td>${esc(i.nombre)}</td><td>${fmt(cn)} ${cn!==null?u:""}</td><td>${fmt(s)} ${s!==null?u:""}</td><td>${cn!==null&&s!==null?fmt(cn-s)+" "+u:"—"}</td></tr>`}).join("")}</table></div></div>`}).join("")}</div>`).join("");
+}
+document.getElementById("buscar").addEventListener("input",renderHist);
+
+function setTab(t){document.getElementById("viewDia").hidden=t!=="dia";document.getElementById("viewHist").hidden=t!=="hist";document.getElementById("viewPedido").hidden=t!=="pedido";
+  document.getElementById("pedidoBtn").hidden=t==="pedido";
+  document.getElementById("tabDia").setAttribute("aria-selected",t==="dia");document.getElementById("tabHist").setAttribute("aria-selected",t==="hist");
+  if(t==="hist")renderHist();if(t==="pedido")renderPedido();window.scrollTo({top:0});
+  if(t!=="pedido")try{localStorage.setItem("tab",t)}catch(e){}}
+document.getElementById("tabDia").onclick=()=>setTab("dia");
+document.getElementById("tabHist").onclick=()=>setTab("hist");
+
+function updateDatalist(){const s=new Set();regs.forEach(r=>(r.ingredientes||[]).forEach(i=>i.nombre&&s.add(i.nombre)));
+  ["Polo","Peituga de polo","Pavo","Tenreira","Carne picada","Costelas de porco","Lomo de porco","Raxo","Merluza","Pescada","Bacallau","Salmón","Atún","Sardiñas","Calamares","Gambas","Ovos","Patacas","Arroz","Pasta"].forEach(x=>s.add(x));
+  document.getElementById("ingList").innerHTML=[...s].sort((a,b)=>a.localeCompare(b,"es")).map(x=>`<option value="${esc(x)}">`).join("")}
+
+function banner(t){const b=document.getElementById("banner");b.textContent=t;b.hidden=!t}
+
+renderDia();updateDatalist();
+try{if(localStorage.getItem("tab")==="hist")setTab("hist")}catch(e){}
+
+(async()=>{
+  db=window.claude?await window.claude.use("db"):null;
+  if(!db){writable=false;banner("No se pueden cargar ni guardar datos en esta vista. Abre la página desde Claude con tu cuenta.");renderDia();return}
+  try{const user=await window.claude.use("user");const can=user?await user.can("data.write"):null;if(can===false){writable=false;banner("Puedes consultar los datos, pero no guardar. Pide a Oscar acceso de colaboradora.");renderDia()}}catch(e){}
+  const onErr=()=>banner("Se perdió la conexión con los datos. Recarga la página.");
+  db.collection("registros").onSnapshot(s=>{regs.clear();s.docs.forEach(d=>regs.set(d.id,d.data()));updateDatalist();refreshCleanCards();if(!document.getElementById("viewHist").hidden)renderHist();if(!document.getElementById("viewPedido").hidden)renderPedido()},onErr);
+  db.collection("dias").onSnapshot(s=>{dias.clear();s.docs.forEach(d=>dias.set(d.id,d.data()));refreshCleanCards();if(!document.getElementById("viewHist").hidden)renderHist();if(!document.getElementById("viewPedido").hidden)renderPedido()},onErr);
+})();
+</script>
+
+</body></html>
