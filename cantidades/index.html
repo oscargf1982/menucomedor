@@ -511,7 +511,7 @@ document.getElementById("bkUp").onchange=async e=>{const f=e.target.files[0];if(
 
 
 // Guardado en la nube con Google Sheets (versión de GitHub). Pega aquí la URL /exec de Apps Script.
-const SHEETS_URL = "";
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzZ-lVzfcguOJ_K-c8ZV1QcLQxXl9ej-pkV0IuoHvN-08DccsaaQ9yMoB0XPEKh8pfS/exec";
 function pedirClave(msg){return new Promise(res=>{const box=document.getElementById("claveBox");box.hidden=false;
   document.getElementById("claveMsg").textContent=msg||"";const inp=document.getElementById("claveIn");inp.focus();
   document.getElementById("claveOk").onclick=()=>{const v=inp.value.trim();if(!v)return;box.hidden=true;res(v)}})}
