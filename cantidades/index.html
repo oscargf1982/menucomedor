@@ -172,6 +172,13 @@ select{padding:0 4px}
     <div id="hist"></div>
   </section>
 </div>
+<div class="wrap" id="backup" hidden style="padding-block:0 32px">
+  <div class="hgroup"><h3>Copia de seguridad</h3>
+    <p class="msg">Los datos están solo en este dispositivo. Descarga una copia de vez en cuando, o cárgala en otra tablet para pasar los datos.</p>
+    <div class="actions"><button class="ghost" id="bkDown">Descargar copia</button>
+      <label class="ghost" style="display:inline-flex;align-items:center;cursor:pointer">Cargar copia<input type="file" id="bkUp" accept=".json,application/json" hidden></label>
+      <span class="msg" id="bkMsg" aria-live="polite"></span></div></div>
+</div>
 <datalist id="ingList"></datalist>
 
 <script>
@@ -460,6 +467,32 @@ document.getElementById("pedVolver").onclick=()=>setTab("dia");
 document.getElementById("wPrev").onclick=()=>{semana=addDays(semana,-7);renderPedido()};
 document.getElementById("wNext").onclick=()=>{semana=addDays(semana,7);renderPedido()};
 
+
+// Guardado en el propio dispositivo cuando la página se abre fuera de Claude (p. ej. GitHub Pages)
+function localDB(){
+  const KEY="cantidades-cocina-v1";
+  let store;
+  try{store=JSON.parse(localStorage.getItem(KEY)||"null")||{registros:{},dias:{}};localStorage.setItem(KEY,JSON.stringify(store))}catch(e){return null}
+  const L={registros:[],dias:[]};
+  const snap=c=>({docs:Object.entries(store[c]||{}).map(([id,d])=>({id,exists:true,data:()=>d}))});
+  const emit=c=>(L[c]||[]).forEach(cb=>cb(snap(c)));
+  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){throw {code:"quota_exceeded"}}};
+  window.addEventListener("storage",e=>{if(e.key!==KEY)return;try{store=JSON.parse(e.newValue)||store}catch(_){}emit("registros");emit("dias")});
+  window.__localStore={get:()=>store,set:s=>{store={registros:s.registros||{},dias:s.dias||{}};save();emit("registros");emit("dias")}};
+  return {
+    doc(path){const [c,id]=path.split("/");return{
+      async set(d){(store[c]=store[c]||{})[id]=JSON.parse(JSON.stringify(d));save();emit(c)},
+      async delete(){if(store[c])delete store[c][id];save();emit(c)}}},
+    collection(c){return{onSnapshot(cb){(L[c]=L[c]||[]).push(cb);setTimeout(()=>cb(snap(c)),0);return()=>{}}}}
+  };
+}
+document.getElementById("bkDown").onclick=()=>{const s=window.__localStore?.get();if(!s)return;
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(s,null,1)],{type:"application/json"}));
+  a.download="cantidades-cocina-"+HOY+".json";document.body.appendChild(a);a.click();a.remove()};
+document.getElementById("bkUp").onchange=async e=>{const f=e.target.files[0];if(!f)return;const m=document.getElementById("bkMsg");
+  try{const s=JSON.parse(await f.text());if(!s.registros)throw 0;window.__localStore.set(s);m.className="msg ok";m.textContent="Copia cargada ✓"}
+  catch(_){m.className="msg err";m.textContent="Ese archivo no es una copia de esta aplicación."}e.target.value=""};
+
 // Historial
 function renderHist(){
   const q=norm(document.getElementById("buscar").value);
@@ -486,7 +519,7 @@ document.getElementById("tabDia").onclick=()=>setTab("dia");
 document.getElementById("tabHist").onclick=()=>setTab("hist");
 
 function updateDatalist(){const s=new Set();regs.forEach(r=>(r.ingredientes||[]).forEach(i=>i.nombre&&s.add(i.nombre)));
-  ["Polo","Peituga de polo","Pavo","Tenreira","Carne picada","Costelas de porco","Lomo de porco","Raxo","Merluza","Pescada","Bacallau","Salmón","Atún","Sardiñas","Calamares","Gambas","Ovos","Patacas","Arroz","Pasta"].forEach(x=>s.add(x));
+  ["Polo","Peituga de polo","Pavo","Tenreira","Carne picada","Costelas de porco","Lomo de porco","Raxo","Merluza","Pescada","Bacallau","Salmón","Atún","Sardiñas","Calamares","Gambas","Ovos","Empanada","Patacas","Arroz","Pasta"].forEach(x=>s.add(x));
   document.getElementById("ingList").innerHTML=[...s].sort((a,b)=>a.localeCompare(b,"es")).map(x=>`<option value="${esc(x)}">`).join("")}
 
 function banner(t){const b=document.getElementById("banner");b.textContent=t;b.hidden=!t}
@@ -496,8 +529,12 @@ try{if(localStorage.getItem("tab")==="hist")setTab("hist")}catch(e){}
 
 (async()=>{
   db=window.claude?await window.claude.use("db"):null;
-  if(!db){writable=false;banner("No se pueden cargar ni guardar datos en esta vista. Abre la página desde Claude con tu cuenta.");renderDia();return}
-  try{const user=await window.claude.use("user");const can=user?await user.can("data.write"):null;if(can===false){writable=false;banner("Puedes consultar los datos, pero no guardar. Pide a Oscar acceso de colaboradora.");renderDia()}}catch(e){}
+  if(!db){db=localDB();
+    if(!db){writable=false;banner("Este navegador no permite guardar datos (¿modo privado?). Ábrela en una ventana normal.");renderDia();return}
+    banner("Los datos se guardan en este dispositivo. Usa siempre la misma tablet o móvil para anotar.");
+    document.getElementById("backup").hidden=false;
+  }
+  else try{const user=await window.claude.use("user");const can=user?await user.can("data.write"):null;if(can===false){writable=false;banner("Puedes consultar los datos, pero no guardar. Pide a Oscar acceso de colaboradora.");renderDia()}}catch(e){}
   const onErr=()=>banner("Se perdió la conexión con los datos. Recarga la página.");
   db.collection("registros").onSnapshot(s=>{regs.clear();s.docs.forEach(d=>regs.set(d.id,d.data()));updateDatalist();refreshCleanCards();if(!document.getElementById("viewHist").hidden)renderHist();if(!document.getElementById("viewPedido").hidden)renderPedido()},onErr);
   db.collection("dias").onSnapshot(s=>{dias.clear();s.docs.forEach(d=>dias.set(d.id,d.data()));refreshCleanCards();if(!document.getElementById("viewHist").hidden)renderHist();if(!document.getElementById("viewPedido").hidden)renderPedido()},onErr);
