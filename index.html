@@ -1579,7 +1579,7 @@ const HC7 = {
   "sopa de fideo":{ hc100: 6,  rac7: 220, u: "ml" },
   "sopa de estrela":{ hc100: 6, rac7: 220, u: "ml" },
   "sopa":         { hc100: 4,  rac7: 220, u: "ml" },
-  "caldo":        { hc100: 2,  rac7: 220, u: "ml" },
+  "caldo":        { hc100: 8,  rac7: 220, u: "ml" }, // caldo galego con pataca e alubia
   "crema":        { hc100: 8,  rac7: 220, u: "ml" }, // leva pataca como espesante
   "menestra":     { hc100: 5,  rac7: 180, u: "g" },
   "ensalada":     { hc100: 3,  rac7: 120, u: "g" },
@@ -1630,6 +1630,7 @@ function matchHC7(nome) {
   if (n.includes('guiso')||n.includes('guisada')) return Object.assign({nome:'guiso con patacas'}, HC7['guiso']);
   if (n.includes('puré')||n.includes('pure')) return Object.assign({nome:'puré'}, HC7['puré']);
   if (n.includes('pataca')||n.includes('patata')) return Object.assign({nome:'patacas'}, HC7['pataca']);
+  if (n.includes('á galega')||n.includes('a galega')) return Object.assign({nome:'bacallau á galega (con pataca)'}, {hc100:7, rac7:200, u:'g'});
   if (n.includes('bacallau')||n.includes('bacalao')||n.includes('bacaladiñ')) return Object.assign({nome:'bacallau'}, HC7['bacallau']);
   if (n.includes('salsa verde')) return Object.assign({nome:'pataca cocida (guarnición salsa verde)'}, HC7['salsa verde']);
   if (n.includes('peixe')||n.includes('pescad')||n.includes('salmón')||n.includes('merluza')||n.includes('sardiñ')) return Object.assign({nome:'peixe'}, HC7['peixe']);
