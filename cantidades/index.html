@@ -206,7 +206,8 @@ const GROUPS=[
   ["xamon|zorza|cocido|orellas|carbonara","Porco","meat"],
   ["tenreira|carne|filete|lasana bolonesa|espaguetis bolonesa|lasana$","Carne","meat"]
 ];
-function groupOf(name){const n=norm(name);if(/lentellas|vexetal|verduras$/.test(n)&&!/carne|polo|peixe|pescado/.test(n))return null;
+function groupOf(name){const n=norm(name);
+  if(/empanad/.test(n))return {key:"Empanada",label:"Empanada",kind:/atun|peixe|pescado|bacall|sardin/.test(n)?"fish":"meat"};if(/lentellas|vexetal|verduras$/.test(n)&&!/carne|polo|peixe|pescado/.test(n))return null;
   for(const [re,label,kind] of GROUPS){if(new RegExp(re).test(n))return {key:label,label,kind}}return null}
 
 // Estado
@@ -422,6 +423,8 @@ function calcPedido(lunes){
         const c=num(i.cant), s=num(i.sobra);let q=s!==null?Math.max(c-s,0):c;
         if(cHoy&&cAnt)q=q/cAnt*cHoy;
         const [bq,bu]=toBase(q,i.unidad);
+        // Solo se suman al pedido los datos del mismo plato (o de otra empanada); un plato "parecido" queda como referencia
+        if(a.parecido&&a.grupo!=="Empanada")return {nombre:i.nombre,q:bq,u:bu,sinSobra:s===null,ref:true};
         const k=norm(i.nombre)+"|"+bu;
         if(!tot.has(k))tot.set(k,{nombre:i.nombre,u:bu,q:0,usos:[],est:false});
         const t=tot.get(k);t.q+=bq;t.usos.push(fdate(f).split(",")[0]);if(a.parecido||s===null)t.est=true;
@@ -441,7 +444,7 @@ function renderPedido(){
   const box=document.getElementById("pedido");
   const hayMenu=days.some(d=>!d.sin);
   if(!hayMenu){box.innerHTML=`<div class="empty" style="margin-top:14px">Esta semana no hay menú de comedor (vacaciones o festivos).</div>`;return}
-  const sinDatos=days.flatMap(d=>(d.dishes||[]).filter(x=>!x.a).map(x=>x.plato));
+  const sinDatos=days.flatMap(d=>(d.dishes||[]).filter(x=>!x.a||x.items.some(i=>i.ref)).map(x=>x.plato));
   let h=`<div class="total"><h3>Total a pedir</h3>`;
   if(tot.length){
     h+=`<div class="tblwrap"><table><tr><th>Ingrediente</th><th>Cantidad</th><th>Días</th></tr>${tot.map(t=>`<tr><td>${esc(t.nombre)}${t.est?' <span class="est">*</span>':""}</td><td class="q">${fq(t.q,t.u)}</td><td class="w">${esc(t.usos.join(", "))}</td></tr>`).join("")}</table></div>`;
@@ -458,6 +461,7 @@ function renderPedido(){
     for(const x of d.dishes){
       h+=`<div class="pdish"><span class="pn">${esc(x.plato)}</span>${x.g?` <span class="chip ${x.g.kind}">${x.g.kind==="meat"?"Carne":"Pescado"}</span>`:""}`;
       if(!x.a)h+=`<div class="nodata">Sin datos de veces anteriores. Calcular a mano.</div>`;
+      else if(x.items.some(i=>i.ref)){h+=`<div class="nodata">Sin datos de este plato. Calcular a mano. Como referencia, el plato parecido «${esc(x.a.r.plato)}» (${fdate(x.a.r.fecha)}) necesitó: ${x.items.map(i=>`${esc(i.nombre)} ${fq(i.q,i.u)}`).join(", ")}. No se suma al total.</div>`}
       else{h+=`<div class="src">Según ${x.a.parecido?`plato parecido «${esc(x.a.r.plato)}»`:"la última vez"} (${fdate(x.a.r.fecha)})</div>`;
         h+=`<div class="tblwrap"><table>${x.items.map(i=>`<tr><td>${esc(i.nombre)}</td><td class="q"><b>${fq(i.q,i.u)}</b>${i.sinSobra?' <span class="est">*</span>':""}</td></tr>`).join("")}</table></div>`}
       h+=`</div>`;
