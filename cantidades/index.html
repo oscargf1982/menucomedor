@@ -179,6 +179,10 @@ select{padding:0 4px}
       <label class="ghost" style="display:inline-flex;align-items:center;cursor:pointer">Cargar copia<input type="file" id="bkUp" accept=".json,application/json" hidden></label>
       <span class="msg" id="bkMsg" aria-live="polite"></span></div></div>
 </div>
+<div class="wrap" id="claveBox" hidden style="position:fixed;inset:0;background:var(--bg);z-index:10;padding-block:15vh">
+  <div class="hgroup"><h3>Clave de la cocina</h3><p class="msg">Escribe la clave para ver y guardar los datos. Solo se pide una vez en cada dispositivo.</p>
+  <div class="otro"><input type="text" id="claveIn" autocomplete="off" placeholder="Clave"><button class="save" id="claveOk" style="flex:0 0 auto">Entrar</button></div>
+  <p class="msg err" id="claveMsg"></p></div></div>
 <datalist id="ingList"></datalist>
 
 <script>
@@ -505,6 +509,43 @@ document.getElementById("bkUp").onchange=async e=>{const f=e.target.files[0];if(
   try{const s=JSON.parse(await f.text());if(!s.registros)throw 0;window.__localStore.set(s);m.className="msg ok";m.textContent="Copia cargada ✓"}
   catch(_){m.className="msg err";m.textContent="Ese archivo no es una copia de esta aplicación."}e.target.value=""};
 
+
+// Guardado en la nube con Google Sheets (versión de GitHub). Pega aquí la URL /exec de Apps Script.
+const SHEETS_URL = "";
+function pedirClave(msg){return new Promise(res=>{const box=document.getElementById("claveBox");box.hidden=false;
+  document.getElementById("claveMsg").textContent=msg||"";const inp=document.getElementById("claveIn");inp.focus();
+  document.getElementById("claveOk").onclick=()=>{const v=inp.value.trim();if(!v)return;box.hidden=true;res(v)}})}
+async function sheetsDB(url){
+  const KC="cantidades-clave";let clave=null;try{clave=localStorage.getItem(KC)}catch(e){}
+  let store={registros:{},dias:{}};const L={registros:[],dias:[]};
+  const snap=c=>({docs:Object.entries(store[c]||{}).map(([id,d])=>({id,exists:true,data:()=>d}))});
+  const emit=c=>(L[c]||[]).forEach(cb=>cb(snap(c)));
+  async function cargar(){const r=await fetch(url+"?clave="+encodeURIComponent(clave||"")+"&t="+Date.now());return r.json()}
+  for(let i=0;;i++){
+    if(!clave)clave=await pedirClave(i?"Clave incorrecta. Vuelve a intentarlo.":"");
+    let j;try{j=await cargar()}catch(e){return null}
+    if(j.ok){store={registros:j.datos.registros||{},dias:j.datos.dias||{}};break}
+    if(j.error==="clave"){clave=null;try{localStorage.removeItem(KC)}catch(e){};continue}
+    return null;
+  }
+  try{localStorage.setItem(KC,clave)}catch(e){}
+  async function enviar(body){const r=await fetch(url,{method:"POST",body:JSON.stringify({...body,clave})});const j=await r.json();if(!j.ok)throw {code:j.error==="clave"?"invalid_argument":"unavailable"}}
+  // Subir una vez lo que este dispositivo tenía guardado solo en el navegador
+  try{const loc=JSON.parse(localStorage.getItem("cantidades-cocina-v1")||"null");
+    if(loc&&!localStorage.getItem("cantidades-migrado")){for(const c of ["registros","dias"])for(const [id,d] of Object.entries(loc[c]||{}))
+      if(!store[c][id]){store[c][id]=d;await enviar({action:"set",c,id,data:d})}
+      localStorage.setItem("cantidades-migrado","1")}}catch(e){}
+  const refrescar=async()=>{try{const j=await cargar();if(j.ok){store={registros:j.datos.registros||{},dias:j.datos.dias||{}};emit("registros");emit("dias")}}catch(e){}};
+  setInterval(()=>{if(!document.hidden)refrescar()},30000);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden)refrescar()});
+  return {
+    doc(path){const [c,id]=path.split("/");return{
+      async set(d){const copia=JSON.parse(JSON.stringify(d));await enviar({action:"set",c,id,data:copia});(store[c]=store[c]||{})[id]=copia;emit(c)},
+      async delete(){await enviar({action:"delete",c,id});if(store[c])delete store[c][id];emit(c)}}},
+    collection(c){return{onSnapshot(cb){(L[c]=L[c]||[]).push(cb);setTimeout(()=>cb(snap(c)),0);return()=>{}}}}
+  };
+}
+
 // Historial
 function renderHist(){
   const q=norm(document.getElementById("buscar").value);
@@ -541,6 +582,8 @@ try{if(localStorage.getItem("tab")==="hist")setTab("hist")}catch(e){}
 
 (async()=>{
   db=window.claude?await window.claude.use("db"):null;
+  if(!db&&SHEETS_URL){banner("Conectando con la nube…");db=await sheetsDB(SHEETS_URL);
+    if(db){banner("");}else{banner("No se pudo conectar con la nube. Los datos se guardarán en este dispositivo hasta que vuelva la conexión.")}}
   if(!db){db=localDB();
     if(!db){writable=false;banner("Este navegador no permite guardar datos (¿modo privado?). Ábrela en una ventana normal.");renderDia();return}
     banner("Los datos se guardan en este dispositivo. Usa siempre la misma tablet o móvil para anotar.");
