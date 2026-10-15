@@ -536,21 +536,7 @@ const WHOLE=[
 const ALLOW_EXTRAS=[null,"rebozado_peixe","rebozado_carne","albondegas","xudias"];
 function analyze(name,course){
   const n=name.toLowerCase();
-  // Segundo prato (índice 1): proteína libre + detectar pataca/arroz no nome
-  if(course===1){
-    const it=[{food:name}];
-    if(/arroz/.test(n)) it.push({food:"arroz"});
-    if(/puré/.test(n)) it.push({food:"pure"});
-    else if(/pataca|patacas|cachelos|á galega/.test(n)){
-      let k="pataca_cocida";
-      if(/frit/.test(n)) k="pataca_frita";
-      else if(/panade/.test(n)) k="pataca_asada";
-      else if(/cocid|cachelos/.test(n)) k="pataca_cocida";
-      else if(/asad|forno/.test(n)) k="pataca_asada";
-      it.push({food:k});
-    }
-    return it;
-  }
+  if(course===2) return [{food:name}];
   let base=null;
   for(const [re,k] of WHOLE){ if(re.test(n)){base=k;break;} }
   const it=[];
