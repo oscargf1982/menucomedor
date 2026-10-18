@@ -102,6 +102,7 @@ td.num,th.num{text-align:right}
 .wk .g{font-weight:700;color:var(--carb)}
 .wk .d{font-family:var(--display);font-weight:600;min-width:90px}
 .src{font-size:.75rem;padding:1px 7px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:700;white-space:nowrap}
+.src.fd{background:var(--ok-soft);color:var(--ok)}
 .src.est{background:var(--carb-soft);color:var(--carb)}
 textarea{width:100%;min-height:150px;font:inherit;font-size:.9rem;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);padding:10px}
 footer{font-size:.82rem;color:var(--muted)}
@@ -211,6 +212,7 @@ footer{font-size:.82rem;color:var(--muted)}
       <label>Objetivo <input type="number" id="obj" min="1" max="15" step="0.5"> raciones</label>
       <label>1 ración = <input type="number" id="gr" min="5" max="20" step="1"> g HC</label>
       <label>Rebanada de pan <input type="number" id="rebanada" min="0" max="80" step="5"> g</label>
+      <label>Tabla <select id="tabla"><option value="fsnn">FSNN 3.ª edición</option><option value="fd2016">Fundación para la Diabetes 2016</option></select></label>
       <label><input type="checkbox" id="pan"> Si falta, dar más pan</label>
     </div>
     <div class="meter" id="meter"></div>
@@ -264,7 +266,7 @@ footer{font-size:.82rem;color:var(--muted)}
   </section>
 
   <p class="warnbox" id="printmsg" hidden role="status"></p>
-  <footer>Fuente: Tabla de raciones de hidratos de carbono, 3.ª edición, Fundación para la Salud (Novo Nordisk España). Medidas caseras (cucharón, pieza, rebanada): «Alimentación en Diabetes I», Escuela de Pacientes, Escuela Andaluza de Salud Pública. Menús: comedor escolar, curso 2026-2027. Los menús pueden cambiar por imprevistos del servicio.</footer>
+  <footer>Fuente: Tabla de raciones de hidratos de carbono, 3.ª edición, Fundación para la Salud (Novo Nordisk España). Tabla alternativa: Fundación para la Diabetes / Unión Diabéticos Alicante (S. Murillo, 2016). Medidas caseras (cucharón, pieza, rebanada): «Alimentación en Diabetes I», Escuela de Pacientes, Escuela Andaluza de Salud Pública. Menús: comedor escolar, curso 2026-2027. Los menús pueden cambiar por imprevistos del servicio.</footer>
 </div>
 <div id="print" aria-hidden="true"></div>
 
@@ -456,6 +458,12 @@ const BASE_FOODS={
   rebozado_peixe:{n:"Calamares / pescado rebozado",g:120,s:"FSNN",t:"hc",p:120},
   rebozado_carne:{n:"Carne o pollo rebozado / empanado",g:150,s:"FSNN",t:"hc",p:120},
   pan:{n:"Pan blanco",g:20,s:"FSNN",t:"fijo",p:20},
+  cuscus:{n:"Cuscús cocido",g:45,s:"FSNN",t:"hc",p:150},
+  quinoa:{n:"Quinoa cocida",g:48,s:"FSNN",t:"hc",p:150},
+  boniato:{n:"Boniato",g:50,s:"FSNN",t:"hc",p:150},
+  semola:{n:"Sémola de trigo cocida",g:90,s:"FSNN",t:"hc",p:200},
+  canelones:{n:"Canelones con bechamel",g:100,s:"FSNN",t:"hc",p:250},
+  gazpacho:{n:"Gazpacho",g:150,s:"FSNN",t:"hc",p:200},
   paella:{n:"Paella / arroz negro (plato)",g:62,s:"Estimado",t:"hc",p:220},
   arroz3:{n:"Arroz tres delicias (plato)",g:50,s:"Estimado",t:"hc",p:200},
   fideua:{n:"Fideuá (plato)",g:62,s:"Estimado",t:"hc",p:220},
@@ -506,11 +514,19 @@ let foodEdits=store.get("foodEdits",{});   // {key:{g,p}}
 let customFoods=store.get("customFoods",{}); // {key:{n,g,p,t,s}}
 let dayEdits=store.get("dayEdits",{});      // {fecha:{idx:{food,rac}}}
 const MAXF=2; // como mucho el doble de la ración habitual de cada plato
-let settings=Object.assign({obj:6,gr:10,masPan:false,rebanada:20,fruta:"manzana"},store.get("settings",{}));
+let settings=Object.assign({obj:6,gr:10,masPan:false,rebanada:20,fruta:"manzana",tabla:"fsnn"},store.get("settings",{}));
 
+// Tabla de la Fundación para la Diabetes (S. Murillo, nov. 2016): valores que difieren de la FSNN 3.ª ed.
+// pasta cocida 50 g (FSNN 45), patata cocida 50 g (FSNN 65), garbanzos y alubias cocidos 50 g (FSNN 55).
+// Los platos estimados que llevan esos ingredientes se reescalan en la misma proporción.
+const FD2016={
+  pasta:{g:50}, pataca_cocida:{g:50},
+  pasta_plato:{g:Math.round(62*50/45)}, pasta_lent:{g:Math.round(55*50/45)}, fideua:{g:Math.round(62*50/45)}, ens_pasta:{g:Math.round(85*50/45)},
+  legume:{g:Math.round(85*50/55)}, ens_garav:{g:Math.round(110*50/55)}
+};
 function foods(){
-  const out={};
-  for(const k in BASE_FOODS) out[k]=Object.assign({},BASE_FOODS[k],foodEdits[k]||{});
+  const out={}, alt=settings.tabla==="fd2016";
+  for(const k in BASE_FOODS) out[k]=Object.assign({},BASE_FOODS[k],alt&&FD2016[k]?Object.assign({},FD2016[k],{s:BASE_FOODS[k].s==="Estimado"?"Estimado":"FD 2016"}):{},foodEdits[k]||{});
   for(const k in customFoods) out[k]=Object.assign({},customFoods[k]);
   return out;
 }
@@ -736,7 +752,7 @@ function renderDay(){
     h+=`<div class="course"><div class="course-h"><label class="course-k" for="dish${ci}">${labels[ci]}</label><div class="pick">${stk(courseSticker(ci,c))}${ci<4?`<select class="dish" id="dish${ci}" data-dish="${ci}">${dishOptions(ci,ci===2?c.items[0].food:ci===3?String(dayEdits[current]&&dayEdits[current].pan!==undefined?dayEdits[current].pan:1):c.name)}</select>`:`<span class="course-n">${esc(c.name)}</span>`}</div></div>`;
     for(const it of c.items){
       const f=it.f; const per100=f.g?r1(1000/f.g):0;
-      const meta=f.g?`${fmt(per100)} g HC/100 g · 1 ración = ${Math.round(f.g)} g <span class="src${f.s==="Estimado"?" est":""}">${esc(f.s||"Propio")}</span>`:"Hidratos despreciables";
+      const meta=f.g?`${fmt(per100)} g HC/100 g · 1 ración = ${Math.round(f.g)} g <span class="src${f.s==="Estimado"?" est":f.s==="FD 2016"?" fd":""}">${esc(f.s||"Propio")}</span>`:"Hidratos despreciables";
       const extra=it.isComp?" · Lo que falta para llegar al objetivo.":it.isPan&&settings.masPan?" · Más lo que falte para llegar al objetivo.":"";
       h+=`<div class="item${f.t==="hc"||it.rac>0.05?" hc":""}">
         <div class="food" style="min-width:0"><b>${esc(f.n)}</b>
@@ -819,6 +835,8 @@ function bindSettings(){
   $("obj").onchange=e=>{settings.obj=Math.max(0.5,parseFloat(e.target.value)||6);store.set("settings",settings);renderDay();};
   $("gr").onchange=e=>{settings.gr=Math.max(1,parseFloat(e.target.value)||10);store.set("settings",settings);renderDay();};
   $("pan").onchange=e=>{settings.masPan=e.target.checked;store.set("settings",settings);renderDay();};
+  $("tabla").value=settings.tabla;
+  $("tabla").onchange=e=>{settings.tabla=e.target.value;store.set("settings",settings);renderDay();if(!$("v-semana").hidden)renderWeek();if(!$("v-mes").hidden)renderMonth();if(!$("v-alim").hidden)renderFoods();};
   $("rebanada").onchange=e=>{settings.rebanada=Math.max(0,parseFloat(e.target.value)||0);store.set("settings",settings);renderDay();};
 }
 
@@ -881,7 +899,7 @@ $("mnext").onclick=()=>{const d=parseKey(current);current=keyOf(new Date(d.getFu
 // ---- Imprimir / PDF ----
 function printHead(title){
   return `<header class="ph"><div><h1>Raciones de HC · Comedor</h1><p>CEIP Plurilingüe de Monforte de Lemos · curso 2026-2027</p></div>
-  <div class="pr"><b>${esc(title)}</b><br>Objetivo: ${fmt(settings.obj)} raciones (${Math.round(settings.obj*settings.gr)} g de HC)</div></header>`;
+  <div class="pr"><b>${esc(title)}</b><br>Objetivo: ${fmt(settings.obj)} raciones (${Math.round(settings.obj*settings.gr)} g de HC)<br>Tabla: ${settings.tabla==="fd2016"?"Fundación para la Diabetes 2016":"FSNN 3.ª edición"}</div></header>`;
 }
 const PRINT_FOOT=`<p class="pf">Valores orientativos calculados con la Tabla de raciones de HC (Fundación para la Salud) y medidas caseras de la Escuela de Pacientes. Cantidades de alimento ya cocinado. Validar con la familia y el equipo médico.</p>`;
 function printDay(){
@@ -924,7 +942,7 @@ function renderFoods(){
       h+=`<tr><td>${esc(f.n)}</td><td class="num">${f.g?`<input type="number" min="1" step="1" value="${Math.round(f.g)}" data-fg="${k}" style="width:76px" aria-label="Gramos por ración">`:"—"}</td>
       <td class="num">${f.g?fmt(1000/f.g):"0"}</td>
       <td class="num">${f.g&&t!=="libre"?`<input type="number" min="0" step="5" value="${f.p}" data-fp="${k}" style="width:70px" aria-label="Ración habitual"> g`:"—"}</td>
-      <td>${f.s?`<span class="src${f.s==="Estimado"?" est":""}">${esc(f.s)}</span>`:""}</td>
+      <td>${f.s?`<span class="src${f.s==="Estimado"?" est":f.s==="FD 2016"?" fd":""}">${esc(f.s)}</span>`:""}</td>
       <td>${edited?`<button class="pin" data-frest="${k}">${customFoods[k]?"Borrar":"Restaurar"}</button>`:""}</td></tr>`;
     }
   }
