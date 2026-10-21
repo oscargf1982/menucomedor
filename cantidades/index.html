@@ -606,8 +606,8 @@ try{if(localStorage.getItem("tab")==="hist")setTab("hist")}catch(e){}
       const idNovo=recId(r.fecha,nomeNovo);
       if(d.id===idNovo)continue; // xa está migrado
       try{
-        await db.collection("registros").doc(idNovo).set({...r,plato:nomeNovo});
-        await db.collection("registros").doc(d.id).delete();
+        await db.doc("registros/"+idNovo).set({...r,plato:nomeNovo});
+        await db.doc("registros/"+d.id).delete();
         console.log("Migrado:",d.id,"→",idNovo);
       }catch(e){console.warn("Erro na migración:",e)}
     }
