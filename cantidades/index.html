@@ -69,11 +69,11 @@ button,input,select{font-family:var(--body)}
 .ticket .sug{font-weight:700}
 .ticket.none{background:transparent;border-color:var(--line);color:var(--muted)}
 .rows{display:flex;flex-direction:column;gap:10px}
-.rowhead{display:grid;grid-template-columns:1fr 150px 120px 44px;gap:8px;font:700 .75rem var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-.row{display:grid;grid-template-columns:1fr 150px 120px 44px;gap:8px;align-items:center}
+.rowhead{display:grid;grid-template-columns:1fr 150px 170px 44px;gap:8px;font:700 .75rem var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.row{display:grid;grid-template-columns:1fr 150px 170px 44px;gap:8px;align-items:center}
 .qty{display:flex;gap:4px}
 .qty input{min-width:0;flex:1}
-.qty select{width:62px}
+.qty select{width:74px}
 input[type=text],input[type=number],select{height:48px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:1.05rem;padding:0 10px;width:100%;font-variant-numeric:tabular-nums}
 select{padding:0 4px}
 .lbl{display:none}
@@ -272,7 +272,7 @@ function ticketHTML(plato){
   const items=(r.ingredientes||[]).filter(i=>num(i.cant)!==null).map(i=>{
     const c=num(i.cant), s=num(i.sobra), u=esc(i.unidad||"kg");
     let t=`<b>${esc(i.nombre||"Ingrediente")}</b>: se usaron ${fmt(c)} ${u}`;
-    if(s!==null){const cons=Math.max(c-s,0);t+=`, sobraron ${fmt(s)} ${u}`;
+    if(s!==null){const cons=Math.max(c-s,0);t+=s<0?`, faltaron ${fmt(-s)} ${u}`:`, sobraron ${fmt(s)} ${u}`;
       let sug=cons;let extraTxt="";
       if(cHoy&&cAnt&&cHoy!==cAnt){sug=cons/cAnt*cHoy;extraTxt=` (ajustado a ${cHoy} comensales)`}
       t+=`. <span class="sug">Sugerido hoy: ~${fmt(sug)} ${u}${extraTxt}</span>`;
@@ -301,12 +301,13 @@ function baseIngs(plato){
   return [{nombre:"",unidad:"kg",cant:"",sobra:""}];
 }
 
+function sobraAbs(v){const n=num(v);return n===null?"":String(Math.abs(n)).replace(".",",")}
 function rowHTML(i,idx){
   const units=UNITS.map(u=>`<option${u===(i.unidad||"kg")?" selected":""}>${u}</option>`).join("");
   return `<div class="row" data-i="${idx}">
     <div class="n"><span class="lbl">Ingrediente</span><input type="text" list="ingList" data-f="nombre" value="${esc(i.nombre)}" placeholder="Ej.: Polo, Merluza…" aria-label="Ingrediente"></div>
     <div class="u"><span class="lbl">Cantidad usada</span><div class="qty"><input type="text" inputmode="decimal" data-f="cant" value="${esc(i.cant??"")}" placeholder="${i.prev!=null&&i.prev!==""?"antes "+esc(fmt(num(i.prev))):"0"}" aria-label="Cantidad usada"><select data-f="unidad" aria-label="Unidad">${units}</select></div></div>
-    <div class="s"><span class="lbl">Sobró</span><input type="text" inputmode="decimal" data-f="sobra" value="${esc(i.sobra??"")}" placeholder="al acabar" aria-label="Cantidad que sobró"></div>
+    <div class="s"><span class="lbl">Sobró / faltó</span><div class="qty"><input type="text" inputmode="decimal" data-f="sobra" value="${esc(sobraAbs(i.sobra))}" placeholder="al acabar" aria-label="Cantidad que sobró o faltó"><select data-f="tipo" aria-label="Sobró o faltó"><option value="sobro">sobró</option><option value="falto"${num(i.sobra)<0?" selected":""}>faltó</option></select></div></div>
     <button class="del" data-act="delrow" aria-label="Quitar ingrediente">×</button>
   </div>`;
 }
@@ -324,7 +325,7 @@ function cardEl(p){
   el.innerHTML=`<div class="card-head"><div style="min-width:0"><span class="course">${esc(p.curso)}</span><h2>${esc(p.plato)}</h2></div>
     <div class="chips">${g?`<span class="chip ${g.kind}">${g.kind==="meat"?"Carne":"Pescado"}</span>`:""}${estadoChip(rec)}</div></div>
     ${ticketHTML(p.plato)}
-    <div class="rows"><div class="rowhead"><span>Ingrediente</span><span>Usado</span><span>Sobró</span><span></span></div>
+    <div class="rows"><div class="rowhead"><span>Ingrediente</span><span>Usado</span><span>Sobró / faltó</span><span></span></div>
       ${ings.map(rowHTML).join("")}</div>
     <div class="actions"><button class="add" data-act="addrow">+ Añadir ingrediente</button><button class="add" data-act="addemp">+ Empanadas</button></div>
     <div class="actions"><button class="save" data-act="save"${writable?"":" disabled"}>Guardar</button>
@@ -336,7 +337,8 @@ function cardEl(p){
 
 function readCard(el){
   return [...el.querySelectorAll(".row")].map(r=>{const o={};r.querySelectorAll("[data-f]").forEach(x=>o[x.dataset.f]=x.value.trim());
-    const prev=r.querySelector('[data-f="cant"]').placeholder;o.prev=prev.startsWith("antes ")?prev.slice(6):"";return o});
+    const prev=r.querySelector('[data-f="cant"]').placeholder;o.prev=prev.startsWith("antes ")?prev.slice(6):"";
+    if(o.tipo==="falto"&&o.sobra&&!o.sobra.startsWith("-"))o.sobra="-"+o.sobra;delete o.tipo;return o});
 }
 
 function renderDia(){
@@ -443,12 +445,14 @@ function calcPedido(lunes){
         const c=num(i.cant), s=num(i.sobra);let q=s!==null?Math.max(c-s,0):c;
         if(cHoy&&cAnt)q=q/cAnt*cHoy;
         const [bq,bu]=toBase(q,i.unidad);
+        const [pc]=toBase(c,i.unidad), ps=s===null?null:toBase(s,i.unidad)[0];
+        const prevTxt=`pedido ${fq(pc,bu)}`+(ps===null?", sin anotar sobras":ps<0?`, faltó ${fq(-ps,bu)}`:ps===0?", no sobró nada":`, sobró ${fq(ps,bu)}`);
         // Solo se suman al pedido los datos del mismo plato (o de otra empanada); un plato "parecido" queda como referencia
-        if(a.parecido&&a.grupo!=="Empanada")return {nombre:i.nombre,q:bq,u:bu,sinSobra:s===null,ref:true};
+        if(a.parecido&&a.grupo!=="Empanada")return {nombre:i.nombre,q:bq,u:bu,sinSobra:s===null,ref:true,prevTxt};
         const k=norm(i.nombre)+"|"+bu;
-        if(!tot.has(k))tot.set(k,{nombre:i.nombre,u:bu,q:0,usos:[],est:false});
-        const t=tot.get(k);t.q+=bq;t.usos.push(fdate(f).split(",")[0]);if(a.parecido||s===null)t.est=true;
-        return {nombre:i.nombre,q:bq,u:bu,sinSobra:s===null};
+        if(!tot.has(k))tot.set(k,{nombre:i.nombre,u:bu,q:0,usos:[],prev:[],est:false});
+        const t=tot.get(k);t.q+=bq;t.usos.push(fdate(f).split(",")[0]);t.prev.push(`${fdate(a.r.fecha).replace(/,.*$/,"")} ${a.r.fecha.slice(8)}/${a.r.fecha.slice(5,7)}: ${prevTxt}`);if(a.parecido||s===null)t.est=true;
+        return {nombre:i.nombre,q:bq,u:bu,sinSobra:s===null,prevTxt};
       });
       dishes.push({plato:pl,g,a,items});
     }
@@ -467,7 +471,7 @@ function renderPedido(){
   const sinDatos=days.flatMap(d=>(d.dishes||[]).filter(x=>!x.a||x.items.some(i=>i.ref)).map(x=>x.plato));
   let h=`<div class="total"><h3>Total a pedir</h3>`;
   if(tot.length){
-    h+=`<div class="tblwrap"><table><tr><th>Ingrediente</th><th>Cantidad</th><th>Días</th></tr>${tot.map(t=>`<tr><td>${esc(t.nombre)}${t.est?' <span class="est">*</span>':""}</td><td class="q">${fq(t.q,t.u)}</td><td class="w">${esc(t.usos.join(", "))}</td></tr>`).join("")}</table></div>`;
+    h+=`<div class="tblwrap"><table><tr><th>Ingrediente</th><th>Pedir</th><th>Días</th><th>Vez anterior</th></tr>${tot.map(t=>`<tr><td>${esc(t.nombre)}${t.est?' <span class="est">*</span>':""}</td><td class="q">${fq(t.q,t.u)}</td><td class="w">${esc(t.usos.join(", "))}</td><td class="w">${t.prev.map(esc).join("<br>")}</td></tr>`).join("")}</table></div>`;
     if(tot.some(t=>t.est))h+=`<p class="msg">* Cantidad estimada: viene de un plato parecido o de un día en que no se anotó lo que sobró.</p>`;
     h+=`<div class="actions" style="margin-top:8px"><button class="save" id="copiarPedido">Copiar pedido</button><span class="msg" id="copiarMsg" aria-live="polite"></span></div>`;
   } else h+=`<p class="msg">Todavía no hay cantidades anotadas de estos platos, así que no se puede calcular el pedido. En cuanto la cocinera guarde lo usado y lo que sobró, aquí saldrán los kilos.</p>`;
@@ -483,7 +487,7 @@ function renderPedido(){
       if(!x.a)h+=`<div class="nodata">Sin datos de veces anteriores. Calcular a mano.</div>`;
       else if(x.items.some(i=>i.ref)){h+=`<div class="nodata">Sin datos de este plato. Calcular a mano. Como referencia, el plato parecido «${esc(x.a.r.plato)}» (${fdate(x.a.r.fecha)}) necesitó: ${x.items.map(i=>`${esc(i.nombre)} ${fq(i.q,i.u)}`).join(", ")}. No se suma al total.</div>`}
       else{h+=`<div class="src">Según ${x.a.parecido?`plato parecido «${esc(x.a.r.plato)}»`:`la última vez${slug(x.a.r.plato)!==slug(x.plato)?` («${esc(x.a.r.plato)}»)`:""}`} (${fdate(x.a.r.fecha)})</div>`;
-        h+=`<div class="tblwrap"><table>${x.items.map(i=>`<tr><td>${esc(i.nombre)}</td><td class="q"><b>${fq(i.q,i.u)}</b>${i.sinSobra?' <span class="est">*</span>':""}</td></tr>`).join("")}</table></div>`}
+        h+=`<div class="tblwrap"><table><tr><th>Ingrediente</th><th>Pedir</th><th>Vez anterior</th></tr>${x.items.map(i=>`<tr><td>${esc(i.nombre)}</td><td class="q"><b>${fq(i.q,i.u)}</b>${i.sinSobra?' <span class="est">*</span>':""}</td><td class="w">${esc(i.prevTxt)}</td></tr>`).join("")}</table></div>`}
       h+=`</div>`;
     }
     h+=`</div>`;
@@ -573,9 +577,9 @@ function renderHist(){
   if(!groups.size){box.innerHTML=`<div class="empty" style="margin-top:12px">${regs.size?"Ningún plato coincide con la búsqueda.":"Todavía no hay nada anotado. Cuando la cocinera guarde las cantidades de un plato, aparecerán aquí agrupadas por plato."}</div>`;return}
   box.innerHTML=[...groups.values()].map(g=>`<div class="hgroup"><h3>${esc(g.plato)}</h3>${g.recs.map(r=>{
     const c=comDe(r.fecha);
-    return `<div class="hrec"><span class="d">${fdate(r.fecha)}</span>${c?` · ${c} comensales`:""}<div class="tblwrap"><table><tr><th>Ingrediente</th><th>Usado</th><th>Sobró</th><th>Consumido</th></tr>${(r.ingredientes||[]).map(i=>{
+    return `<div class="hrec"><span class="d">${fdate(r.fecha)}</span>${c?` · ${c} comensales`:""}<div class="tblwrap"><table><tr><th>Ingrediente</th><th>Usado</th><th>Sobró / faltó</th><th>Consumido</th></tr>${(r.ingredientes||[]).map(i=>{
       const u=esc(i.unidad||"kg"),cn=num(i.cant),s=num(i.sobra);
-      return `<tr><td>${esc(i.nombre)}</td><td>${fmt(cn)} ${cn!==null?u:""}</td><td>${fmt(s)} ${s!==null?u:""}</td><td>${cn!==null&&s!==null?fmt(cn-s)+" "+u:"—"}</td></tr>`}).join("")}</table></div></div>`}).join("")}</div>`).join("");
+      return `<tr><td>${esc(i.nombre)}</td><td>${fmt(cn)} ${cn!==null?u:""}</td><td>${s===null?"—":s<0?"faltó "+fmt(-s)+" "+u:fmt(s)+" "+u}</td><td>${cn!==null&&s!==null?fmt(cn-s)+" "+u:"—"}</td></tr>`}).join("")}</table></div></div>`}).join("")}</div>`).join("");
 }
 document.getElementById("buscar").addEventListener("input",renderHist);
 
