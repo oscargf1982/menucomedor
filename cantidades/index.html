@@ -224,6 +224,18 @@ const expanded=new Set();        // key -> {ings:[...], dirty:true}
 let extra={};           // fecha -> [platos añadidos a mano sin guardar]
 const MENU_DAYS=Object.keys(MENU).sort();
 
+// Platos que Oscar pidió tratar como el mismo (comparten avisos y pedido)
+const UNIFICAR=[
+  [/^raxo/,"Raxo de polo"],
+  [/^(carne guisada|guiso de carne|tenreira guisada)/,"Guiso de carne con patacas e verduras"],
+  [/^(peituga de pavo|filete de pavo)/,"Peituga de pavo"],
+  [/^(peixe|pescado) en salsa/,"Peixe en salsa verde"],
+  [/^(peixe|pescado) (con )?(arroz|pataca)/,"Peixe con patacas ou arroz"],
+  [/^crema de/,"Crema de verduras"],
+  [/^revolto/,"Revolto"]
+];
+function platoKey(pl){const n=norm(pl);const m=UNIFICAR.find(([re])=>re.test(n));return slug(m?m[1]:pl)}
+
 function recId(f,plato){return f+"_"+slug(plato)}
 function platosDelDia(f){
   const m=MENU[f]||[];const list=[];
@@ -239,10 +251,10 @@ function platosDelDia(f){
 
 // Buscar registro anterior: mismo plato, si no, plato parecido (mismo grupo)
 function anterior(plato,f){
-  const k=slug(plato), all=[...regs.values()].filter(r=>r.fecha!==f&&(r.ingredientes||[]).some(i=>num(i.cant)!==null));
+  const k=platoKey(plato), all=[...regs.values()].filter(r=>r.fecha!==f&&(r.ingredientes||[]).some(i=>num(i.cant)!==null));
   const byDate=(a,b)=>b.fecha.localeCompare(a.fecha);
   const pick=arr=>{const before=arr.filter(r=>r.fecha<f).sort(byDate);return before[0]||arr.sort(byDate)[0]||null};
-  const exact=pick(all.filter(r=>slug(r.plato)===k));
+  const exact=pick(all.filter(r=>platoKey(r.plato)===k));
   if(exact)return {r:exact,parecido:false};
   const g=groupOf(plato);if(!g)return null;
   const sim=pick(all.filter(r=>groupOf(r.plato)?.key===g.key));
@@ -264,7 +276,7 @@ function ticketHTML(plato){
     return `<li>${t}</li>`}).join("");
   const head=a.parecido
     ? `Plato parecido (${esc(a.grupo)}): «${esc(r.plato)}», ${fdate(r.fecha)}`
-    : `La última vez: ${fdate(r.fecha)}${cAnt?` · ${cAnt} comensales`:""}`;
+    : `La última vez: ${fdate(r.fecha)}${slug(r.plato)!==slug(plato)?` («${esc(r.plato)}»)`:""}${cAnt?` · ${cAnt} comensales`:""}`;
   return `<div class="ticket"><strong class="t">⚠ ${head}</strong><ul>${items}</ul></div>`;
 }
 
@@ -466,7 +478,7 @@ function renderPedido(){
       h+=`<div class="pdish"><span class="pn">${esc(x.plato)}</span>${x.g?` <span class="chip ${x.g.kind}">${x.g.kind==="meat"?"Carne":"Pescado"}</span>`:""}`;
       if(!x.a)h+=`<div class="nodata">Sin datos de veces anteriores. Calcular a mano.</div>`;
       else if(x.items.some(i=>i.ref)){h+=`<div class="nodata">Sin datos de este plato. Calcular a mano. Como referencia, el plato parecido «${esc(x.a.r.plato)}» (${fdate(x.a.r.fecha)}) necesitó: ${x.items.map(i=>`${esc(i.nombre)} ${fq(i.q,i.u)}`).join(", ")}. No se suma al total.</div>`}
-      else{h+=`<div class="src">Según ${x.a.parecido?`plato parecido «${esc(x.a.r.plato)}»`:"la última vez"} (${fdate(x.a.r.fecha)})</div>`;
+      else{h+=`<div class="src">Según ${x.a.parecido?`plato parecido «${esc(x.a.r.plato)}»`:`la última vez${slug(x.a.r.plato)!==slug(x.plato)?` («${esc(x.a.r.plato)}»)`:""}`} (${fdate(x.a.r.fecha)})</div>`;
         h+=`<div class="tblwrap"><table>${x.items.map(i=>`<tr><td>${esc(i.nombre)}</td><td class="q"><b>${fq(i.q,i.u)}</b>${i.sinSobra?' <span class="est">*</span>':""}</td></tr>`).join("")}</table></div>`}
       h+=`</div>`;
     }
@@ -591,28 +603,7 @@ try{if(localStorage.getItem("tab")==="hist")setTab("hist")}catch(e){}
   }
   else try{const user=await window.claude.use("user");const can=user?await user.can("data.write"):null;if(can===false){writable=false;banner("Puedes consultar los datos, pero no guardar. Pide a Oscar acceso de colaboradora.");renderDia()}}catch(e){}
   const onErr=()=>banner("Se perdió la conexión con los datos. Recarga la página.");
-  // Migración de nomes de pratos: renomea claves antigas en Firestore
-  const MIGRACIONS_PRATOS={
-    "Raxo con patacas":"Raxo de polo",
-    "Raxo de polo con pataca":"Raxo de polo",
-    "Raxo de polo con patacas fritidas":"Raxo de polo",
-    "Raxo con ensalada":"Raxo de polo"
-  };
-  async function migrarRegistros(snap){
-    for(const d of snap.docs){
-      const r=d.data();
-      const nomeNovo=MIGRACIONS_PRATOS[r.plato];
-      if(!nomeNovo)continue;
-      const idNovo=recId(r.fecha,nomeNovo);
-      if(d.id===idNovo)continue; // xa está migrado
-      try{
-        await db.doc("registros/"+idNovo).set({...r,plato:nomeNovo});
-        await db.doc("registros/"+d.id).delete();
-        console.log("Migrado:",d.id,"→",idNovo);
-      }catch(e){console.warn("Erro na migración:",e)}
-    }
-  }
-  db.collection("registros").onSnapshot(s=>{migrarRegistros(s);regs.clear();s.docs.forEach(d=>regs.set(d.id,d.data()));updateDatalist();refreshCleanCards();if(!document.getElementById("viewHist").hidden)renderHist();if(!document.getElementById("viewPedido").hidden)renderPedido()},onErr);
+  db.collection("registros").onSnapshot(s=>{regs.clear();s.docs.forEach(d=>regs.set(d.id,d.data()));updateDatalist();refreshCleanCards();if(!document.getElementById("viewHist").hidden)renderHist();if(!document.getElementById("viewPedido").hidden)renderPedido()},onErr);
   db.collection("dias").onSnapshot(s=>{dias.clear();s.docs.forEach(d=>dias.set(d.id,d.data()));refreshCleanCards();if(!document.getElementById("viewHist").hidden)renderHist();if(!document.getElementById("viewPedido").hidden)renderPedido()},onErr);
 })();
 </script>
