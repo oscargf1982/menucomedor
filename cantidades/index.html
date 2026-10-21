@@ -591,7 +591,28 @@ try{if(localStorage.getItem("tab")==="hist")setTab("hist")}catch(e){}
   }
   else try{const user=await window.claude.use("user");const can=user?await user.can("data.write"):null;if(can===false){writable=false;banner("Puedes consultar los datos, pero no guardar. Pide a Oscar acceso de colaboradora.");renderDia()}}catch(e){}
   const onErr=()=>banner("Se perdió la conexión con los datos. Recarga la página.");
-  db.collection("registros").onSnapshot(s=>{regs.clear();s.docs.forEach(d=>regs.set(d.id,d.data()));updateDatalist();refreshCleanCards();if(!document.getElementById("viewHist").hidden)renderHist();if(!document.getElementById("viewPedido").hidden)renderPedido()},onErr);
+  // Migración de nomes de pratos: renomea claves antigas en Firestore
+  const MIGRACIONS_PRATOS={
+    "Raxo con patacas":"Raxo de polo",
+    "Raxo de polo con pataca":"Raxo de polo",
+    "Raxo de polo con patacas fritidas":"Raxo de polo",
+    "Raxo con ensalada":"Raxo de polo"
+  };
+  async function migrarRegistros(snap){
+    for(const d of snap.docs){
+      const r=d.data();
+      const nomeNovo=MIGRACIONS_PRATOS[r.plato];
+      if(!nomeNovo)continue;
+      const idNovo=recId(r.fecha,nomeNovo);
+      if(d.id===idNovo)continue; // xa está migrado
+      try{
+        await db.collection("registros").doc(idNovo).set({...r,plato:nomeNovo});
+        await db.collection("registros").doc(d.id).delete();
+        console.log("Migrado:",d.id,"→",idNovo);
+      }catch(e){console.warn("Erro na migración:",e)}
+    }
+  }
+  db.collection("registros").onSnapshot(s=>{migrarRegistros(s);regs.clear();s.docs.forEach(d=>regs.set(d.id,d.data()));updateDatalist();refreshCleanCards();if(!document.getElementById("viewHist").hidden)renderHist();if(!document.getElementById("viewPedido").hidden)renderPedido()},onErr);
   db.collection("dias").onSnapshot(s=>{dias.clear();s.docs.forEach(d=>dias.set(d.id,d.data()));refreshCleanCards();if(!document.getElementById("viewHist").hidden)renderHist();if(!document.getElementById("viewPedido").hidden)renderPedido()},onErr);
 })();
 </script>
