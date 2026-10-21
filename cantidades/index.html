@@ -237,15 +237,19 @@ const UNIFICAR=[
 function platoKey(pl){const n=norm(pl);const m=UNIFICAR.find(([re])=>re.test(n));return slug(m?m[1]:pl)}
 
 function recId(f,plato){return f+"_"+slug(plato)}
+// Registro de ese día para el plato (o para un plato unificado con él); si hay varios, el más reciente
+function recFor(f,plato){const exact=regs.get(recId(f,plato));const k=platoKey(plato);
+  const c=[...regs.entries()].filter(([id,r])=>r.fecha===f&&platoKey(r.plato)===k).sort((a,b)=>String(b[1].actualizado||"").localeCompare(String(a[1].actualizado||"")));
+  if(c.length)return {id:c[0][0],r:c[0][1]};return exact?{id:recId(f,plato),r:exact}:null}
 function platosDelDia(f){
   const m=MENU[f]||[];const list=[];
   if(m[1])list.push({plato:m[1],curso:"Segundo plato"});
   if(m[0])list.push({plato:m[0],curso:"Primer plato"});
   // carne/pescado primero
   list.sort((a,b)=>(groupOf(b.plato)?1:0)-(groupOf(a.plato)?1:0));
-  const seen=new Set(list.map(x=>slug(x.plato)));
-  for(const r of regs.values())if(r.fecha===f&&!seen.has(slug(r.plato))){list.push({plato:r.plato,curso:"Otro plato"});seen.add(slug(r.plato))}
-  for(const p of (extra[f]||[]))if(!seen.has(slug(p))){list.push({plato:p,curso:"Otro plato"});seen.add(slug(p))}
+  const seen=new Set(list.map(x=>platoKey(x.plato)));
+  for(const r of regs.values())if(r.fecha===f&&!seen.has(platoKey(r.plato))){list.push({plato:r.plato,curso:"Otro plato"});seen.add(platoKey(r.plato))}
+  for(const p of (extra[f]||[]))if(!seen.has(platoKey(p))){list.push({plato:p,curso:"Otro plato"});seen.add(platoKey(p))}
   return list;
 }
 
@@ -289,7 +293,7 @@ function estadoChip(rec){
 }
 
 function baseIngs(plato){
-  const rec=regs.get(recId(fecha,plato));
+  const rec=recFor(fecha,plato)?.r;
   if(rec&&rec.ingredientes?.length)return rec.ingredientes.map(i=>({...i}));
   const a=anterior(plato,fecha);
   if(a&&!a.parecido)return a.r.ingredientes.map(i=>({nombre:i.nombre,unidad:i.unidad||"kg",cant:"",sobra:"",prev:i.cant}));
@@ -308,7 +312,7 @@ function rowHTML(i,idx){
 }
 
 function cardEl(p){
-  const key=slug(p.plato), rec=regs.get(recId(fecha,p.plato)), g=groupOf(p.plato);
+  const key=slug(p.plato), rec=recFor(fecha,p.plato)?.r, g=groupOf(p.plato);
   const d=drafts[fecha+"|"+key];
   const ings=d?d.ings:baseIngs(p.plato);
   const el=document.createElement("article");
@@ -390,7 +394,7 @@ document.getElementById("cards").addEventListener("click",async e=>{
     card.replaceWith(cardEl(platosDelDia(fecha).find(p=>slug(p.plato)===card.dataset.key)));return}
   if(act==="discard"){delete drafts[k];card.replaceWith(cardEl(platosDelDia(fecha).find(p=>slug(p.plato)===card.dataset.key)));return}
   if(act==="askdel"){b.outerHTML=`<button class="ghost danger" data-act="del">Sí, borrar registro</button><button class="ghost" data-act="discard">No</button>`;return}
-  if(act==="del"){try{await db.doc("registros/"+recId(fecha,plato)).delete();delete drafts[k];}catch(err){msg.className="msg err";msg.textContent="No se pudo borrar. Inténtalo de nuevo."}return}
+  if(act==="del"){try{await db.doc("registros/"+(recFor(fecha,plato)?.id||recId(fecha,plato))).delete();delete drafts[k];}catch(err){msg.className="msg err";msg.textContent="No se pudo borrar. Inténtalo de nuevo."}return}
   if(act==="save"){
     if(!db){msg.className="msg err";msg.textContent="Sin conexión con el almacén de datos.";return}
     const ings=readCard(card).filter(i=>i.nombre||i.cant||i.sobra).map(i=>({nombre:i.nombre,unidad:i.unidad||"kg",cant:num(i.cant),sobra:num(i.sobra)}));
@@ -398,7 +402,7 @@ document.getElementById("cards").addEventListener("click",async e=>{
     if(bad){msg.className="msg err";msg.textContent=`En ${bad.nombre||"un ingrediente"} sobra más de lo que se usó. Revisa los números.`;return}
     if(ings.some(i=>!i.nombre)){msg.className="msg err";msg.textContent="Escribe el nombre de cada ingrediente.";return}
     b.disabled=true;msg.className="msg";msg.textContent="Guardando…";
-    try{await db.doc("registros/"+recId(fecha,plato)).set({fecha,plato,ingredientes:ings,actualizado:new Date().toISOString()});
+    try{const ex=recFor(fecha,plato);await db.doc("registros/"+(ex?.id||recId(fecha,plato))).set({fecha,plato:ex?.r.plato||plato,ingredientes:ings,actualizado:new Date().toISOString()});
       delete drafts[k];
       const nc=cardEl(platosDelDia(fecha).find(p=>slug(p.plato)===card.dataset.key)||{plato,curso:"Otro plato"});
       card.replaceWith(nc);const m=nc.querySelector(".msg");m.className="msg ok";m.textContent="Guardado ✓";
