@@ -211,7 +211,7 @@ const GROUPS=[
   ["tenreira|carne|filete|lasana bolonesa|espaguetis bolonesa|lasana$","Carne","meat"]
 ];
 function groupOf(name){const n=norm(name);
-  if(/empanad/.test(n))return {key:"Empanada",label:"Empanada",kind:/atun|peixe|pescado|bacall|sardin/.test(n)?"fish":"meat"};if(/lentellas|vexetal|verduras$/.test(n)&&!/carne|polo|peixe|pescado/.test(n))return null;
+  if(/\bempanadas?\b/.test(n))return {key:"Empanada",label:"Empanada",kind:/atun|peixe|pescado|bacall|sardin/.test(n)?"fish":"meat"};if(/lentellas|vexetal|verduras$/.test(n)&&!/carne|polo|peixe|pescado/.test(n))return null;
   for(const [re,label,kind] of GROUPS){if(new RegExp(re).test(n))return {key:label,label,kind}}return null}
 
 // Estado
@@ -297,7 +297,7 @@ function baseIngs(plato){
   if(rec&&rec.ingredientes?.length)return rec.ingredientes.map(i=>({...i}));
   const a=anterior(plato,fecha);
   if(a&&!a.parecido)return a.r.ingredientes.map(i=>({nombre:i.nombre,unidad:i.unidad||"kg",cant:"",sobra:"",prev:i.cant}));
-  if(/empanad/i.test(plato))return [{nombre:"Empanadas",unidad:"ud",cant:"",sobra:""}];
+  if(/\bempanadas?\b/.test(norm(plato)))return [{nombre:"Empanadas",unidad:"ud",cant:"",sobra:""}];
   return [{nombre:"",unidad:"kg",cant:"",sobra:""}];
 }
 
@@ -376,7 +376,7 @@ function markDirty(card){const k=fecha+"|"+card.dataset.key;drafts[k]={ings:read
     if(!card.querySelector('[data-act="discard"]'))card.querySelector(".msg").insertAdjacentHTML("beforebegin",`<button class="ghost" data-act="discard">Deshacer cambios</button>`)}}
 
 document.getElementById("cards").addEventListener("input",e=>{const c=e.target.closest("article.card");if(!c||!e.target.dataset.f)return;
-  if(e.target.dataset.f==="nombre"&&/^empanad/i.test(norm(e.target.value))){const sel=e.target.closest(".row").querySelector('[data-f="unidad"]');if(sel)sel.value="ud"}
+  if(e.target.dataset.f==="nombre"&&/^empanadas?\b/.test(norm(e.target.value))){const sel=e.target.closest(".row").querySelector('[data-f="unidad"]');if(sel)sel.value="ud"}
   markDirty(c)});
 document.getElementById("cards").addEventListener("change",e=>{const c=e.target.closest("article.card");if(c&&e.target.dataset.f)markDirty(c)});
 document.getElementById("cards").addEventListener("click",async e=>{
@@ -384,7 +384,7 @@ document.getElementById("cards").addEventListener("click",async e=>{
   const plato=card.dataset.plato, k=fecha+"|"+card.dataset.key, msg=card.querySelector(".msg");
   const act=b.dataset.act;
   if(act==="expand"){expanded.add(k);card.replaceWith(cardEl(platosDelDia(fecha).find(p=>slug(p.plato)===card.dataset.key)));return}
-  if(act==="addemp"){const ex=[...card.querySelectorAll('.row [data-f="nombre"]')].find(x=>/^empanad/i.test(norm(x.value)));
+  if(act==="addemp"){const ex=[...card.querySelectorAll('.row [data-f="nombre"]')].find(x=>/^empanadas?\b/.test(norm(x.value)));
     if(ex){ex.closest(".row").querySelector('[data-f="cant"]').focus();return}
     let ings=readCard(card).filter(i=>i.nombre||i.cant||i.sobra);ings.push({nombre:"Empanadas",unidad:"ud",cant:"",sobra:""});drafts[k]={ings};
     card.replaceWith(cardEl(platosDelDia(fecha).find(p=>slug(p.plato)===card.dataset.key)));
