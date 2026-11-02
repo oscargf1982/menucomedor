@@ -568,6 +568,8 @@ function analyze(name,course){
       else if(/asad|forno/.test(n)) k="pataca_asada";
       it.push({food:k});
     }
+    // Platos que por receta llevan patata aunque el menú no lo diga
+    else if(!/arroz/.test(n) && /salsa verde|guiso|guisad|estofad|caldeirad/.test(n)) it.push({food:"pataca_cocida"});
     if(course===1 && /ensalada|leituga/.test(n)) it.push({food:"ensalada",p:80});
     if(course===1 && base===null && /guarnición|menestra|verdura|vexetais|calabacín|cabaciña/.test(n)) it.push({food:"verdura",guar:/guarnición/.test(n)});
   }
