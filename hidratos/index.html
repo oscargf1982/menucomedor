@@ -189,6 +189,7 @@ footer{font-size:.82rem;color:var(--muted)}
     <div>
       <h1>Raciones de HC · Comedor</h1>
       <p class="sub">CEIP Plurilingüe de Monforte de Lemos · curso 2026-2027</p>
+      <p class="sub" id="syncmsg" role="status"></p>
     </div>
     <nav class="tabs" role="tablist">
       <button role="tab" id="t-dia" aria-selected="true" data-tab="dia">Día</button>
@@ -272,22 +273,22 @@ footer{font-size:.82rem;color:var(--muted)}
 
 <script>
 const MENUS={
-"2026-09-09":"Crema de cabaciña|Polo asado con guarnición|F",
+"2026-09-09":"Crema de cabaciña|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|F",
 "2026-09-10":"Menestra de verduras|Peixe en salsa de verduras con arroz|F",
 "2026-09-11":"Sardiñas con tomate|Fideuá vexetal|I",
-"2026-09-14":"Lentellas vexetais|Peituga de polo á prancha|F",
+"2026-09-14":"Revolto de champiñóns|Costelas asadas con patacas|F",
 "2026-09-15":"Ensalada Mixta|Macarróns con carne de tenreira|F",
-"2026-09-16":"Ovos recheos|Guiso de pescado con patacas|F",
-"2026-09-17":"Revolto de champiñóns|Costelas asadas con patacas|F",
+"2026-09-16":"Lentellas vexetais|Peituga de polo con ensalada|F",
+"2026-09-17":"Revolto de champiñóns|Salmón ao forno con verduras asadas|F",
 "2026-09-18":"Ensalada Caprese|Filete con guarnición de verduras|I",
 "2026-09-21":"Sopa de estrelas|Peixe ao forno con ensalada|F",
 "2026-09-22":"Crema de cenoria|Paella|F",
 "2026-09-23":"Ensalada César|Carne guisada con patacas|F",
 "2026-09-24":"Ensalada de garavanzos|Peixe en salsa verde|F",
 "2026-09-25":"Potaxe de fabas|Filete de pavo/leituga|I",
-"2026-09-28":"Crema de verduras|Guiso de tenreira con patacas|F",
+"2026-09-28":"Crema de cabaza|Empanada de atún|F",
 "2026-09-29":"Xudías con atún|Lasaña de espinacas e carne|F",
-"2026-09-30":"Crema de cabaza|Empanada de atún|F",
+"2026-09-30":"Crema de verduras|Tenreira guisada|F",
 "2026-10-01":"Chícharos con pavo|Peixe á pranxa con tomate|F",
 "2026-10-02":"Crema de cabaciña|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|I",
 "2026-10-05":"Ensalada de garavanzos|Macarróns con carne picada|F",
@@ -298,16 +299,16 @@ const MENUS={
 "2026-10-13":"Sopa de fideos e vexetais|Peituga de polo á prancha con leituga|F",
 "2026-10-14":"Ensalada de tomate e espárragos|Espaguetis con salmón desmenuzado|F",
 "2026-10-15":"Lentellas vexetais|Empanada de zorza|F",
-"2026-10-16":"Caldo galego|Bacallau á galega|I",
+"2026-10-16":"Caldo Galego|Bacallau á galega|I",
 "2026-10-19":"Ensalada mixta|Guiso de carne con verduras e patacas|F",
 "2026-10-20":"Crema de verduras|Paella|F",
-"2026-10-21":"Menestra de verduras|Raxo con patacas|F",
-"2026-10-22":"Ensalada de arroz|Muslito de polo con guarnición de verduras|F",
+"2026-10-21":"Menestra de verduras|Raxo de polo|F",
+"2026-10-22":"Ensalada de arroz|Muslito de polo con guarnición de verduras|A",
 "2026-10-23":"Ensaladilla|Peixe en salsa de calabacín con pataca cocida|I",
-"2026-10-26":"Crema de porros|Filetes empanados con patacas|F",
+"2026-10-26":"Crema de porros|Filetes empanados con arroz|F",
 "2026-10-27":"Sopa|Merluza ao forno con ensalada|F",
 "2026-10-28":"Ensalada mixta|Lasaña de carne|F",
-"2026-10-29":"Crema de cabaciña|Polo asado con leituga|F",
+"2026-10-29":"Crema de cabaciña|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|F",
 "2026-10-30":"Revolto de champiñóns|Peixe á prancha con arroz|I",
 "2026-11-02":"Crema de verduras|Peituga de polo con arroz|F",
 "2026-11-03":"Sopa|Merluza en salsa verde con pataca cocida|F",
@@ -329,26 +330,26 @@ const MENUS={
 "2026-11-25":"Revolto de seta ao allo|Paella de peixe|F",
 "2026-11-26":"Ensalada mixta|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|I",
 "2026-11-27":"Sopa|Peixe con ensalada|I",
-"2026-11-30":"Crema de porro|Macarróns / carne e tomate natural|F",
-"2026-12-01":"Sopa de estrelas|Bacallau en salsa|F",
-"2026-12-02":"Menestra de verduras|Polo ao forno / patacas|F",
-"2026-12-03":"Arroz 3 delicias|Pescado á prancha con ensalada|F",
-"2026-12-04":"Crema de xudías|Fideuá|I",
-"2026-12-09":"Crema de cenoria|Filete con ensalada|F",
-"2026-12-10":"Chícharos salteados / pavo|Paella|F",
-"2026-12-11":"Lentellas vexetais|Lomo en salsa de champiñóns|I",
-"2026-12-14":"Potaxe de fabas|Salmón / guarnición|F",
-"2026-12-15":"Lentellas vexetais|Polo crocante con patacas|F",
-"2026-12-16":"Ensalada de sardiñas|Tortilla de pataca e calabacín|F",
-"2026-12-17":"Revolto de champiñóns|Pescado en salsa|F",
-"2026-12-18":"Potaxe de garavanzos|Carne asada con guarnición|I",
-"2026-12-21":"Menú especial de Nadal|Prato especial navideño|F",
-"2027-01-08":"Crema de verduras|Macarróns con carne|I",
+"2026-11-30":"Crema de porro|Peitugas de polo con arroz|F",
+"2026-12-01":"Sopa|Merluza rebozada ao forno con ensalada|F",
+"2026-12-02":"Chícharos salteados / pavo|Paella|F",
+"2026-12-03":"Ensalada mixta|Raxo de polo con patacas fritidas|F",
+"2026-12-04":"Potaxe de garavanzos|Pescada en salsa verde|I",
+"2026-12-09":"Ensalada mixta|Guiso de carne con patacas e verduras|F",
+"2026-12-10":"Crema de cenoria|Lasaña de carne|I",
+"2026-12-11":"Xudías con patacas e ovo|Bacaladiños con ensalada|I",
+"2026-12-14":"Crema de porro|Macarróns con carne picada|F",
+"2026-12-15":"Ensalada mixta|Bacallau á galega|F",
+"2026-12-16":"Ensalada de arroz|Tortilla de pataca con ensalada|F",
+"2026-12-17":"Lentellas vexetais|Empanada de zorza|F",
+"2026-12-18":"Crema de verduras|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|F",
+"2026-12-21":"🎄 Croquetas e nuggets de polo|🎄 Pizza de tomate, atún e aceitunas|F",
+"2027-01-08":"Crema de xudías|Macarróns con carne|I",
 "2027-01-11":"Sopa de estrelas|Peixe con patacas|F",
 "2027-01-12":"Lentellas vexetais|Guiso de carne|F",
 "2027-01-13":"Sardiñas con tomate|Lasaña|F",
 "2027-01-14":"Crema de cenoria|Merluza con patacas|F",
-"2027-01-15":"Sopa|Polo asado con ensalada|I",
+"2027-01-15":"Sopa|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|I",
 "2027-01-18":"Salteado de xudías con pavo|Calamares con patacas|F",
 "2027-01-19":"Sopa|Polo crocante|F",
 "2027-01-20":"Crema de cabaciña|Peixe con arroz|F",
@@ -357,15 +358,15 @@ const MENUS={
 "2027-01-25":"Crema de brécol|Peixe en salsa / pataca|F",
 "2027-01-26":"Revolto de champiñóns|Espaguetes con atún|F",
 "2027-01-27":"Sopa|Filete con menestra|F",
-"2027-01-28":"Ensalada mixta|Polo asado con patacas|F",
-"2027-01-29":"Crema de porros e pataca|Paella|I",
+"2027-01-28":"Ensalada mixta|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|F",
+"2027-01-29":"Crema de xudías|Paella|I",
 "2027-02-01":"Potaxe de garavanzos|Carne asada con guarnición|F",
 "2027-02-02":"Lentellas vexetais|Tallaríns á carbonara|F",
 "2027-02-03":"Crema de brécol|Salmón con guarnición|F",
 "2027-02-04":"Revolto de champiñóns|Costelas con patacas e verduras asadas|F",
 "2027-02-05":"Menestra de verduras|Pasta con tacos de pescado|I",
 "2027-02-11":"Ensalada mixta|Carne asada con pataca fritida|F",
-"2027-02-12":"Crema de calabacín|Raxo de polo con patacas fritidas|I",
+"2027-02-12":"Crema de xudías|Raxo de polo|I",
 "2027-02-15":"Ovos recheos|Pescado en salsa con patacas|F",
 "2027-02-16":"Caldo de grelos|Empanada de carne|F",
 "2027-02-17":"Ensalada mixta|Macarróns con polo e salsa de cabaciña|F",
@@ -373,27 +374,43 @@ const MENUS={
 "2027-02-19":"Xudías salteadas / allo|Peituga de pavo con patacas|I",
 "2027-02-22":"Revolto de setas ao allo|Pescado / pataca cocida|F",
 "2027-02-23":"Lentellas vexetais|Ovos á prancha e arroz con tomate triturado|F",
-"2027-02-24":"Crema de cenoria|Polo asado con guarnición|F",
+"2027-02-24":"Crema de cenoria|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|F",
 "2027-02-25":"Sardiñas con tomate|Lasaña de verduras|F",
 "2027-02-26":"Menestra de verduras|Peixe con pataca fritida|I",
+"2027-03-01":"Crema de verduras|Pescado ao forno con ensalada|F",
+"2027-03-02":"Lentellas vexetais|Macarróns con carne picada|F",
+"2027-03-03":"Ensalada mixta|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|F",
+"2027-03-04":"Crema de brécol|Empanada de zorza|I",
+"2027-03-05":"Potaxe de garavanzos|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|F",
+"2027-03-08":"Ensalada mixta|Costelas con verduras|F",
+"2027-03-09":"Crema de cenoria|Peixe á prancha con puré de pataca|F",
+"2027-03-10":"Ensalada de garavanzos|Guiso de carne con patacas|F",
+"2027-03-11":"Sopa|Empanada de atún|F",
+"2027-03-12":"Xudías con allada|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|I",
+"2027-03-15":"Crema de cabaza|Macarróns con carne picada|F",
+"2027-03-16":"Lentellas vexetais|Paella|F",
+"2027-03-17":"Ensalada mixta|Guiso de carne con patacas|F",
+"2027-03-18":"Crema de cabaciña|Peixe en salsa verde con pataca|F",
+"2027-03-19":"Chícharos con pavo|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|I",
+"2027-03-29":"Ensalada mixta|Pescado ao forno con ensalada|F",
 "2027-03-30":"Menestra de verduras|Carne guisada / patacas|F",
 "2027-03-31":"Sopa|Ovos fritidos con arroz|F",
 "2027-04-01":"Crema de espárragos|Pescado á prancha con ensalada|F",
-"2027-04-02":"Ensalada mixta|Polo asado con salteado de verduras|I",
+"2027-04-02":"Ensalada mixta|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|I",
 "2027-04-05":"Potaxe de garavanzos|Pescado ao forno / ensalada|F",
 "2027-04-06":"Lentellas vexetais|Macarróns con carne|F",
 "2027-04-07":"Ensalada de pasta|Costela asada con ensalada de leituga e tomate|F",
 "2027-04-08":"Crema de cabaza|Guiso de pescado|F",
-"2027-04-09":"Ensalada mixta|Polo asado con patacas|I",
+"2027-04-09":"Ensalada mixta|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|I",
 "2027-04-12":"Crema de espárragos|Lasaña vexetal|F",
 "2027-04-13":"Fabada vexetal|Pasta con tacos de pescado|F",
 "2027-04-14":"Crema de verduras|Ovos á prancha con arroz e tomate triturado|F",
 "2027-04-15":"Lentellas vexetais|Pescado en salsa verde|F",
 "2027-04-16":"Sopa|Guiso de carne con patacas e vexetais|I",
-"2027-04-19":"Potaxe de garavanzos e verduras|Pescado ao forno con patacas|F",
+"2027-04-19":"Potaxe de garbanzos e verduras|Pescado ao forno con patacas|F",
 "2027-04-20":"Crema de verduras|Filete de peituga de polo con ensalada|F",
 "2027-04-21":"Ensalada mixta|Paella|F",
-"2027-04-22":"Crema de cabaza|Bacaladiños con patacas|F",
+"2027-04-22":"Crema de calabaza|Bacaladiños con patacas|F",
 "2027-04-23":"Ensalada de garbanzos|Pasta con pescado en taquiños|I",
 "2027-04-26":"Crema de verduras|Pescado con pataca panadeira|F",
 "2027-04-27":"Ensalada de pasta|Lomo con ensalada|F",
@@ -401,9 +418,9 @@ const MENUS={
 "2027-04-29":"Arroz 3 delicias|Peituga de pavo con ensalada|F",
 "2027-04-30":"Potaxe de garvanzos|Espaguetis Boloñesa|I",
 "2027-05-03":"Ensalada Mixta|Peixe con pataca cocida|F",
-"2027-05-04":"Crema de cabaza|Polo asado con ensalada|F",
+"2027-05-04":"Crema de cabaza|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|F",
 "2027-05-05":"Ensalada de garavanzos|Pasta integral con salmón en taquiños|F",
-"2027-05-06":"Ensalada de pasta|Raxo con ensalada|F",
+"2027-05-06":"Ensalada de pasta|Raxo de polo|F",
 "2027-05-07":"Revolto de espinacas e gambas|Paella|I",
 "2027-05-10":"Ensalada mixta|Filete de tenreira con patacas|F",
 "2027-05-11":"Lentellas vexetais|Pescado en salsa verde con patacas cocidas|F",
@@ -414,7 +431,7 @@ const MENUS={
 "2027-05-18":"Crema de chícharos|Merluza con pataca panadera|F",
 "2027-05-19":"Ensalada de tomate con queixo fresco e aceitunas|Macarróns con carne|F",
 "2027-05-20":"Potaxe de garavanzos|Peixe en salsa verde con pataca cocida|F",
-"2027-05-21":"Sopa|Polo asado con ensalada|I",
+"2027-05-21":"Sopa|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|I",
 "2027-05-24":"Ensalada mixta|Bacaladiños con patacas|F",
 "2027-05-25":"Ensaladilla|Paella|F",
 "2027-05-26":"Ensalada de tomate, queixo fresco e aceitunas negras|Tortilla de patacas con tomate|F",
@@ -428,16 +445,16 @@ const MENUS={
 "2027-06-07":"Ensalada de pasta|Costelas asadas / ensalada|F",
 "2027-06-08":"Ensalada de garavanzos|Paella de pescado|F",
 "2027-06-09":"Lentellas vexetais|Ovos fritos con arroz e tomate triturado|F",
-"2027-06-10":"Sopa de pescado|Polo asado con ensalada|F",
+"2027-06-10":"Sopa de pescado|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|F",
 "2027-06-11":"Xudías con allada|Bacaladiños con patacas fritas|I",
 "2027-06-14":"Ensalada mixta|Albóndegas con arroz|F",
 "2027-06-15":"Croquetas de polo|Pizza|F",
 "2027-06-16":"Menestra de verduras|Carne guisada / patacas|F",
 "2027-06-17":"Sopa|Ovos fritidos con arroz|F",
 "2027-06-18":"Crema de espárragos|Pescado á prancha con ensalada|I",
-"2027-06-21":"Ensalada mixta|Polo asado con salteado de verduras|F"
+"2027-06-21":"Ensalada mixta|Polo asado con salteado de cebola, allo, calabacín, cenoria e champiñóns|F"
 };
-const FESTIVOS=[["2026-09-01","2026-09-08","Vacaciones de verano"],["2026-10-12","2026-10-12","Día de la Hispanidad"],["2026-12-07","2026-12-07","Día do Ensino"],["2026-12-08","2026-12-08","Inmaculada Concepción"],["2026-12-22","2027-01-07","Navidad"],["2027-02-08","2027-02-10","Entroido"],["2027-03-01","2027-03-29","Semana Santa"],["2027-06-22","2027-06-30","Fin de curso"]];
+const FESTIVOS=[["2026-09-01","2026-09-08","Verán"],["2026-10-12","2026-10-12","Día da Hispanidade"],["2026-12-07","2026-12-07","Día do Ensino"],["2026-12-08","2026-12-08","Inmaculada Concepción"],["2026-12-22","2027-01-07","Nadal"],["2027-02-08","2027-02-10","Entroido"],["2027-03-22","2027-03-26","Semana Santa"],["2027-06-22","2027-06-30","Fin de curso"]];
 
 
 // g = gramos de alimento cocinado que contienen 1 ración de HC (10 g). null = no valorable / sin HC.
@@ -489,6 +506,7 @@ const BASE_FOODS={
   proteina:{n:"Carne / pescado / huevo (sin rebozar)",g:null,s:"FSNN",t:"libre",p:0},
   descon:{n:"Sin datos: elige un alimento",g:null,s:"",t:"libre",p:0},
   iogur:{n:"Yogur natural",g:200,s:"FSNN",t:"postre",p:125},
+  arroz_leite:{n:"Arroz con leche",g:50,s:"Estimado",t:"postre",p:125},
   manzana:{n:"Manzana",g:100,s:"FSNN",t:"postre",p:150},
   pera:{n:"Pera",g:100,s:"FSNN",t:"postre",p:150},
   naranja:{n:"Naranja",g:100,s:"FSNN",t:"postre",p:150},
@@ -594,7 +612,7 @@ const ALL_DISHES=[0,1].map(c=>{
 function dishesFor(fecha){
   const e=dayEdits[fecha]||{}; if(e.dish) return e.dish;
   const raw=MENUS[fecha]; if(!raw) return [ALL_DISHES[0][0],ALL_DISHES[1][0],settings.fruta];
-  const p=raw.split("|"); return [p[0],p[1],p[2]==="I"?"iogur":(settings.fruta||"manzana")];
+  const p=raw.split("|"); return [p[0],p[1],p[2]==="I"?"iogur":p[2]==="A"?"arroz_leite":(settings.fruta||"manzana")];
 }
 // Stickers: un dibujo identificativo para cada plato (el primer patrón que coincide gana)
 const STICKERS=[
@@ -613,13 +631,14 @@ const STICKERS=[
   [/albóndegas/,"🧆"],[/polo|pavo|peituga|muslito/,"🍗"],
   [/carne|filete|costela|lomo|raxo|tenreira|guiso/,"🥩"]
 ];
-const FOOD_STICKERS={iogur:"🥛",manzana:"🍎",pera:"🍐",naranja:"🍊",mandarina:"🍊",platano:"🍌",kiwi:"🥝",uva:"🍇",melon:"🍈",sandia:"🍉",melocoton:"🍑",nectarina:"🍑",ciruela:"🍒",pina:"🍍",fresas:"🍓",caqui:"🍊",pan:"🍞",arroz:"🍚",pataca_cocida:"🥔",pataca_asada:"🥔",pataca_frita:"🍟",pure:"🥔"};
+const FOOD_STICKERS={iogur:"🥛",arroz_leite:"🍮",manzana:"🍎",pera:"🍐",naranja:"🍊",mandarina:"🍊",platano:"🍌",kiwi:"🥝",uva:"🍇",melon:"🍈",sandia:"🍉",melocoton:"🍑",nectarina:"🍑",ciruela:"🍒",pina:"🍍",fresas:"🍓",caqui:"🍊",pan:"🍞",arroz:"🍚",pataca_cocida:"🥔",pataca_asada:"🥔",pataca_frita:"🍟",pure:"🥔"};
 function sticker(name){const n=String(name).toLowerCase();for(const [re,e] of STICKERS) if(re.test(n)) return e;return "🍽️";}
 function courseSticker(ci,c){return ci===2||ci===4?(FOOD_STICKERS[c.items[0].food]||"🍽️"):ci===3?"🍞":sticker(c.name);}
 const stk=(e,cls)=>`<span class="sticker${cls?" "+cls:""}" aria-hidden="true">${e}</span>`;
+function postreName(k,F){return k==="iogur"?"Iogur natural":k==="arroz_leite"?"Arroz con leite":"Froita: "+(F[k]?esc(F[k].n):esc(k));}
 function dishOptions(c,sel){
   if(c===3) return PAN_OPTS.map((n,i)=>`<option value="${i}"${String(i)===sel?" selected":""}>${i?"🍞 ":""}${n}</option>`).join("");
-  if(c===2){const F=foods();let h="";for(const k in F) if(F[k].t==="postre") h+=`<option value="${k}"${k===sel?" selected":""}>${FOOD_STICKERS[k]||""} ${k==="iogur"?"Iogur natural":"Froita: "+esc(F[k].n)}</option>`;return h;}
+  if(c===2){const F=foods();let h="";for(const k in F) if(F[k].t==="postre") h+=`<option value="${k}"${k===sel?" selected":""}>${FOOD_STICKERS[k]||""} ${postreName(k,F)}</option>`;return h;}
   const list=ALL_DISHES[c].slice(); if(!list.some(x=>x.toLowerCase()===sel.toLowerCase())) list.unshift(sel);
   return list.map(n=>`<option value="${esc(n)}"${n.toLowerCase()===sel.toLowerCase()?" selected":""}>${sticker(n)} ${esc(n)}</option>`).join("");
 }
@@ -656,7 +675,7 @@ function plan(fecha){
   const raw=MENUS[fecha]; if(!raw&&!edits.dish) return null;
   const F=foods();
   const names=dishesFor(fecha);
-  const courses=names.slice(0,3).map((name,c)=>({name:c===2?(name==="iogur"?"Iogur natural":"Froita: "+(F[name]?F[name].n:name)):name,items:analyze(name,c)}));
+  const courses=names.slice(0,3).map((name,c)=>({name:c===2?postreName(name,F):name,items:analyze(name,c)}));
   const nPan=edits.pan===undefined?1:edits.pan;
   courses.push({name:PAN_OPTS[nPan],items:[{food:"pan",isPan:true,p:settings.rebanada*nPan}]});
   if(edits.comp) courses.push({name:"Para completar",items:[{food:edits.comp,isComp:true}]});
@@ -979,9 +998,46 @@ document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
   if(b.dataset.tab==="dia")renderDay(); if(b.dataset.tab==="semana")renderWeek(); if(b.dataset.tab==="mes")renderMonth(); if(b.dataset.tab==="alim")renderFoods();
 });
 
+// ---- Menú en directo desde la web del comedor (../index.html) ----
+// Si la calculadora está en GitHub Pages junto al menú, lee sus datos (const MESES) al abrirse.
+// Si no se puede, usa el menú guardado en esta página.
+const MES_NUM={setembro:9,outubro:10,novembro:11,decembro:12,xaneiro:1,febreiro:2,marzo:3,abril:4,maio:5,xuno:6};
+function menusFromWeb(html){
+  const a=html.indexOf("const MESES="); if(a<0) return null;
+  const b=html.indexOf("\nconst ",a+12); if(b<0) return null;
+  const M=JSON.parse(html.slice(a+12,b).trim().replace(/;$/,""));
+  const menus={},fest=[];
+  for(const m in M){const mo=MES_NUM[m]; if(!mo) continue; const y=mo>=9?2026:2027;
+    for(const d of M[m].semanas.flat()){ if(!d) continue;
+      const k=y+"-"+pad(mo)+"-"+pad(d.n);
+      if(d.nonlec||!d.p){fest.push([k,k,(d.label||"Sin comedor").replace(/^[^A-Za-zÁÉÍÓÚáéíóúÑñ]+/,"")]);continue;}
+      const g=t=>(d.p.find(x=>x.k===t)||{}).t||"";
+      const pos=g("pos").toLowerCase();
+      if(!g("pri")||!g("seg")) continue;
+      menus[k]=g("pri")+"|"+g("seg")+"|"+(/iogur|yogur/.test(pos)?"I":/arroz con lei/.test(pos)?"A":"F");
+    }}
+  return Object.keys(menus).length>50?{menus,fest}:null;
+}
+async function syncMenu(){
+  if(!/^https?:/.test(location.protocol)) return;
+  try{
+    const r=await fetch("../index.html",{cache:"no-store"}); if(!r.ok) return;
+    const res=menusFromWeb(await r.text()); if(!res) return;
+    for(const k in MENUS) delete MENUS[k]; Object.assign(MENUS,res.menus);
+    FESTIVOS.length=0; FESTIVOS.push(...res.fest);
+    KEYS.splice(0,KEYS.length,...Object.keys(MENUS).sort());
+    [0,1].forEach(c=>{const seen=new Map();for(const k in MENUS){const n=MENUS[k].split("|")[c];if(!seen.has(n.toLowerCase()))seen.set(n.toLowerCase(),n);}
+      ALL_DISHES[c].splice(0,ALL_DISHES[c].length,...[...seen.values()].sort((a,b)=>a.localeCompare(b,"es")));});
+    current=nearest(keyOf(new Date()));
+    const tab=document.querySelector('.tabs button[aria-selected="true"]'); if(tab) tab.click(); else renderDay();
+    $("syncmsg").textContent="Menú leído de la web del comedor ✓";
+  }catch(e){}
+}
+
 bindSettings();
 current=nearest(keyOf(new Date()));
 renderDay();
+syncMenu();
 </script>
 
 </body>
