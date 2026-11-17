@@ -1,0 +1,18 @@
+{
+  "name": "Raciones HC Comedor",
+  "short_name": "Raciones HC",
+  "description": "Raciones de hidratos de carbono del menú del comedor escolar",
+  "lang": "es",
+  "id": "/menucomedor/hidratos/",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#16805c",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
